@@ -8,7 +8,7 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>lsapi</name>
+	<name>lsapi-parent</name>
 	<url>https://github.com/TypeFox/ls-api</url>
 
 	<modules>
