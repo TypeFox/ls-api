@@ -7,7 +7,9 @@
  *******************************************************************************/
 package io.typefox.lsapi.annotations
 
+import io.typefox.lsapi.annotations.LanguageServerProcessor.AccessorsUtil
 import java.util.LinkedList
+import java.util.List
 import java.util.Set
 import org.eclipse.xtend.lib.annotations.AccessorsProcessor
 import org.eclipse.xtend.lib.annotations.EqualsHashCodeProcessor
@@ -20,6 +22,7 @@ import org.eclipse.xtend.lib.macro.declaration.FieldDeclaration
 import org.eclipse.xtend.lib.macro.declaration.InterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MethodDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableClassDeclaration
+import org.eclipse.xtend.lib.macro.declaration.MutableFieldDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableInterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.Type
 import org.eclipse.xtend.lib.macro.declaration.Visibility
@@ -76,17 +79,19 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 			impl.addField(method.fieldName) [ field |
 				field.type = method.returnType
 				field.docComment = method.docComment
-				val accessorsUtil = new AccessorsProcessor.Util(context) {
+				val accessorsUtil = new AccessorsUtil(context) {
 					override getGetterName(FieldDeclaration it) {
 						method.simpleName
 					}
 				}
+				
 				accessorsUtil.addGetter(field, Visibility.PUBLIC)
 				impl.findDeclaredMethod(method.simpleName) => [
 					addAnnotation(newAnnotationReference(Override))
 					if (method.findAnnotation(Deprecated.findTypeGlobally) !== null)
 						addAnnotation(newAnnotationReference(Deprecated))
 				]
+				
 				if (!field.type.inferred)
 					accessorsUtil.addSetter(field, Visibility.PUBLIC)
 			]
@@ -109,6 +114,36 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
 	private def getImplName(Type t) {
 		t.qualifiedName + 'Impl'
+	}
+	
+	private static class AccessorsUtil extends AccessorsProcessor.Util {
+		extension TransformationContext context
+
+		new(TransformationContext context) {
+			super(context)
+			this.context = context
+		}
+		
+		override addSetter(MutableFieldDeclaration field, Visibility visibility) {
+			field.validateSetter
+			field.declaringType.addMethod(field.setterName) [
+				primarySourceElement = field.primarySourceElement
+				returnType = primitiveVoid
+				val typeParam = field.type.actualTypeArguments.head
+				if (field.type.type == List.findTypeGlobally && typeParam !== null && !typeParam.isWildCard) {
+					val param = addParameter(
+						field.simpleName,
+						List.newTypeReference(typeParam.newWildcardTypeReference)
+					)
+					body = '''this.«field.simpleName» = («field.type») «param.simpleName»;'''
+				} else {
+					val param = addParameter(field.simpleName, field.type)
+					body = '''this.«field.simpleName» = «param.simpleName»;'''
+				}
+				static = field.static
+				it.visibility = visibility
+			]
+		}
 	}
 
 }
