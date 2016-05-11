@@ -37,9 +37,14 @@
 					<artifactId>maven-clean-plugin</artifactId>
 					<version>2.5</version>
 					<configuration>
+						<id>default-clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
 						<filesets>
 							<fileset>
-								<directory>${basedir}/src/main/xtend-gen</directory>
+								<directory>${xtend-output-src}</directory>
 								<includes>
 									<include>**/*</include>
 								</includes>
