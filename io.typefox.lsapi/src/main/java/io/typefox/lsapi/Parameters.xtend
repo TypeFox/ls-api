@@ -126,7 +126,7 @@ interface CodeActionContext {
 	/**
 	 * An array of diagnostics.
 	 */
-	def List<Diagnostic> getDiagnostics()
+	def List<? extends Diagnostic> getDiagnostics()
 	
 }
 
@@ -263,7 +263,7 @@ interface DidChangeTextDocumentParams {
 	/**
 	 * The actual content changes.
 	 */
-	def List<TextDocumentContentChangeEvent> getContentChanges()
+	def List<? extends TextDocumentContentChangeEvent> getContentChanges()
 	
 }
 
@@ -301,7 +301,7 @@ interface DidChangeWatchedFilesParams {
 	/**
 	 * The actual file events.
 	 */
-	def List<FileEvent> getChanges()
+	def List<? extends FileEvent> getChanges()
 	
 }
 
@@ -411,7 +411,7 @@ interface PublishDiagnosticsParams {
 	/**
 	 * An array of diagnostic information items.
 	 */
-	def List<Diagnostic> getDiagnostics()
+	def List<? extends Diagnostic> getDiagnostics()
 	
 }
 
@@ -467,7 +467,7 @@ interface ShowMessageRequestParams extends MessageParams {
 	/**
 	 * The message action items to present.
 	 */
-	def List<MessageActionItem> getActions()
+	def List<? extends MessageActionItem> getActions()
 	
 }
 

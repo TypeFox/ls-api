@@ -117,7 +117,7 @@ interface Hover {
 	/**
 	 * The hover's content
 	 */
-	def List<MarkedString> getContents()
+	def List<? extends MarkedString> getContents()
 	
 	/**
 	 * An optional range
@@ -163,7 +163,7 @@ interface SignatureHelp {
 	/**
 	 * One or more signatures.
 	 */
-	def List<SignatureInformation> getSignatures()
+	def List<? extends SignatureInformation> getSignatures()
 	
 	/**
 	 * The active signature.
@@ -197,7 +197,7 @@ interface SignatureInformation {
 	/**
 	 * The parameters of this signature.
 	 */
-	def List<ParameterInformation> getParameters()
+	def List<? extends ParameterInformation> getParameters()
 	
 }
 
@@ -363,7 +363,7 @@ interface WorkspaceEdit {
 	/**
 	 * Holds changes to existing resources.
 	 */
-	def Map<String, TextEdit> getChanges()
+	def Map<String, ? extends TextEdit> getChanges()
 	
 }
 
