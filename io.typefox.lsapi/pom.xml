@@ -15,16 +15,7 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>src/main/java</directory>
-				<includes>
-					<include>**/*.java</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>${xtend-output-src}</directory>
-				<includes>
-					<include>**/*.java</include>
-				</includes>
+				<directory>${basedir}/src/main/resources</directory>
 			</resource>
 		</resources>
 		<plugins>
