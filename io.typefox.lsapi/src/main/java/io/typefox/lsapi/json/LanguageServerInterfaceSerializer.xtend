@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi
+package io.typefox.lsapi.json
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
