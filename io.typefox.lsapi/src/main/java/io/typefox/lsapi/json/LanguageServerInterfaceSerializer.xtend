@@ -30,7 +30,7 @@ class LanguageServerInterfaceSerializer<T> implements JsonSerializer<T> {
 	protected def getSortedMethods(Class<?> clazz) {
 		if (clazz.isInterface) {
 			clazz.methods.filter[
-				parameterCount == 0 && returnType != Void.TYPE
+				parameterTypes.length == 0 && returnType != Void.TYPE
 			].sortWith[
 				val result = Integer.compare(
 					$1.declaringClass.getInterfaceDistance(clazz),
@@ -44,7 +44,7 @@ class LanguageServerInterfaceSerializer<T> implements JsonSerializer<T> {
 		} else {
 			clazz.methods.filter[
 				declaringClass !== Object && !#{'toString', 'hashCode', 'clone'}.contains(name)
-					&& parameterCount == 0 && returnType != Void.TYPE
+					&& parameterTypes.length == 0 && returnType != Void.TYPE
 			].sortWith[
 				val result = Integer.compare(
 					$1.declaringClass.getClassDistance(clazz),

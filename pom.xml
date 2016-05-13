@@ -25,8 +25,8 @@
 		<file.encoding>${project.encoding}</file.encoding>
 		<project.build.sourceEncoding>${project.encoding}</project.build.sourceEncoding>
 		<encodingArgs>-Dfile.encoding=${file.encoding}</encodingArgs>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.6</maven.compiler.source>
+		<maven.compiler.target>1.6</maven.compiler.target>
 		<xtend-output-src>${basedir}/src/main/xtend-gen</xtend-output-src>
 	</properties>
 	<build>

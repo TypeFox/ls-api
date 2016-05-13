@@ -43,10 +43,9 @@ class LanguageServerInterfaceDeserializer<T> implements JsonDeserializer<T> {
 	
 	protected def setValue(T receiver, Method setter, JsonElement value,
 			JsonDeserializationContext context) {
-		val firstParam = setter.parameters.get(0)
-		val paramType = firstParam.type
+		val paramType = setter.genericParameterTypes.get(0)
 		if (value instanceof JsonArray && paramType == List) {
-			var listContentType = (firstParam.parameterizedType as ParameterizedType).actualTypeArguments.get(0)
+			var listContentType = (paramType as ParameterizedType).actualTypeArguments.get(0)
 			if (listContentType instanceof WildcardType)
 				listContentType = listContentType.upperBounds.get(0)
 			val jsonArray = value as JsonArray
@@ -56,7 +55,7 @@ class LanguageServerInterfaceDeserializer<T> implements JsonDeserializer<T> {
 			}
 			setter.invoke(receiver, list)
 		} else if (value instanceof JsonObject && paramType == Map) {
-			val mapContentType = (firstParam.parameterizedType as ParameterizedType).actualTypeArguments.get(1)
+			val mapContentType = (paramType as ParameterizedType).actualTypeArguments.get(1)
 			val jsonObject = value as JsonObject
 			val map = Maps.newHashMapWithExpectedSize(jsonObject.entrySet.size)
 			for (mapEntry : jsonObject.entrySet) {
