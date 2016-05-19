@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: lsapi-annotations
-Bundle-SymbolicName: io.typefox.lsapi.annotations
-Bundle-Version: 0.1.0.qualifier
-Export-Package: io.typefox.lsapi.annotations,
- io.typefox.lsapi.annotations.chedto
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
