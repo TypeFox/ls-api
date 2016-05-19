@@ -87,11 +87,12 @@
 			<artifactId>io.typefox.lsapi.annotations</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.xtext</groupId>
-			<artifactId>org.eclipse.xtext.xbase.lib</artifactId>
-			<version>${xtext-version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>org.eclipse.xtext.xbase.lib</artifactId>
+					<groupId>org.eclipse.xtext</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
