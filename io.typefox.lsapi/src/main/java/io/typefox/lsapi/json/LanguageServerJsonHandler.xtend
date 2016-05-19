@@ -9,113 +9,103 @@ package io.typefox.lsapi.json
 
 import com.google.common.collect.Lists
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import io.typefox.lsapi.CodeActionParams
-import io.typefox.lsapi.CodeLens
-import io.typefox.lsapi.CodeLensParams
-import io.typefox.lsapi.Command
-import io.typefox.lsapi.CompletionItem
-import io.typefox.lsapi.DidChangeConfigurationParams
-import io.typefox.lsapi.DidChangeTextDocumentParams
-import io.typefox.lsapi.DidChangeWatchedFilesParams
-import io.typefox.lsapi.DidCloseTextDocumentParams
-import io.typefox.lsapi.DidOpenTextDocumentParams
-import io.typefox.lsapi.DidSaveTextDocumentParams
-import io.typefox.lsapi.DocumentFormattingParams
-import io.typefox.lsapi.DocumentHighlight
-import io.typefox.lsapi.DocumentOnTypeFormattingParams
-import io.typefox.lsapi.DocumentRangeFormattingParams
-import io.typefox.lsapi.DocumentSymbolParams
-import io.typefox.lsapi.Hover
-import io.typefox.lsapi.InitializeParams
-import io.typefox.lsapi.InitializeResult
-import io.typefox.lsapi.Location
+import io.typefox.lsapi.CodeActionParamsImpl
+import io.typefox.lsapi.CodeLensImpl
+import io.typefox.lsapi.CodeLensParamsImpl
+import io.typefox.lsapi.CommandImpl
+import io.typefox.lsapi.CompletionItemImpl
+import io.typefox.lsapi.DidChangeConfigurationParamsImpl
+import io.typefox.lsapi.DidChangeTextDocumentParamsImpl
+import io.typefox.lsapi.DidChangeWatchedFilesParamsImpl
+import io.typefox.lsapi.DidCloseTextDocumentParamsImpl
+import io.typefox.lsapi.DidOpenTextDocumentParamsImpl
+import io.typefox.lsapi.DidSaveTextDocumentParamsImpl
+import io.typefox.lsapi.DocumentFormattingParamsImpl
+import io.typefox.lsapi.DocumentHighlightImpl
+import io.typefox.lsapi.DocumentOnTypeFormattingParamsImpl
+import io.typefox.lsapi.DocumentRangeFormattingParamsImpl
+import io.typefox.lsapi.DocumentSymbolParamsImpl
+import io.typefox.lsapi.HoverImpl
+import io.typefox.lsapi.InitializeParamsImpl
+import io.typefox.lsapi.InitializeResultImpl
+import io.typefox.lsapi.LocationImpl
 import io.typefox.lsapi.Message
 import io.typefox.lsapi.MessageImpl
-import io.typefox.lsapi.MessageParams
-import io.typefox.lsapi.NotificationMessage
+import io.typefox.lsapi.MessageParamsImpl
 import io.typefox.lsapi.NotificationMessageImpl
-import io.typefox.lsapi.PublishDiagnosticsParams
-import io.typefox.lsapi.ReferenceParams
-import io.typefox.lsapi.RenameParams
-import io.typefox.lsapi.RequestMessage
+import io.typefox.lsapi.PublishDiagnosticsParamsImpl
+import io.typefox.lsapi.ReferenceParamsImpl
+import io.typefox.lsapi.RenameParamsImpl
 import io.typefox.lsapi.RequestMessageImpl
-import io.typefox.lsapi.ResponseError
-import io.typefox.lsapi.ResponseMessage
+import io.typefox.lsapi.ResponseErrorImpl
 import io.typefox.lsapi.ResponseMessageImpl
-import io.typefox.lsapi.ShowMessageRequestParams
-import io.typefox.lsapi.SignatureHelp
-import io.typefox.lsapi.SymbolInformation
-import io.typefox.lsapi.TextDocumentPositionParams
-import io.typefox.lsapi.TextEdit
-import io.typefox.lsapi.WorkspaceEdit
-import io.typefox.lsapi.WorkspaceSymbolParams
-import io.typefox.lsapi.annotations.LanguageServerAPI
+import io.typefox.lsapi.ShowMessageRequestParamsImpl
+import io.typefox.lsapi.SignatureHelpImpl
+import io.typefox.lsapi.SymbolInformationImpl
+import io.typefox.lsapi.TextDocumentPositionParamsImpl
+import io.typefox.lsapi.TextEditImpl
+import io.typefox.lsapi.WorkspaceEditImpl
+import io.typefox.lsapi.WorkspaceSymbolParamsImpl
 import java.io.Reader
 import java.io.StringReader
 import java.io.StringWriter
 import java.io.Writer
-import java.lang.reflect.Method
-import java.lang.reflect.ParameterizedType
-import java.util.List
-import java.util.Map
-import java.util.Set
 import org.eclipse.xtend.lib.annotations.Accessors
 
 class LanguageServerJsonHandler {
 	
 	static val REQUEST_PARAM_TYPES = #{
-		'initialize' -> InitializeParams,
-		'textDocument/completion' -> TextDocumentPositionParams,
-		'completionItem/resolve' -> CompletionItem,
-		'textDocument/hover' -> TextDocumentPositionParams,
-		'textDocument/signatureHelp' -> TextDocumentPositionParams,
-		'textDocument/definition' -> TextDocumentPositionParams,
-		'textDocument/documentHighlight' -> TextDocumentPositionParams,
-		'textDocument/references' -> ReferenceParams,
-		'textDocument/documentSymbol' -> DocumentSymbolParams,
-		'workspace/symbol' -> WorkspaceSymbolParams,
-		'textDocument/codeAction' -> CodeActionParams,
-		'textDocument/codeLens' -> CodeLensParams,
-		'codeLens/resolve' -> CodeLens,
-		'textDocument/formatting' -> DocumentFormattingParams,
-		'textDocument/rangeFormatting' -> DocumentRangeFormattingParams,
-		'textDocument/onTypeFormatting' -> DocumentOnTypeFormattingParams,
-		'textDocument/rename' -> RenameParams,
-		'window/showMessageRequest' -> ShowMessageRequestParams
+		'initialize' -> InitializeParamsImpl,
+		'textDocument/completion' -> TextDocumentPositionParamsImpl,
+		'completionItem/resolve' -> CompletionItemImpl,
+		'textDocument/hover' -> TextDocumentPositionParamsImpl,
+		'textDocument/signatureHelp' -> TextDocumentPositionParamsImpl,
+		'textDocument/definition' -> TextDocumentPositionParamsImpl,
+		'textDocument/documentHighlight' -> TextDocumentPositionParamsImpl,
+		'textDocument/references' -> ReferenceParamsImpl,
+		'textDocument/documentSymbol' -> DocumentSymbolParamsImpl,
+		'workspace/symbol' -> WorkspaceSymbolParamsImpl,
+		'textDocument/codeAction' -> CodeActionParamsImpl,
+		'textDocument/codeLens' -> CodeLensParamsImpl,
+		'codeLens/resolve' -> CodeLensImpl,
+		'textDocument/formatting' -> DocumentFormattingParamsImpl,
+		'textDocument/rangeFormatting' -> DocumentRangeFormattingParamsImpl,
+		'textDocument/onTypeFormatting' -> DocumentOnTypeFormattingParamsImpl,
+		'textDocument/rename' -> RenameParamsImpl,
+		'window/showMessageRequest' -> ShowMessageRequestParamsImpl
 	}
 	
 	static val RESPONSE_RESULT_TYPES = #{
-		'initialize' -> InitializeResult,
-		'textDocument/completion' -> CompletionItem,
-		'completionItem/resolve' -> CompletionItem,
-		'textDocument/hover' -> Hover,
-		'textDocument/signatureHelp' -> SignatureHelp,
-		'textDocument/definition' -> Location,
-		'textDocument/documentHighlight' -> DocumentHighlight,
-		'textDocument/documentSymbol' -> SymbolInformation,
-		'workspace/symbol' -> SymbolInformation,
-		'textDocument/codeAction' -> Command,
-		'textDocument/codeLens' -> CodeLens,
-		'codeLens/resolve' -> CodeLens,
-		'textDocument/formatting' -> TextEdit,
-		'textDocument/rangeFormatting' -> TextEdit,
-		'textDocument/onTypeFormatting' -> TextEdit,
-		'textDocument/rename' -> WorkspaceEdit
+		'initialize' -> InitializeResultImpl,
+		'textDocument/completion' -> CompletionItemImpl,
+		'completionItem/resolve' -> CompletionItemImpl,
+		'textDocument/hover' -> HoverImpl,
+		'textDocument/signatureHelp' -> SignatureHelpImpl,
+		'textDocument/definition' -> LocationImpl,
+		'textDocument/documentHighlight' -> DocumentHighlightImpl,
+		'textDocument/documentSymbol' -> SymbolInformationImpl,
+		'workspace/symbol' -> SymbolInformationImpl,
+		'textDocument/codeAction' -> CommandImpl,
+		'textDocument/codeLens' -> CodeLensImpl,
+		'codeLens/resolve' -> CodeLensImpl,
+		'textDocument/formatting' -> TextEditImpl,
+		'textDocument/rangeFormatting' -> TextEditImpl,
+		'textDocument/onTypeFormatting' -> TextEditImpl,
+		'textDocument/rename' -> WorkspaceEditImpl
 	}
 	
 	static val NOTIFICATION_PARAM_TYPES = #{
-		'textDocument/publishDiagnostics' -> PublishDiagnosticsParams,
-		'workspace/didChangeConfiguration' -> DidChangeConfigurationParams,
-		'textDocument/didOpen' -> DidOpenTextDocumentParams,
-		'textDocument/didChange' -> DidChangeTextDocumentParams,
-		'textDocument/didClose' -> DidCloseTextDocumentParams,
-		'workspace/didChangeWatchedFiles' -> DidChangeWatchedFilesParams,
-		'textDocument/didSave' -> DidSaveTextDocumentParams,
-		'window/showMessage' -> MessageParams,
-		'window/logMessage' -> MessageParams
+		'textDocument/publishDiagnostics' -> PublishDiagnosticsParamsImpl,
+		'workspace/didChangeConfiguration' -> DidChangeConfigurationParamsImpl,
+		'textDocument/didOpen' -> DidOpenTextDocumentParamsImpl,
+		'textDocument/didChange' -> DidChangeTextDocumentParamsImpl,
+		'textDocument/didClose' -> DidCloseTextDocumentParamsImpl,
+		'workspace/didChangeWatchedFiles' -> DidChangeWatchedFilesParamsImpl,
+		'textDocument/didSave' -> DidSaveTextDocumentParamsImpl,
+		'window/showMessage' -> MessageParamsImpl,
+		'window/logMessage' -> MessageParamsImpl
 	}
 	
 	val jsonParser = new JsonParser
@@ -125,74 +115,35 @@ class LanguageServerJsonHandler {
 	var (String)=>String responseMethodResolver
 	
 	new() {
-		val gsonBuilder = new GsonBuilder()
-		val visitedTypes = newHashSet
-		gsonBuilder.registerAdapters(RequestMessage, visitedTypes)
-		for (type : REQUEST_PARAM_TYPES.values) {
-			gsonBuilder.registerAdapters(type, visitedTypes)
-		}
-		gsonBuilder.registerAdapters(ResponseMessage, visitedTypes)
-		for (type : RESPONSE_RESULT_TYPES.values) {
-			gsonBuilder.registerAdapters(type, visitedTypes)
-		}
-		gsonBuilder.registerAdapters(NotificationMessage, visitedTypes)
-		for (type : NOTIFICATION_PARAM_TYPES.values) {
-			gsonBuilder.registerAdapters(type, visitedTypes)
-		}
-		gson = gsonBuilder.create()
+		this.gson = new Gson
 	}
 	
-	private def <T> void registerAdapters(GsonBuilder gsonBuilder, Class<T> type,
-			Set<Class<?>> visitedTypes) {
-		if (visitedTypes.add(type)) {
-			val deserializer = new LanguageServerInterfaceDeserializer<T>
-			val serializer = new LanguageServerInterfaceSerializer<T>
-			gsonBuilder.registerTypeAdapter(type, deserializer)
-			gsonBuilder.registerTypeAdapter(type, serializer)
-			val implClass = Class.forName(type.name + 'Impl') as Class<? extends T>
-			gsonBuilder.registerTypeAdapter(implClass, deserializer)
-			gsonBuilder.registerTypeAdapter(implClass, serializer)
-			
-			for (method : type.methods) {
-				val returnType = method.type
-				if (returnType?.getAnnotation(LanguageServerAPI) !== null)
-					registerAdapters(gsonBuilder, returnType, visitedTypes)
-			}
-		}
+	new(Gson gson) {
+		this.gson = gson
 	}
 	
-	private def getType(Method method) {
-		val genericType = method.genericReturnType
-		if (genericType instanceof Class<?>)
-			return genericType
-		else if (genericType instanceof ParameterizedType) {
-			if (method.returnType == List)
-				return genericType.actualTypeArguments.get(0) as Class<?>
-			else if (method.returnType == Map)
-				return genericType.actualTypeArguments.get(1) as Class<?>
-		}
-	}
-	
-	def Message parseMessage(String input) {
-		parseMessage(new StringReader(input))
+	def Message parseMessage(CharSequence input) {
+		parseMessage(new StringReader(input.toString))
 	}
 	
 	def Message parseMessage(Reader input) {
 		val json = jsonParser.parse(input).asJsonObject
 		val idElement = json.get('id')
 		val methodElement = json.get('method')
-		val resultElement = json.get('result')
+		var MessageImpl result
 		if (idElement !== null && methodElement !== null)
-			parseRequest(json, idElement.asString, methodElement.asString)
-		else if (idElement !== null && resultElement !== null)
-			parseResponse(json, idElement.asString)
+			result = parseRequest(json, idElement.asString, methodElement.asString)
+		else if (idElement !== null && (json.get('result') !== null || json.get('error') !== null))
+			result = parseResponse(json, idElement.asString)
 		else if (methodElement !== null)
-			parseNotification(json, methodElement.asString)
+			result = parseNotification(json, methodElement.asString)
 		else
-			new MessageImpl
+			result = new MessageImpl
+		result.jsonrpc = json.get('jsonrpc')?.asString
+		return result
 	}
 	
-	protected def RequestMessage parseRequest(JsonObject json, String requestId, String method) {
+	protected def RequestMessageImpl parseRequest(JsonObject json, String requestId, String method) {
 		try {
 			val result = new RequestMessageImpl
 			result.id = requestId
@@ -209,9 +160,9 @@ class LanguageServerJsonHandler {
 		}
 	}
 	
-	protected def ResponseMessage parseResponse(JsonObject json, String responseId) {
+	protected def ResponseMessageImpl parseResponse(JsonObject json, String responseId) {
 		if (responseMethodResolver === null)
-			throw new IllegalStateException("No response id resolver has been configured.")
+			throw new IllegalStateException("No response method resolver has been configured.")
 		try {
 			val result = new ResponseMessageImpl
 			result.id = responseId
@@ -236,7 +187,7 @@ class LanguageServerJsonHandler {
 			} else {
 				val error = json.get('error')?.asJsonObject
 				if (error !== null)
-					result.error = gson.fromJson(error, ResponseError)
+					result.error = gson.fromJson(error, ResponseErrorImpl)
 			}
 			return result
 		} catch (Exception e) {
@@ -244,7 +195,7 @@ class LanguageServerJsonHandler {
 		}
 	}
 	
-	protected def NotificationMessage parseNotification(JsonObject json, String method) {
+	protected def NotificationMessageImpl parseNotification(JsonObject json, String method) {
 		try {
 			val result = new NotificationMessageImpl
 			result.method = method
@@ -267,16 +218,7 @@ class LanguageServerJsonHandler {
 	}
 	
 	def void serialize(Message message, Writer output) {
-		switch message {
-			RequestMessage:
-				gson.toJson(message, RequestMessage, output)
-			ResponseMessage:
-				gson.toJson(message, ResponseMessage, output)
-			NotificationMessage:
-				gson.toJson(message, NotificationMessage, output)
-			default:
-				gson.toJson(message, output)
-		}
+		gson.toJson(message, output)
 	}
 	
 }

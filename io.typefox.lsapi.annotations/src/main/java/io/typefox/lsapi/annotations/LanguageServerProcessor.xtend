@@ -7,9 +7,9 @@
  *******************************************************************************/
 package io.typefox.lsapi.annotations
 
-import io.typefox.lsapi.annotations.LanguageServerProcessor.AccessorsUtil
 import java.util.LinkedList
 import java.util.List
+import java.util.Map
 import java.util.Set
 import org.eclipse.xtend.lib.annotations.AccessorsProcessor
 import org.eclipse.xtend.lib.annotations.EqualsHashCodeProcessor
@@ -22,7 +22,6 @@ import org.eclipse.xtend.lib.macro.declaration.FieldDeclaration
 import org.eclipse.xtend.lib.macro.declaration.InterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MethodDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableClassDeclaration
-import org.eclipse.xtend.lib.macro.declaration.MutableFieldDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableInterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.Type
 import org.eclipse.xtend.lib.macro.declaration.Visibility
@@ -71,15 +70,15 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	}
 	
 	private def void generateMembers(MutableClassDeclaration impl, InterfaceDeclaration source,
-			Set<InterfaceDeclaration> visitedInterfaces,  extension TransformationContext context) {
+			Set<InterfaceDeclaration> visitedInterfaces, extension TransformationContext context) {
 		source.declaredMethods.filter[
 			!static && thePrimaryGeneratedJavaElement && parameters.empty && returnType !== null
 				&& (returnType.inferred || !returnType.isVoid)
 		].forEach[ method |
 			impl.addField(method.fieldName) [ field |
-				field.type = method.returnType
+				field.type = method.getFieldType(context)
 				field.docComment = method.docComment
-				val accessorsUtil = new AccessorsUtil(context) {
+				val accessorsUtil = new AccessorsProcessor.Util(context) {
 					override getGetterName(FieldDeclaration it) {
 						method.simpleName
 					}
@@ -102,6 +101,32 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 		]
 	}
 	
+	private def getFieldType(MethodDeclaration method, extension TransformationContext context) {
+		val returnType = method.returnType.type
+		if (returnType instanceof InterfaceDeclaration) {
+			if (returnType.findAnnotation(LanguageServerAPI.findTypeGlobally) !== null)
+				return returnType.implName.findTypeGlobally.newTypeReference
+		}
+		val typeArguments = method.returnType.actualTypeArguments
+		if (returnType == List.findTypeGlobally && typeArguments.size == 1) {
+			val contentTypeRef = typeArguments.get(0)
+			val contentType = if (contentTypeRef.isWildCard) contentTypeRef.upperBound?.type
+			if (contentType instanceof InterfaceDeclaration) {
+				if (contentType.findAnnotation(LanguageServerAPI.findTypeGlobally) !== null)
+					return List.newTypeReference(contentType.implName.findTypeGlobally.newTypeReference)
+			}
+		}
+		if (returnType == Map.findTypeGlobally && typeArguments.size == 2) {
+			val contentTypeRef = typeArguments.get(1)
+			val contentType = if (contentTypeRef.isWildCard) contentTypeRef.upperBound?.type
+			if (contentType instanceof InterfaceDeclaration) {
+				if (contentType.findAnnotation(LanguageServerAPI.findTypeGlobally) !== null)
+					return Map.newTypeReference(typeArguments.get(0), contentType.implName.findTypeGlobally.newTypeReference)
+			}
+		}
+		return method.returnType
+	}
+	
 	private def getFieldName(MethodDeclaration method) {
 		val name = method.simpleName
 		if (name.startsWith('get') && name.length > 3)
@@ -114,36 +139,6 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
 	private def getImplName(Type t) {
 		t.qualifiedName + 'Impl'
-	}
-	
-	private static class AccessorsUtil extends AccessorsProcessor.Util {
-		extension TransformationContext context
-
-		new(TransformationContext context) {
-			super(context)
-			this.context = context
-		}
-		
-		override addSetter(MutableFieldDeclaration field, Visibility visibility) {
-			field.validateSetter
-			field.declaringType.addMethod(field.setterName) [
-				primarySourceElement = field.primarySourceElement
-				returnType = primitiveVoid
-				val typeParam = field.type.actualTypeArguments.head
-				if (field.type.type == List.findTypeGlobally && typeParam !== null && !typeParam.isWildCard) {
-					val param = addParameter(
-						field.simpleName,
-						List.newTypeReference(typeParam.newWildcardTypeReference)
-					)
-					body = '''this.«field.simpleName» = («field.type») «param.simpleName»;'''
-				} else {
-					val param = addParameter(field.simpleName, field.type)
-					body = '''this.«field.simpleName» = «param.simpleName»;'''
-				}
-				static = field.static
-				it.visibility = visibility
-			]
-		}
 	}
 
 }

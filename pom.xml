@@ -28,6 +28,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<xtend-output-src>${basedir}/src/main/xtend-gen</xtend-output-src>
+		<xtend-output-src-test>${basedir}/src/test/xtend-gen</xtend-output-src-test>
 	</properties>
 	<build>
 		<plugins>
@@ -64,7 +65,7 @@
 								<includes>
 									<include>**/*</include>
 								</includes>
-								<directory>${basedir}/src/test/xtend-gen</directory>
+								<directory>${xtend-output-src-test}</directory>
 								<includes>
 									<include>**/*</include>
 								</includes>
@@ -80,9 +81,11 @@
 						<execution>
 							<goals>
 								<goal>compile</goal>
+								<goal>testCompile</goal>
 							</goals>
 							<configuration>
 								<outputDirectory>${xtend-output-src}</outputDirectory>
+								<testOutputDirectory>${xtend-output-src-test}</testOutputDirectory>
 							</configuration>
 						</execution>
 					</executions>
