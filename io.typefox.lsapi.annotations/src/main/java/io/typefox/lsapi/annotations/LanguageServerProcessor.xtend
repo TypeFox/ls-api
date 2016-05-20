@@ -26,6 +26,7 @@ import org.eclipse.xtend.lib.macro.declaration.MutableInterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.Type
 import org.eclipse.xtend.lib.macro.declaration.Visibility
 import java.util.ArrayList
+import org.eclipse.xtend.lib.macro.declaration.TypeReference
 
 class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
@@ -104,29 +105,30 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	}
 	
 	private def getFieldType(MethodDeclaration method, extension TransformationContext context) {
-		val returnType = method.returnType.type
-		if (returnType instanceof InterfaceDeclaration) {
-			if (returnType.findAnnotation(LanguageServerAPI.findTypeGlobally) !== null)
-				return returnType.implName.findTypeGlobally.newTypeReference
+		val returnType = method.returnType
+		if (returnType.isLanguageServiceAPI) {
+			return returnType.type.implName.findTypeGlobally.newTypeReference
 		}
-		val typeArguments = method.returnType.actualTypeArguments
-		if (returnType == List.findTypeGlobally && typeArguments.size == 1) {
+		val typeArguments = returnType.actualTypeArguments
+		if (returnType.type == List.findTypeGlobally && typeArguments.size == 1) {
 			val contentTypeRef = typeArguments.get(0)
-			val contentType = if (contentTypeRef.isWildCard) contentTypeRef.upperBound?.type
-			if (contentType instanceof InterfaceDeclaration) {
-				if (contentType.findAnnotation(LanguageServerAPI.findTypeGlobally) !== null)
-					return List.newTypeReference(contentType.implName.findTypeGlobally.newTypeReference)
+			val contentType = if (contentTypeRef.isWildCard) contentTypeRef.upperBound
+			if (contentType.isLanguageServiceAPI) {
+				return List.newTypeReference(contentType.type.implName.findTypeGlobally.newTypeReference)
 			}
 		}
-		if (returnType == Map.findTypeGlobally && typeArguments.size == 2) {
+		if (returnType.type == Map.findTypeGlobally && typeArguments.size == 2) {
 			val contentTypeRef = typeArguments.get(1)
-			val contentType = if (contentTypeRef.isWildCard) contentTypeRef.upperBound?.type
-			if (contentType instanceof InterfaceDeclaration) {
-				if (contentType.findAnnotation(LanguageServerAPI.findTypeGlobally) !== null)
-					return Map.newTypeReference(typeArguments.get(0), contentType.implName.findTypeGlobally.newTypeReference)
+			val contentType = if (contentTypeRef.isWildCard) contentTypeRef.upperBound
+			if (contentType.isLanguageServiceAPI) {
+				return Map.newTypeReference(typeArguments.get(0), contentType.type.implName.findTypeGlobally.newTypeReference)
 			}
 		}
-		return method.returnType
+		return returnType
+	}
+	
+	private def isLanguageServiceAPI(TypeReference type) {
+	    type != null && type.type != null && type.type instanceof InterfaceDeclaration && type.type.qualifiedName.startsWith("io.typefox.lsapi")
 	}
 	
 	private def getFieldName(MethodDeclaration method) {
