@@ -57,55 +57,55 @@ import org.eclipse.xtend.lib.annotations.Accessors
 class LanguageServerJsonHandler {
 	
 	static val REQUEST_PARAM_TYPES = #{
-		'initialize' -> InitializeParamsImpl,
-		'textDocument/completion' -> TextDocumentPositionParamsImpl,
-		'completionItem/resolve' -> CompletionItemImpl,
-		'textDocument/hover' -> TextDocumentPositionParamsImpl,
-		'textDocument/signatureHelp' -> TextDocumentPositionParamsImpl,
-		'textDocument/definition' -> TextDocumentPositionParamsImpl,
-		'textDocument/documentHighlight' -> TextDocumentPositionParamsImpl,
-		'textDocument/references' -> ReferenceParamsImpl,
-		'textDocument/documentSymbol' -> DocumentSymbolParamsImpl,
-		'workspace/symbol' -> WorkspaceSymbolParamsImpl,
-		'textDocument/codeAction' -> CodeActionParamsImpl,
-		'textDocument/codeLens' -> CodeLensParamsImpl,
-		'codeLens/resolve' -> CodeLensImpl,
-		'textDocument/formatting' -> DocumentFormattingParamsImpl,
-		'textDocument/rangeFormatting' -> DocumentRangeFormattingParamsImpl,
-		'textDocument/onTypeFormatting' -> DocumentOnTypeFormattingParamsImpl,
-		'textDocument/rename' -> RenameParamsImpl,
-		'window/showMessageRequest' -> ShowMessageRequestParamsImpl
+		MessageMethods.INITIALIZE -> InitializeParamsImpl,
+		MessageMethods.COMPLETION -> TextDocumentPositionParamsImpl,
+		MessageMethods.RESOLVE_COMPLETION -> CompletionItemImpl,
+		MessageMethods.HOVER -> TextDocumentPositionParamsImpl,
+		MessageMethods.SIGNATURE_HELP -> TextDocumentPositionParamsImpl,
+		MessageMethods.DEFINITION -> TextDocumentPositionParamsImpl,
+		MessageMethods.DOCUMENT_HIGHLIGHT -> TextDocumentPositionParamsImpl,
+		MessageMethods.DOCUMENT_REFERENCES -> ReferenceParamsImpl,
+		MessageMethods.DOCUMENT_SYMBOL -> DocumentSymbolParamsImpl,
+		MessageMethods.WORKSPACE_SYMBOL -> WorkspaceSymbolParamsImpl,
+		MessageMethods.CODE_ACTION -> CodeActionParamsImpl,
+		MessageMethods.CODE_LENS -> CodeLensParamsImpl,
+		MessageMethods.RESOLVE_CODE_LENS -> CodeLensImpl,
+		MessageMethods.FORMATTING -> DocumentFormattingParamsImpl,
+		MessageMethods.RANGE_FORMATTING -> DocumentRangeFormattingParamsImpl,
+		MessageMethods.ON_TYPE_FORMATTING -> DocumentOnTypeFormattingParamsImpl,
+		MessageMethods.DOCUMENT_RENAME -> RenameParamsImpl,
+		MessageMethods.SHOW_MESSAGE_REQUEST -> ShowMessageRequestParamsImpl
 	}
 	
 	static val RESPONSE_RESULT_TYPES = #{
-		'initialize' -> InitializeResultImpl,
-		'textDocument/completion' -> CompletionItemImpl,
-		'completionItem/resolve' -> CompletionItemImpl,
-		'textDocument/hover' -> HoverImpl,
-		'textDocument/signatureHelp' -> SignatureHelpImpl,
-		'textDocument/definition' -> LocationImpl,
-		'textDocument/documentHighlight' -> DocumentHighlightImpl,
-		'textDocument/documentSymbol' -> SymbolInformationImpl,
-		'workspace/symbol' -> SymbolInformationImpl,
-		'textDocument/codeAction' -> CommandImpl,
-		'textDocument/codeLens' -> CodeLensImpl,
-		'codeLens/resolve' -> CodeLensImpl,
-		'textDocument/formatting' -> TextEditImpl,
-		'textDocument/rangeFormatting' -> TextEditImpl,
-		'textDocument/onTypeFormatting' -> TextEditImpl,
-		'textDocument/rename' -> WorkspaceEditImpl
+		MessageMethods.INITIALIZE -> InitializeResultImpl,
+		MessageMethods.COMPLETION -> CompletionItemImpl,
+		MessageMethods.RESOLVE_COMPLETION -> CompletionItemImpl,
+		MessageMethods.HOVER -> HoverImpl,
+		MessageMethods.SIGNATURE_HELP -> SignatureHelpImpl,
+		MessageMethods.DEFINITION -> LocationImpl,
+		MessageMethods.DOCUMENT_HIGHLIGHT -> DocumentHighlightImpl,
+		MessageMethods.DOCUMENT_SYMBOL -> SymbolInformationImpl,
+		MessageMethods.WORKSPACE_SYMBOL -> SymbolInformationImpl,
+		MessageMethods.CODE_ACTION -> CommandImpl,
+		MessageMethods.CODE_LENS -> CodeLensImpl,
+		MessageMethods.RESOLVE_CODE_LENS -> CodeLensImpl,
+		MessageMethods.FORMATTING -> TextEditImpl,
+		MessageMethods.RANGE_FORMATTING -> TextEditImpl,
+		MessageMethods.ON_TYPE_FORMATTING -> TextEditImpl,
+		MessageMethods.DOCUMENT_RENAME -> WorkspaceEditImpl
 	}
 	
 	static val NOTIFICATION_PARAM_TYPES = #{
-		'textDocument/publishDiagnostics' -> PublishDiagnosticsParamsImpl,
-		'workspace/didChangeConfiguration' -> DidChangeConfigurationParamsImpl,
-		'textDocument/didOpen' -> DidOpenTextDocumentParamsImpl,
-		'textDocument/didChange' -> DidChangeTextDocumentParamsImpl,
-		'textDocument/didClose' -> DidCloseTextDocumentParamsImpl,
-		'workspace/didChangeWatchedFiles' -> DidChangeWatchedFilesParamsImpl,
-		'textDocument/didSave' -> DidSaveTextDocumentParamsImpl,
-		'window/showMessage' -> MessageParamsImpl,
-		'window/logMessage' -> MessageParamsImpl
+		MessageMethods.PUBLIC_DIAGNOSTICS -> PublishDiagnosticsParamsImpl,
+		MessageMethods.DID_CHANGE_CONFIGURATION -> DidChangeConfigurationParamsImpl,
+		MessageMethods.DID_OPEN -> DidOpenTextDocumentParamsImpl,
+		MessageMethods.DID_CHANGE_DOCUMENT -> DidChangeTextDocumentParamsImpl,
+		MessageMethods.DID_CLOSE -> DidCloseTextDocumentParamsImpl,
+		MessageMethods.DID_CHANGE_WATCHED_FILES -> DidChangeWatchedFilesParamsImpl,
+		MessageMethods.DID_SAVE -> DidSaveTextDocumentParamsImpl,
+		MessageMethods.SHOW_MESSAGE -> MessageParamsImpl,
+		MessageMethods.LOG_MESSAGE -> MessageParamsImpl
 	}
 	
 	val jsonParser = new JsonParser

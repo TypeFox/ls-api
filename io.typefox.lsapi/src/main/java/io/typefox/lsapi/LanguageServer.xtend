@@ -8,6 +8,10 @@
  
 package io.typefox.lsapi
 
+/**
+ * Interface for implementations of
+ * https://github.com/Microsoft/vscode-languageserver-protocol
+ */
 interface LanguageServer {
     
     /**
@@ -17,20 +21,29 @@ interface LanguageServer {
     
     /**
      * The shutdown request is sent from the client to the server. It asks the server to shutdown, but to not exit 
-     * (otherwise the response might not be delivered correctly to the client). There is a separate exit notification that asks the server to exit.
-     * 
-     * 
+     * (otherwise the response might not be delivered correctly to the client). There is a separate exit notification
+     * that asks the server to exit.
      **/
     def void shutdown()
     
     /**
+     * A notification to ask the server to exit its process.
+     */
+    def void exit();
+    
+    /**
      * Provides access to the textDocument services.
      */
-    def TextDocumentService textDocumentService();
+    def TextDocumentService getTextDocumentService();
     
     /**
      * Provides access to the workspace services.
      */
-    def WorkspaceService workspaceService();
+    def WorkspaceService getWorkspaceService();
+    
+    /**
+     * Provides access to the window services.
+     */
+    def WindowService getWindowService();
     
 }

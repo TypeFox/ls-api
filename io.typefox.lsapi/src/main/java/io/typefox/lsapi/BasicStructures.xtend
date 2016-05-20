@@ -134,10 +134,3 @@ interface MarkedString {
 	def String getValue()
 	
 }
-
-/**
- * A generic call back interface for client notifications
- */
-interface NotificationCallback<T> {
-    public def void onNotification(T t);
-}

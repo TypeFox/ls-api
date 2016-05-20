@@ -12,17 +12,20 @@ import java.util.List
 interface WorkspaceService {
     
     /**
-     * A notification send from the client to the server to signal the change of configuration settings.
+     * The workspace symbol request is sent from the client to the server to list project-wide symbols matching
+     * the query string.
      */
-    def void didChangeConfiguraton(DidChangeConfigurationParams param)
+    def List<? extends SymbolInformation> getSymbol(WorkspaceSymbolParams params)
     
     /**
-     * The watched files notification is sent from the client to the server when the client detects changes to file watched by the language client.
+     * A notification sent from the client to the server to signal the change of configuration settings.
      */
-    def void didChangeWatchedFiles(DidChangeWatchedFilesParams param)
+    def void didChangeConfiguraton(DidChangeConfigurationParams params)
     
     /**
-     * The workspace symbol request is sent from the client to the server to list project-wide symbols matching the query string.
+     * The watched files notification is sent from the client to the server when the client detects changes to
+     * file watched by the language client.
      */
-    def List<? extends SymbolInformation> symbol(WorkspaceSymbolParams param)
+    def void didChangeWatchedFiles(DidChangeWatchedFilesParams params)
+    
 }
