@@ -24,9 +24,8 @@ import org.eclipse.xtend.lib.macro.declaration.MethodDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableClassDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableInterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.Type
-import org.eclipse.xtend.lib.macro.declaration.Visibility
-import java.util.ArrayList
 import org.eclipse.xtend.lib.macro.declaration.TypeReference
+import org.eclipse.xtend.lib.macro.declaration.Visibility
 
 class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
@@ -40,9 +39,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
 	protected def generateImpl(MutableInterfaceDeclaration annotatedInterface, extension TransformationContext context) {
 		val impl = annotatedInterface.implName.findClass
-		for (anno :  new ArrayList(annotatedInterface.annotations.toList)) {
-    		annotatedInterface.removeAnnotation(anno)
-		}
+    	annotatedInterface.removeAnnotation(annotatedInterface.annotations.findFirst[annotatedInterface == LanguageServerAPI.findTypeGlobally])
 		impl.implementedInterfaces = #[annotatedInterface.newTypeReference]
 		impl.docComment = annotatedInterface.docComment
 		
