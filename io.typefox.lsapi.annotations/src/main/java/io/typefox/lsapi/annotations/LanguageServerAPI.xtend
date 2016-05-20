@@ -10,8 +10,10 @@ package io.typefox.lsapi.annotations
 import java.lang.annotation.ElementType
 import java.lang.annotation.Target
 import org.eclipse.xtend.lib.macro.Active
+import java.lang.annotation.Retention
 
 @Target(ElementType.TYPE)
 @Active(LanguageServerProcessor)
+@Retention(SOURCE)
 annotation LanguageServerAPI {
 }

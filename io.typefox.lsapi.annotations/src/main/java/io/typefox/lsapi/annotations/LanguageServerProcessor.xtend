@@ -25,6 +25,7 @@ import org.eclipse.xtend.lib.macro.declaration.MutableClassDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableInterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.Type
 import org.eclipse.xtend.lib.macro.declaration.Visibility
+import java.util.ArrayList
 
 class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
@@ -38,6 +39,9 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
 	protected def generateImpl(MutableInterfaceDeclaration annotatedInterface, extension TransformationContext context) {
 		val impl = annotatedInterface.implName.findClass
+		for (anno :  new ArrayList(annotatedInterface.annotations.toList)) {
+    		annotatedInterface.removeAnnotation(anno)
+		}
 		impl.implementedInterfaces = #[annotatedInterface.newTypeReference]
 		impl.docComment = annotatedInterface.docComment
 		
@@ -64,9 +68,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	}
 	
 	private def getSuperApiInterfaces(InterfaceDeclaration it, extension TransformationContext context) {
-		extendedInterfaces.map[type].filter(InterfaceDeclaration).filter[
-			findAnnotation(LanguageServerAPI.findTypeGlobally) !== null
-		]
+		extendedInterfaces.map[type].filter(InterfaceDeclaration)
 	}
 	
 	private def void generateMembers(MutableClassDeclaration impl, InterfaceDeclaration source,
