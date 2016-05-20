@@ -39,7 +39,8 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
 	protected def generateImpl(MutableInterfaceDeclaration annotatedInterface, extension TransformationContext context) {
 		val impl = annotatedInterface.implName.findClass
-    	annotatedInterface.removeAnnotation(annotatedInterface.annotations.findFirst[annotatedInterface == LanguageServerAPI.findTypeGlobally])
+		
+    	annotatedInterface.removeAnnotation(annotatedInterface.annotations.findFirst[annotationTypeDeclaration == LanguageServerAPI.findTypeGlobally])
 		impl.implementedInterfaces = #[annotatedInterface.newTypeReference]
 		impl.docComment = annotatedInterface.docComment
 		
