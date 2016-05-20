@@ -161,7 +161,7 @@ class JsonBasedLanguageServerTest {
 	@Test
 	def void testCompletion() {
 		val future = executorService.submit[
-			server.textDocumentService.getCompletion(new TextDocumentPositionParamsImpl => [
+			server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
 				textDocument = new TextDocumentIdentifierImpl => [
 					uri = "file:///tmp/foo"
 				]

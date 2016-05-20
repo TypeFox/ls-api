@@ -26,7 +26,7 @@ import io.typefox.lsapi.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.TextEditImpl
 import io.typefox.lsapi.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.WorkspaceEditImpl
-import io.typefox.lsapi.json.LanguageServerJsonHandler
+import io.typefox.lsapi.json.MessageJsonHandler
 import java.util.ArrayList
 import java.util.HashMap
 import org.junit.Assert
@@ -35,12 +35,12 @@ import org.junit.Test
 
 class JsonSerializeTest {
 	
-	LanguageServerJsonHandler jsonHandler
+	MessageJsonHandler jsonHandler
 	
 	@Before
 	def void setup() {
 		val gsonBuilder = new GsonBuilder().setPrettyPrinting
-		jsonHandler = new LanguageServerJsonHandler(gsonBuilder.create())
+		jsonHandler = new MessageJsonHandler(gsonBuilder.create())
 	}
 	
 	private def assertSerialize(Message message, CharSequence expected) {

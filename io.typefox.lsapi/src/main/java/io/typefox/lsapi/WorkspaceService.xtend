@@ -15,7 +15,7 @@ interface WorkspaceService {
      * The workspace symbol request is sent from the client to the server to list project-wide symbols matching
      * the query string.
      */
-    def List<? extends SymbolInformation> getSymbol(WorkspaceSymbolParams params)
+    def List<? extends SymbolInformation> symbol(WorkspaceSymbolParams params)
     
     /**
      * A notification sent from the client to the server to signal the change of configuration settings.

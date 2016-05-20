@@ -52,10 +52,7 @@ import io.typefox.lsapi.WindowService
 import io.typefox.lsapi.WorkspaceEdit
 import io.typefox.lsapi.WorkspaceService
 import io.typefox.lsapi.WorkspaceSymbolParams
-import io.typefox.lsapi.json.JsonBasedLanguageServer.InputListener
-import java.io.IOException
 import java.io.InputStream
-import java.io.InterruptedIOException
 import java.io.OutputStream
 import java.util.ArrayList
 import java.util.List
@@ -80,7 +77,7 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 	@Accessors(PUBLIC_GETTER)
 	val workspaceService = new WorkspaceServiceImpl(this)
 	
-	val InputListener inputListener
+	val LanguageServerProtocol.InputListener inputListener
 	
 	val LanguageServerProtocol protocol
 	
@@ -95,10 +92,10 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 	val List<(String, Throwable)=>void> errorListeners = newArrayList
 	
 	new(InputStream input, OutputStream output) {
-		this(input, output, new LanguageServerJsonHandler)
+		this(input, output, new MessageJsonHandler)
 	}
 	
-	new(InputStream input, OutputStream output, LanguageServerJsonHandler jsonHandler) {
+	new(InputStream input, OutputStream output, MessageJsonHandler jsonHandler) {
 		jsonHandler.responseMethodResolver = [ id |
 			synchronized (responseReaderMap) {
 				responseReaderMap.get(id)?.method
@@ -109,7 +106,7 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 				reportError(throwable.message, throwable)
 			}
 		}
-		inputListener = new InputListener(protocol, input)
+		inputListener = new LanguageServerProtocol.InputListener(protocol, input)
 	}
 	
 	protected def void reportError(String message, Throwable throwable) {
@@ -247,84 +244,84 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 		
 		val JsonBasedLanguageServer server
 		
-		override getCompletion(TextDocumentPositionParams position) {
-			server.waitForListResult(MessageMethods.COMPLETION, position, CompletionItem)
+		override completion(TextDocumentPositionParams position) {
+			server.waitForListResult(MessageMethods.DOC_COMPLETION, position, CompletionItem)
 		}
 		
 		override resolveCompletionItem(CompletionItem unresolved) {
 			server.waitForResult(MessageMethods.RESOLVE_COMPLETION, unresolved, CompletionItem)
 		}
 		
-		override getHover(TextDocumentPositionParams position) {
-			server.waitForResult(MessageMethods.HOVER, position, Hover)
+		override hover(TextDocumentPositionParams position) {
+			server.waitForResult(MessageMethods.DOC_HOVER, position, Hover)
 		}
 		
-		override getSignatureHelp(TextDocumentPositionParams position) {
-			server.waitForResult(MessageMethods.SIGNATURE_HELP, position, SignatureHelp)
+		override signatureHelp(TextDocumentPositionParams position) {
+			server.waitForResult(MessageMethods.DOC_SIGNATURE_HELP, position, SignatureHelp)
 		}
 		
-		override getDefinition(TextDocumentPositionParams position) {
-			server.waitForListResult(MessageMethods.DEFINITION, position, Location)
+		override definition(TextDocumentPositionParams position) {
+			server.waitForListResult(MessageMethods.DOC_DEFINITION, position, Location)
 		}
 		
-		override getReferences(ReferenceParams params) {
-			server.waitForListResult(MessageMethods.DOCUMENT_REFERENCES, params, Location)
+		override references(ReferenceParams params) {
+			server.waitForListResult(MessageMethods.DOC_REFERENCES, params, Location)
 		}
 		
-		override getDocumentHighlight(TextDocumentPositionParams position) {
-			server.waitForResult(MessageMethods.DOCUMENT_HIGHLIGHT, position, DocumentHighlight)
+		override documentHighlight(TextDocumentPositionParams position) {
+			server.waitForResult(MessageMethods.DOC_HIGHLIGHT, position, DocumentHighlight)
 		}
 		
-		override getDocumentSymbol(DocumentSymbolParams params) {
-			server.waitForListResult(MessageMethods.DOCUMENT_SYMBOL, params, SymbolInformation)
+		override documentSymbol(DocumentSymbolParams params) {
+			server.waitForListResult(MessageMethods.DOC_SYMBOL, params, SymbolInformation)
 		}
 		
-		override getCodeAction(CodeActionParams params) {
-			server.waitForListResult(MessageMethods.CODE_ACTION, params, Command)
+		override codeAction(CodeActionParams params) {
+			server.waitForListResult(MessageMethods.DOC_CODE_ACTION, params, Command)
 		}
 		
-		override getCodeLens(CodeLensParams params) {
-			server.waitForListResult(MessageMethods.CODE_LENS, params, CodeLens)
+		override codeLens(CodeLensParams params) {
+			server.waitForListResult(MessageMethods.DOC_CODE_LENS, params, CodeLens)
 		}
 		
 		override resolveCodeLens(CodeLens unresolved) {
 			server.waitForResult(MessageMethods.RESOLVE_CODE_LENS, unresolved, CodeLens)
 		}
 		
-		override getFormatting(DocumentFormattingParams params) {
-			server.waitForListResult(MessageMethods.FORMATTING, params, TextEdit)
+		override formatting(DocumentFormattingParams params) {
+			server.waitForListResult(MessageMethods.DOC_FORMATTING, params, TextEdit)
 		}
 		
-		override getRangeFormatting(DocumentRangeFormattingParams params) {
-			server.waitForListResult(MessageMethods.RANGE_FORMATTING, params, TextEdit)
+		override rangeFormatting(DocumentRangeFormattingParams params) {
+			server.waitForListResult(MessageMethods.DOC_RANGE_FORMATTING, params, TextEdit)
 		}
 		
-		override getOnTypeFormatting(DocumentOnTypeFormattingParams params) {
-			server.waitForListResult(MessageMethods.ON_TYPE_FORMATTING, params, TextEdit)
+		override onTypeFormatting(DocumentOnTypeFormattingParams params) {
+			server.waitForListResult(MessageMethods.DOC_TYPE_FORMATTING, params, TextEdit)
 		}
 		
-		override getRename(RenameParams params) {
-			server.waitForResult(MessageMethods.DOCUMENT_RENAME, params, WorkspaceEdit)
+		override rename(RenameParams params) {
+			server.waitForResult(MessageMethods.DOC_RENAME, params, WorkspaceEdit)
 		}
 		
 		override didOpen(DidOpenTextDocumentParams params) {
-			server.sendNotification(MessageMethods.DID_OPEN, params)
+			server.sendNotification(MessageMethods.DID_OPEN_DOC, params)
 		}
 		
 		override didChange(DidChangeTextDocumentParams params) {
-			server.sendNotification(MessageMethods.DID_CHANGE_DOCUMENT, params)
+			server.sendNotification(MessageMethods.DID_CHANGE_DOC, params)
 		}
 		
 		override didClose(DidCloseTextDocumentParams params) {
-			server.sendNotification(MessageMethods.DID_CLOSE, params)
+			server.sendNotification(MessageMethods.DID_CLOSE_DOC, params)
 		}
 		
 		override didSave(DidSaveTextDocumentParams params) {
-			server.sendNotification(MessageMethods.DID_SAVE, params)
+			server.sendNotification(MessageMethods.DID_SAVE_DOC, params)
 		}
 		
 		override onPublishDiagnostics(NotificationCallback<PublishDiagnosticsParams> callback) {
-			server.addCallback(MessageMethods.PUBLIC_DIAGNOSTICS, callback, PublishDiagnosticsParams)
+			server.addCallback(MessageMethods.SHOW_DIAGNOSTICS, callback, PublishDiagnosticsParams)
 		}
 		
 	}
@@ -353,46 +350,16 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 		
 		val JsonBasedLanguageServer server
 		
-		override getSymbol(WorkspaceSymbolParams params) {
+		override symbol(WorkspaceSymbolParams params) {
 			server.waitForListResult(MessageMethods.WORKSPACE_SYMBOL, params, SymbolInformation)
 		}
 		
 		override didChangeConfiguraton(DidChangeConfigurationParams params) {
-			server.sendNotification(MessageMethods.DID_CHANGE_CONFIGURATION, params)
+			server.sendNotification(MessageMethods.DID_CHANGE_CONF, params)
 		}
 		
 		override didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
-			server.sendNotification(MessageMethods.DID_CHANGE_WATCHED_FILES, params)
-		}
-		
-	}
-	
-	@FinalFieldsConstructor
-	private static class InputListener implements Runnable {
-		
-		val LanguageServerProtocol protocol
-		val InputStream input
-		
-		@Accessors(PUBLIC_GETTER)
-		boolean active
-		
-		override run() {
-			active = true
-			try {
-				while (active) {
-					protocol.listen(input)
-				}
-			} catch (InterruptedIOException e) {
-				// The channel has been closed
-			} catch (IOException e) {
-				protocol.logException(e)
-			} finally {
-				active = false
-			}
-		}
-		
-		def void stop() {
-			active = false
+			server.sendNotification(MessageMethods.DID_CHANGE_FILES, params)
 		}
 		
 	}

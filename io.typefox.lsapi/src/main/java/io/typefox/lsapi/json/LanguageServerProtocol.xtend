@@ -19,6 +19,7 @@ import io.typefox.lsapi.ResponseMessage
 import io.typefox.lsapi.ResponseMessageImpl
 import java.io.IOException
 import java.io.InputStream
+import java.io.InterruptedIOException
 import java.io.OutputStream
 import java.io.UnsupportedEncodingException
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -36,7 +37,7 @@ class LanguageServerProtocol implements MessageAcceptor {
 	
 	val OutputStream output
 	
-	val LanguageServerJsonHandler jsonHandler
+	val MessageJsonHandler jsonHandler
 	
 	val MessageAcceptor incomingMessageAcceptor
 	
@@ -195,6 +196,36 @@ class LanguageServerProtocol implements MessageAcceptor {
 	
 	protected def logMessage(String title, String content) {
 		// Specialize in subclasses if required
+	}
+	
+	@FinalFieldsConstructor
+	static class InputListener implements Runnable {
+		
+		val LanguageServerProtocol protocol
+		val InputStream input
+		
+		@Accessors(PUBLIC_GETTER)
+		boolean active
+		
+		override run() {
+			active = true
+			try {
+				while (active) {
+					protocol.listen(input)
+				}
+			} catch (InterruptedIOException e) {
+				// The channel has been closed
+			} catch (IOException e) {
+				protocol.logException(e)
+			} finally {
+				active = false
+			}
+		}
+		
+		def void stop() {
+			active = false
+		}
+		
 	}
 	
 }

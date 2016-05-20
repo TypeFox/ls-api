@@ -54,58 +54,59 @@ import java.io.StringWriter
 import java.io.Writer
 import org.eclipse.xtend.lib.annotations.Accessors
 
-class LanguageServerJsonHandler {
+class MessageJsonHandler {
 	
 	static val REQUEST_PARAM_TYPES = #{
 		MessageMethods.INITIALIZE -> InitializeParamsImpl,
-		MessageMethods.COMPLETION -> TextDocumentPositionParamsImpl,
+		MessageMethods.DOC_COMPLETION -> TextDocumentPositionParamsImpl,
 		MessageMethods.RESOLVE_COMPLETION -> CompletionItemImpl,
-		MessageMethods.HOVER -> TextDocumentPositionParamsImpl,
-		MessageMethods.SIGNATURE_HELP -> TextDocumentPositionParamsImpl,
-		MessageMethods.DEFINITION -> TextDocumentPositionParamsImpl,
-		MessageMethods.DOCUMENT_HIGHLIGHT -> TextDocumentPositionParamsImpl,
-		MessageMethods.DOCUMENT_REFERENCES -> ReferenceParamsImpl,
-		MessageMethods.DOCUMENT_SYMBOL -> DocumentSymbolParamsImpl,
+		MessageMethods.DOC_HOVER -> TextDocumentPositionParamsImpl,
+		MessageMethods.DOC_SIGNATURE_HELP -> TextDocumentPositionParamsImpl,
+		MessageMethods.DOC_DEFINITION -> TextDocumentPositionParamsImpl,
+		MessageMethods.DOC_HIGHLIGHT -> TextDocumentPositionParamsImpl,
+		MessageMethods.DOC_REFERENCES -> ReferenceParamsImpl,
+		MessageMethods.DOC_SYMBOL -> DocumentSymbolParamsImpl,
 		MessageMethods.WORKSPACE_SYMBOL -> WorkspaceSymbolParamsImpl,
-		MessageMethods.CODE_ACTION -> CodeActionParamsImpl,
-		MessageMethods.CODE_LENS -> CodeLensParamsImpl,
+		MessageMethods.DOC_CODE_ACTION -> CodeActionParamsImpl,
+		MessageMethods.DOC_CODE_LENS -> CodeLensParamsImpl,
 		MessageMethods.RESOLVE_CODE_LENS -> CodeLensImpl,
-		MessageMethods.FORMATTING -> DocumentFormattingParamsImpl,
-		MessageMethods.RANGE_FORMATTING -> DocumentRangeFormattingParamsImpl,
-		MessageMethods.ON_TYPE_FORMATTING -> DocumentOnTypeFormattingParamsImpl,
-		MessageMethods.DOCUMENT_RENAME -> RenameParamsImpl,
+		MessageMethods.DOC_FORMATTING -> DocumentFormattingParamsImpl,
+		MessageMethods.DOC_RANGE_FORMATTING -> DocumentRangeFormattingParamsImpl,
+		MessageMethods.DOC_TYPE_FORMATTING -> DocumentOnTypeFormattingParamsImpl,
+		MessageMethods.DOC_RENAME -> RenameParamsImpl,
 		MessageMethods.SHOW_MESSAGE_REQUEST -> ShowMessageRequestParamsImpl
 	}
 	
 	static val RESPONSE_RESULT_TYPES = #{
 		MessageMethods.INITIALIZE -> InitializeResultImpl,
-		MessageMethods.COMPLETION -> CompletionItemImpl,
+		MessageMethods.DOC_COMPLETION -> CompletionItemImpl,
 		MessageMethods.RESOLVE_COMPLETION -> CompletionItemImpl,
-		MessageMethods.HOVER -> HoverImpl,
-		MessageMethods.SIGNATURE_HELP -> SignatureHelpImpl,
-		MessageMethods.DEFINITION -> LocationImpl,
-		MessageMethods.DOCUMENT_HIGHLIGHT -> DocumentHighlightImpl,
-		MessageMethods.DOCUMENT_SYMBOL -> SymbolInformationImpl,
+		MessageMethods.DOC_HOVER -> HoverImpl,
+		MessageMethods.DOC_SIGNATURE_HELP -> SignatureHelpImpl,
+		MessageMethods.DOC_DEFINITION -> LocationImpl,
+		MessageMethods.DOC_HIGHLIGHT -> DocumentHighlightImpl,
+		MessageMethods.DOC_SYMBOL -> SymbolInformationImpl,
 		MessageMethods.WORKSPACE_SYMBOL -> SymbolInformationImpl,
-		MessageMethods.CODE_ACTION -> CommandImpl,
-		MessageMethods.CODE_LENS -> CodeLensImpl,
+		MessageMethods.DOC_CODE_ACTION -> CommandImpl,
+		MessageMethods.DOC_CODE_LENS -> CodeLensImpl,
 		MessageMethods.RESOLVE_CODE_LENS -> CodeLensImpl,
-		MessageMethods.FORMATTING -> TextEditImpl,
-		MessageMethods.RANGE_FORMATTING -> TextEditImpl,
-		MessageMethods.ON_TYPE_FORMATTING -> TextEditImpl,
-		MessageMethods.DOCUMENT_RENAME -> WorkspaceEditImpl
+		MessageMethods.DOC_FORMATTING -> TextEditImpl,
+		MessageMethods.DOC_RANGE_FORMATTING -> TextEditImpl,
+		MessageMethods.DOC_TYPE_FORMATTING -> TextEditImpl,
+		MessageMethods.DOC_RENAME -> WorkspaceEditImpl
 	}
 	
 	static val NOTIFICATION_PARAM_TYPES = #{
-		MessageMethods.PUBLIC_DIAGNOSTICS -> PublishDiagnosticsParamsImpl,
-		MessageMethods.DID_CHANGE_CONFIGURATION -> DidChangeConfigurationParamsImpl,
-		MessageMethods.DID_OPEN -> DidOpenTextDocumentParamsImpl,
-		MessageMethods.DID_CHANGE_DOCUMENT -> DidChangeTextDocumentParamsImpl,
-		MessageMethods.DID_CLOSE -> DidCloseTextDocumentParamsImpl,
-		MessageMethods.DID_CHANGE_WATCHED_FILES -> DidChangeWatchedFilesParamsImpl,
-		MessageMethods.DID_SAVE -> DidSaveTextDocumentParamsImpl,
+		MessageMethods.SHOW_DIAGNOSTICS -> PublishDiagnosticsParamsImpl,
+		MessageMethods.DID_CHANGE_CONF -> DidChangeConfigurationParamsImpl,
+		MessageMethods.DID_OPEN_DOC -> DidOpenTextDocumentParamsImpl,
+		MessageMethods.DID_CHANGE_DOC -> DidChangeTextDocumentParamsImpl,
+		MessageMethods.DID_CLOSE_DOC -> DidCloseTextDocumentParamsImpl,
+		MessageMethods.DID_CHANGE_FILES -> DidChangeWatchedFilesParamsImpl,
+		MessageMethods.DID_SAVE_DOC -> DidSaveTextDocumentParamsImpl,
 		MessageMethods.SHOW_MESSAGE -> MessageParamsImpl,
-		MessageMethods.LOG_MESSAGE -> MessageParamsImpl
+		MessageMethods.LOG_MESSAGE -> MessageParamsImpl,
+		MessageMethods.SHOW_MESSAGE_REQUEST -> ShowMessageRequestParamsImpl
 	}
 	
 	val jsonParser = new JsonParser
@@ -162,7 +163,7 @@ class LanguageServerJsonHandler {
 	
 	protected def ResponseMessageImpl parseResponse(JsonObject json, String responseId) {
 		if (responseMethodResolver === null)
-			throw new IllegalStateException("No response method resolver has been configured.")
+			throw new IllegalStateException("Response methods are not accepted.")
 		try {
 			val result = new ResponseMessageImpl
 			result.id = responseId
