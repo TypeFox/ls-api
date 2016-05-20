@@ -22,6 +22,7 @@ import java.io.InputStream
 import java.io.InterruptedIOException
 import java.io.OutputStream
 import java.io.UnsupportedEncodingException
+import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
@@ -44,7 +45,13 @@ class LanguageServerProtocol implements MessageAcceptor {
 	@Accessors(PUBLIC_SETTER)
 	String outputEncoding = 'UTF-8'
 	
+	val List<(String, Throwable)=>void> errorListeners = newArrayList
+	
 	val outputLock = new Object
+	
+	def void addErrorListener((String, Throwable)=>void listener) {
+		errorListeners.add(listener)
+	}
 	
 	def listen(InputStream in) throws IOException {
 		var StringBuilder headerBuilder
@@ -61,7 +68,7 @@ class LanguageServerProtocol implements MessageAcceptor {
 			if (c.matches('\n')) {
 				if (newLine) {
 					if (contentLength < 0) {
-						logException(new IllegalStateException(
+						logError(new IllegalStateException(
 							'Missing header ' + H_CONTENT_LENGTH + ' in input "' + debugBuilder + '"'
 						))
 					} else {
@@ -73,7 +80,7 @@ class LanguageServerProtocol implements MessageAcceptor {
 							else
 								keepServing = handleMessage(new String(buffer, charset), charset)
 						} catch (UnsupportedEncodingException e) {
-							logException(e)
+							logError(e)
 						}
 						newLine = false
 					}
@@ -89,7 +96,7 @@ class LanguageServerProtocol implements MessageAcceptor {
 								try {
 									contentLength = Integer.parseInt(line.substring(sepIndex + 1).trim)
 								} catch (NumberFormatException e) {
-									logException(e)
+									logError(e)
 								}
 							case H_CONTENT_TYPE: {
 								val charsetIndex = line.indexOf('charset=')
@@ -138,11 +145,11 @@ class LanguageServerProtocol implements MessageAcceptor {
 			incomingMessageAcceptor.accept(message)
 			
 		} catch (InvalidMessageException e) {
-			logException(e)
+			logError(e)
 			val response = createErrorResponse(e.message, e.errorCode, e.requestId)
 			send(response, charset)
 		} catch (Exception e) {
-			logException(e)
+			logError(e)
 			val response = createErrorResponse(e.message, ResponseError.INTERNAL_ERROR, requestId)
 			send(response, charset)
 		}
@@ -189,13 +196,18 @@ class LanguageServerProtocol implements MessageAcceptor {
 		// Specialize in subclasses if required
 	}
 	
-	protected def logException(Throwable throwable) {
-		// Specialize in subclasses if required
-		throwable.printStackTrace()
-	}
-	
 	protected def logMessage(String title, String content) {
 		// Specialize in subclasses if required
+	}
+	
+	protected def logError(Throwable throwable) {
+		logError(throwable.message, throwable)
+	}
+	
+	protected def logError(String message, Throwable throwable) {
+		for (l : errorListeners) {
+			l.apply(message, throwable)
+		}
 	}
 	
 	@FinalFieldsConstructor
@@ -216,7 +228,7 @@ class LanguageServerProtocol implements MessageAcceptor {
 			} catch (InterruptedIOException e) {
 				// The channel has been closed
 			} catch (IOException e) {
-				protocol.logException(e)
+				protocol.logError(e)
 			} finally {
 				active = false
 			}

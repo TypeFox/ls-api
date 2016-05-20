@@ -61,7 +61,7 @@ class JsonBasedLanguageServerTest {
 	protected def void waitForOutput(int startSize) {
 		val startTime = System.currentTimeMillis
 		while (serverOutput.size <= startSize) {
-			Thread.yield()
+			Thread.sleep(10)
 			assertTrue(System.currentTimeMillis - startTime < TIMEOUT)
 		}
 	}

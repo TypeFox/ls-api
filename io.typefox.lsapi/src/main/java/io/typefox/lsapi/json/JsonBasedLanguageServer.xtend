@@ -54,7 +54,6 @@ import io.typefox.lsapi.WorkspaceService
 import io.typefox.lsapi.WorkspaceSymbolParams
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.ArrayList
 import java.util.List
 import java.util.Map
 import java.util.concurrent.Callable
@@ -89,8 +88,6 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 	
 	val Multimap<String, Pair<Class<?>, NotificationCallback<?>>> notificationCallbackMap = HashMultimap.create
 	
-	val List<(String, Throwable)=>void> errorListeners = newArrayList
-	
 	new(InputStream input, OutputStream output) {
 		this(input, output, new MessageJsonHandler)
 	}
@@ -101,21 +98,8 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 				responseReaderMap.get(id)?.method
 			}
 		]
-		protocol = new LanguageServerProtocol(output, jsonHandler, this) {
-			override protected logException(Throwable throwable) {
-				reportError(throwable.message, throwable)
-			}
-		}
+		protocol = new LanguageServerProtocol(output, jsonHandler, this)
 		inputListener = new LanguageServerProtocol.InputListener(protocol, input)
-	}
-	
-	protected def void reportError(String message, Throwable throwable) {
-		val callbacks = synchronized (errorListeners) {
-			new ArrayList(errorListeners)
-		}
-		for (callback : callbacks) {
-			callback.apply(message, throwable)
-		}
 	}
 	
 	override accept(Message message) {
@@ -125,7 +109,7 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 				if (reader !== null)
 					reader.read(message)
 				else
-					reportError("No matching request for response with id " + message.id, null)
+					protocol.logError("No matching request for response with id " + message.id, null)
 			}
 		} else if (message instanceof NotificationMessage) {
 			val callbacks = synchronized (notificationCallbackMap) {
@@ -234,9 +218,7 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 	}
 	
 	def onError((String, Throwable)=>void callback) {
-		synchronized (errorListeners) {
-			errorListeners.add(callback)
-		}
+		protocol.addErrorListener(callback)
 	}
 	
 	@FinalFieldsConstructor
