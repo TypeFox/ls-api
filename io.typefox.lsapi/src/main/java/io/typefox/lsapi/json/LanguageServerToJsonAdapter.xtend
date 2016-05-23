@@ -23,6 +23,7 @@ import io.typefox.lsapi.DocumentRangeFormattingParams
 import io.typefox.lsapi.DocumentSymbolParams
 import io.typefox.lsapi.InitializeParams
 import io.typefox.lsapi.LanguageServer
+import io.typefox.lsapi.Message
 import io.typefox.lsapi.MessageAcceptor
 import io.typefox.lsapi.NotificationMessage
 import io.typefox.lsapi.NotificationMessageImpl
@@ -37,37 +38,36 @@ import io.typefox.lsapi.WorkspaceSymbolParams
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.Executors
-import io.typefox.lsapi.Message
+import java.util.concurrent.Future
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /**
  * Wraps a language server implementation and adapts it to the JSON-based protocol.
  */
 class LanguageServerToJsonAdapter implements MessageAcceptor {
 	
+	@Accessors(PROTECTED_GETTER)
 	val LanguageServer delegate
 	
+	@Accessors(PROTECTED_GETTER)
 	val LanguageServerProtocol.InputListener inputListener
 	
+	@Accessors
 	val LanguageServerProtocol protocol
 	
 	val executorService = Executors.newCachedThreadPool
 	
-	boolean started
+	Future<?> inputListenerJoin
 	
-	new(LanguageServer delegate, InputStream input, OutputStream output) {
-		this(delegate, input, output, new MessageJsonHandler)
+	
+	new(LanguageServer delegate) {
+		this(delegate, new MessageJsonHandler)
 	}
 	
-	new(LanguageServer delegate, InputStream input, OutputStream output, MessageJsonHandler jsonHandler) {
+	new(LanguageServer delegate, MessageJsonHandler jsonHandler) {
 		this.delegate = delegate
-		protocol = new LanguageServerProtocol(output, jsonHandler, this)
-		inputListener = new LanguageServerProtocol.InputListener(protocol, input)
-	}
-	
-	def synchronized start() {
-		if (started)
-			throw new IllegalStateException("Cannot call start() more than once.")
-		started = true
+		protocol = new LanguageServerProtocol(jsonHandler, this)
+		inputListener = new LanguageServerProtocol.InputListener(protocol)
 		delegate.textDocumentService.onPublishDiagnostics[
 			sendNotification(MessageMethods.SHOW_DIAGNOSTICS, it)
 		]
@@ -80,15 +80,34 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 		delegate.windowService.onShowMessageRequest[
 			sendNotification(MessageMethods.SHOW_MESSAGE_REQUEST, it)
 		]
-		executorService.execute(inputListener)
 	}
 	
-	def synchronized stop() {
+	def void connect(InputStream input, OutputStream output) {
+		if (isActive)
+			throw new IllegalStateException("Cannot connect while the adapter is active.")
+		protocol.output = output
+		inputListener.input = input
+	}
+	
+	def synchronized void start() {
+		if (isActive)
+			throw new IllegalStateException("Cannot start while the adapter is active.")
+		inputListenerJoin = executorService.submit(inputListener)
+	}
+	
+	def boolean isActive() {
+		inputListener.isActive
+	}
+	
+	def void join() {
+		if (inputListenerJoin === null)
+			throw new IllegalStateException("Cannot join before the adapter has been started.")
+		inputListenerJoin.get()
+	}
+	
+	def synchronized void stop() {
 		inputListener.stop()
-	}
-	
-	def onError((String, Throwable)=>void callback) {
-		protocol.addErrorListener(callback)
+		delegate.shutdown()
 	}
 	
 	override accept(Message message) {
@@ -96,6 +115,7 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 	}
 	
 	protected def dispatch doAccept(RequestMessage message) {
+		var doStop = false
 		try {
 			val result = switch message.method {
 				case MessageMethods.INITIALIZE:
@@ -134,10 +154,16 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 					delegate.workspaceService.symbol(message.params as WorkspaceSymbolParams)
 				case MessageMethods.SHUTDOWN: {
 					delegate.shutdown()
+					doStop = true
 					null
 				}
 				case MessageMethods.EXIT: {
 					delegate.exit()
+					doStop = true
+					null
+				}
+				default: {
+					sendResponseError(message.id, "Invalid method: " + message.method, ResponseError.METHOD_NOT_FOUND)
 					null
 				}
 			}
@@ -147,6 +173,9 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 			sendResponseError(message.id, e.message, e.errorCode)
 		} catch (Exception e) {
 			sendResponseError(message.id, e.message, ResponseError.INTERNAL_ERROR)
+		} finally {
+			if (doStop)
+				inputListener.stop()
 		}
 	}
 	

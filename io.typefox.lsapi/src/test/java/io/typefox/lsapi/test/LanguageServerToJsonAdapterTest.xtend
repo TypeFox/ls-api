@@ -7,8 +7,13 @@
  *******************************************************************************/
 package io.typefox.lsapi.test
 
+import io.typefox.lsapi.CompletionItemImpl
 import io.typefox.lsapi.CompletionOptionsImpl
+import io.typefox.lsapi.DiagnosticImpl
 import io.typefox.lsapi.InitializeResultImpl
+import io.typefox.lsapi.PositionImpl
+import io.typefox.lsapi.PublishDiagnosticsParamsImpl
+import io.typefox.lsapi.RangeImpl
 import io.typefox.lsapi.ServerCapabilitiesImpl
 import io.typefox.lsapi.json.LanguageServerProtocol
 import io.typefox.lsapi.json.LanguageServerToJsonAdapter
@@ -16,31 +21,31 @@ import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
 import static org.junit.Assert.*
+import io.typefox.lsapi.Diagnostic
 
 class LanguageServerToJsonAdapterTest {
+	
+	static val TIMEOUT = 200000
 	
 	MockedLanguageServer mockedServer
 	LanguageServerToJsonAdapter adapter
 	OutputStream adapterInput
 	ByteArrayOutputStream adapterOutput
-	ExecutorService executorService
 	
 	@Before
 	def void setup() {
 		mockedServer = new MockedLanguageServer
 		val pipe = new PipedInputStream
 		adapterOutput = new ByteArrayOutputStream
-		adapter = new LanguageServerToJsonAdapter(mockedServer, pipe, adapterOutput)
+		adapter = new LanguageServerToJsonAdapter(mockedServer)
 		adapterInput = new PipedOutputStream(pipe)
-		executorService = Executors.newCachedThreadPool
-		adapter.onError[ message, t |
+		adapter.connect(pipe, adapterOutput)
+		adapter.protocol.addErrorListener[ message, t |
 			if (t !== null)
 				t.printStackTrace()
 			else if (message !== null)
@@ -63,12 +68,24 @@ class LanguageServerToJsonAdapterTest {
 	}
 	
 	protected def void assertOutput(String expected) {
+		val startTime = System.currentTimeMillis
 		val trimmed = expected.trim
 		val targetSize = trimmed.bytes.length
 		while (adapterOutput.size < targetSize) {
 			Thread.sleep(10)
+			assertTrue(System.currentTimeMillis - startTime < TIMEOUT)
 		}
 		assertEquals(trimmed, adapterOutput.toString.replace('\r', ''))
+	}
+	
+	protected def void assertMethodCall(String method, String params) {
+		val startTime = System.currentTimeMillis
+		while (mockedServer.methodCalls.get(method).empty) {
+			Thread.sleep(10)
+			assertTrue(System.currentTimeMillis - startTime < TIMEOUT)
+		}
+		if (params !== null)
+			assertEquals(params.trim, String.valueOf(mockedServer.methodCalls.get(method).head))
 	}
 	
 	@Test
@@ -87,7 +104,7 @@ class LanguageServerToJsonAdapterTest {
 				"method": "initialize",
 				"params": {
 					"processId": 123,
-					"rootPath":"file:///tmp/"
+					"rootPath": "file:///tmp/"
 				}
 			}
 		''')
@@ -96,7 +113,133 @@ class LanguageServerToJsonAdapterTest {
 			
 			{"id":"0","result":{"capabilities":{"completionProvider":{"resolveProvider":true}}},"jsonrpc":"2.0"}
 		''')
-		assertFalse(mockedServer.methodCalls.get('initialize').empty)
+		assertMethodCall('initialize', '''
+			InitializeParamsImpl [
+			  processId = 123
+			  rootPath = "file:///tmp/"
+			  capabilities = null
+			]
+		''')
+	}
+	
+	@Test
+	def void testShutdown() {
+		val startTime = System.currentTimeMillis
+		while (!adapter.isActive) {
+			Thread.sleep(10)
+			assertTrue(System.currentTimeMillis - startTime < TIMEOUT)
+		}
+		writeMessage('''
+			{
+				"jsonrpc": "2.0",
+				"id": "0",
+				"method": "shutdown"
+			}
+		''')
+		while (adapter.isActive) {
+			Thread.sleep(10)
+			assertTrue(System.currentTimeMillis - startTime < TIMEOUT)
+		}
+	}
+	
+	@Test
+	def void testDidOpen() {
+		writeMessage('''
+			{
+				"jsonrpc":"2.0",
+				"method": "textDocument/didOpen",
+				"params": {
+					"textDocument": {
+						"uri": "file:///tmp/foo",
+						"text": "bla bla"
+					}
+				}
+			}
+		''')
+		assertMethodCall('didOpen', '''
+			DidOpenTextDocumentParamsImpl [
+			  textDocument = TextDocumentItemImpl [
+			    uri = "file:///tmp/foo"
+			    languageId = null
+			    version = 0
+			    text = "bla bla"
+			  ]
+			  text = null
+			]
+		''')
+	}
+	
+	@Test
+	def void testCompletion() {
+		mockedServer.response = newArrayList(
+			new CompletionItemImpl => [
+				insertText = "foo"
+			],
+			new CompletionItemImpl => [
+				insertText = "bar"
+			]
+		)
+		writeMessage('''
+			{
+				"jsonrpc": "2.0",
+				"id": "0",
+				"method": "textDocument/completion",
+				"params": {
+					"textDocument": {
+						"uri": "file:///tmp/foo"
+					},
+					"position": {
+						"line": 4,
+						"character": 7
+					}
+				}
+			}
+		''')
+		assertOutput('''
+			Content-Length: 79
+			
+			{"id":"0","result":[{"insertText":"foo"},{"insertText":"bar"}],"jsonrpc":"2.0"}
+		''')
+		assertMethodCall('completion', '''
+			TextDocumentPositionParamsImpl [
+			  textDocument = TextDocumentIdentifierImpl [
+			    uri = "file:///tmp/foo"
+			  ]
+			  uri = null
+			  position = PositionImpl [
+			    line = 4
+			    character = 7
+			  ]
+			]
+		''')
+	}
+	
+	@Test
+	def void testPublishDiagnostics() {
+		mockedServer.textDocumentService.publishDiagnostics(new PublishDiagnosticsParamsImpl => [
+			diagnostics = newArrayList(
+				new DiagnosticImpl => [
+					range = new RangeImpl => [
+						start = new PositionImpl => [
+							line = 4
+							character = 22
+						]
+						end = new PositionImpl => [
+							line = 4
+							character = 26
+						]
+					]
+					severity = Diagnostic.SEVERITY_ERROR
+					message = "Couldn't resolve reference to State 'bard'."
+				]
+			)
+			uri = "file:///tmp/foo"
+		])
+		assertOutput('''
+			Content-Length: 273
+			
+			{"method":"textDocument/publishDiagnostics","params":{"uri":"file:///tmp/foo","diagnostics":[{"range":{"start":{"line":4,"character":22},"end":{"line":4,"character":26}},"severity":1,"message":"Couldn\u0027t resolve reference to State \u0027bard\u0027."}]},"jsonrpc":"2.0"}
+		''')
 	}
 	
 }

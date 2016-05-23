@@ -17,6 +17,12 @@ class InvalidMessageException extends RuntimeException {
 	
 	val int errorCode
 	
+	new(String message) {
+		super(message)
+		this.requestId = null
+		this.errorCode = ResponseError.INVALID_REQUEST
+	}
+	
 	new(String message, String requestId) {
 		super(message)
 		this.requestId = requestId

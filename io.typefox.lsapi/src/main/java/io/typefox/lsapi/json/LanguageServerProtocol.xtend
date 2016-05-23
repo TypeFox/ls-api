@@ -7,11 +7,9 @@
  *******************************************************************************/
 package io.typefox.lsapi.json
 
-import io.typefox.lsapi.InitializeParams
 import io.typefox.lsapi.Message
 import io.typefox.lsapi.MessageAcceptor
 import io.typefox.lsapi.MessageImpl
-import io.typefox.lsapi.NotificationMessage
 import io.typefox.lsapi.RequestMessage
 import io.typefox.lsapi.ResponseError
 import io.typefox.lsapi.ResponseErrorImpl
@@ -22,6 +20,7 @@ import java.io.InputStream
 import java.io.InterruptedIOException
 import java.io.OutputStream
 import java.io.UnsupportedEncodingException
+import java.nio.channels.ClosedChannelException
 import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
@@ -36,21 +35,32 @@ class LanguageServerProtocol implements MessageAcceptor {
 	
 	static val CT_JSON = 'application/json'
 	
-	val OutputStream output
-	
 	val MessageJsonHandler jsonHandler
 	
 	val MessageAcceptor incomingMessageAcceptor
 	
-	@Accessors(PUBLIC_SETTER)
+	@Accessors
+	OutputStream output
+	
+	@Accessors
 	String outputEncoding = 'UTF-8'
 	
 	val List<(String, Throwable)=>void> errorListeners = newArrayList
+	val List<(Message, String)=>void> incomingMessageListeners = newArrayList
+	val List<(Message, String)=>void> outgoingMessageListeners = newArrayList
 	
 	val outputLock = new Object
 	
 	def void addErrorListener((String, Throwable)=>void listener) {
 		errorListeners.add(listener)
+	}
+	
+	def void addIncomingMessageListener((Message, String)=>void listener) {
+		incomingMessageListeners.add(listener)
+	}
+	
+	def void addOutgoingMessageListener((Message, String)=>void listener) {
+		outgoingMessageListeners.add(listener)
 	}
 	
 	def listen(InputStream in) throws IOException {
@@ -59,9 +69,8 @@ class LanguageServerProtocol implements MessageAcceptor {
 		var newLine = false
 		var contentLength = -1
 		var charset = 'UTF-8'
-		var keepServing = true
 		var c = in.read
-		while (keepServing && c != -1) {
+		while (c != -1) {
 			if (debugBuilder === null)
 				debugBuilder = new StringBuilder
 			debugBuilder.append(c as char)
@@ -75,10 +84,10 @@ class LanguageServerProtocol implements MessageAcceptor {
 						try {
 							val buffer = newByteArrayOfSize(contentLength)
 							val bytesRead = in.read(buffer, 0, contentLength)
-							if (bytesRead < 0)
-								keepServing = false
-							else
-								keepServing = handleMessage(new String(buffer, charset), charset)
+							if (bytesRead < 0) {
+								return
+							}
+							handleMessage(new String(buffer, charset), charset)
 						} catch (UnsupportedEncodingException e) {
 							logError(e)
 						}
@@ -122,25 +131,13 @@ class LanguageServerProtocol implements MessageAcceptor {
 		c1 == c2
 	}
 	
-	protected def boolean handleMessage(String content, String charset) throws IOException {
+	protected def void handleMessage(String content, String charset) throws IOException {
 		var String requestId
-		var result = true
 		try {
 			val message = jsonHandler.parseMessage(content)
-			if (message instanceof RequestMessage) {
-				logMessage('Received Request', content)
+			if (message instanceof RequestMessage)
 				requestId = message.id
-				switch message.method {
-					case 'initialize':
-						if (message.params instanceof InitializeParams)
-							initialize(message.params as InitializeParams)
-					case 'shutdown',
-					case 'exit':
-						result = false
-				}
-			} else if (message instanceof NotificationMessage) {
-				logMessage('Received Notification', content)
-			}
+			logIncomingMessage(message, content)
 			
 			incomingMessageAcceptor.accept(message)
 			
@@ -153,7 +150,12 @@ class LanguageServerProtocol implements MessageAcceptor {
 			val response = createErrorResponse(e.message, ResponseError.INTERNAL_ERROR, requestId)
 			send(response, charset)
 		}
-		return result
+	}
+	
+	protected def void logIncomingMessage(Message message, String json) {
+		for (l : incomingMessageListeners) {
+			l.apply(message, json)
+		}
 	}
 	
 	override accept(Message message) {
@@ -165,10 +167,7 @@ class LanguageServerProtocol implements MessageAcceptor {
 			(message as MessageImpl).jsonrpc = JSONRPC_VERSION
 		synchronized (outputLock) {
 			val content = jsonHandler.serialize(message)
-			if (message instanceof ResponseMessage)
-				logMessage('Sending Response', content)
-			else if (message instanceof NotificationMessage)
-				logMessage('Sending Notification', content)
+			
 			val responseBytes = content.getBytes(charset)
 			val headerBuilder = new StringBuilder
 			headerBuilder.append(H_CONTENT_LENGTH).append(': ').append(responseBytes.length).append('\r\n')
@@ -177,6 +176,8 @@ class LanguageServerProtocol implements MessageAcceptor {
 			headerBuilder.append('\r\n')
 			output.write(headerBuilder.toString.bytes)
 			output.write(responseBytes)
+			
+			logOutgoingMessage(message, content)
 		}
 	}
 	
@@ -192,12 +193,10 @@ class LanguageServerProtocol implements MessageAcceptor {
 		return response
 	}
 	
-	protected def initialize(InitializeParams params) {
-		// Specialize in subclasses if required
-	}
-	
-	protected def logMessage(String title, String content) {
-		// Specialize in subclasses if required
+	protected def void logOutgoingMessage(Message message, String json) {
+		for (l : outgoingMessageListeners) {
+			l.apply(message, json)
+		}
 	}
 	
 	protected def logError(Throwable throwable) {
@@ -214,28 +213,37 @@ class LanguageServerProtocol implements MessageAcceptor {
 	static class InputListener implements Runnable {
 		
 		val LanguageServerProtocol protocol
-		val InputStream input
+		
+		@Accessors(PUBLIC_SETTER)
+		InputStream input
 		
 		@Accessors(PUBLIC_GETTER)
 		boolean active
 		
+		Thread thread
+		
 		override run() {
+			thread = Thread.currentThread
 			active = true
 			try {
 				while (active) {
 					protocol.listen(input)
 				}
 			} catch (InterruptedIOException e) {
-				// The channel has been closed
+				// The listener was interrupted, e.g. by calling stop()
+			} catch (ClosedChannelException e) {
+				// The channel whose stream has been listened was closed
 			} catch (IOException e) {
 				protocol.logError(e)
 			} finally {
 				active = false
+				thread = null
 			}
 		}
 		
 		def void stop() {
 			active = false
+			thread?.interrupt()
 		}
 		
 	}

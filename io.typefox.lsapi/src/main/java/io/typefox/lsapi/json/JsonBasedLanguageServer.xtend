@@ -88,18 +88,25 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 	
 	val Multimap<String, Pair<Class<?>, NotificationCallback<?>>> notificationCallbackMap = HashMultimap.create
 	
-	new(InputStream input, OutputStream output) {
-		this(input, output, new MessageJsonHandler)
+	new() {
+		this(new MessageJsonHandler)
 	}
 	
-	new(InputStream input, OutputStream output, MessageJsonHandler jsonHandler) {
+	new(MessageJsonHandler jsonHandler) {
 		jsonHandler.responseMethodResolver = [ id |
 			synchronized (responseReaderMap) {
 				responseReaderMap.get(id)?.method
 			}
 		]
-		protocol = new LanguageServerProtocol(output, jsonHandler, this)
-		inputListener = new LanguageServerProtocol.InputListener(protocol, input)
+		protocol = new LanguageServerProtocol(jsonHandler, this)
+		inputListener = new LanguageServerProtocol.InputListener(protocol)
+	}
+	
+	def void connect(InputStream input, OutputStream output) {
+		if (inputListener.isActive)
+			throw new IllegalStateException("Cannot connect after the communication has started.")
+		protocol.output = output
+		inputListener.input = input
 	}
 	
 	override accept(Message message) {

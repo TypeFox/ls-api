@@ -42,9 +42,10 @@ class JsonBasedLanguageServerTest {
 	def void setup() {
 		val pipe = new PipedInputStream
 		serverOutput = new ByteArrayOutputStream
-		server = new JsonBasedLanguageServer(pipe, serverOutput)
+		server = new JsonBasedLanguageServer
 		serverInput = new PipedOutputStream(pipe)
 		executorService = Executors.newCachedThreadPool
+		server.connect(pipe, serverOutput)
 		server.onError[ message, t |
 			if (t !== null)
 				t.printStackTrace()

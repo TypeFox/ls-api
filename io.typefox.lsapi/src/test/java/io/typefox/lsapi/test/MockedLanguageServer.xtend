@@ -49,18 +49,31 @@ import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
-@Accessors
 class MockedLanguageServer implements LanguageServer {
 	
-	val textDocumentService = new TextDocumentServiceImpl(this)
+	val textDocumentService = new MockedTextDocumentService(this)
 	
-	val windowService = new WindowServiceImpl
+	val windowService = new MockedWindowService
 	
-	val workspaceService = new WorkspaceServiceImpl(this)
+	val workspaceService = new MockedWorkspaceService(this)
 	
+	@Accessors
 	val Multimap<String, Object> methodCalls = HashMultimap.create
 	
+	@Accessors(PUBLIC_SETTER)
 	Object response
+	
+	override MockedTextDocumentService getTextDocumentService() {
+		textDocumentService
+	}
+	
+	override MockedWindowService getWindowService() {
+		windowService
+	}
+	
+	override MockedWorkspaceService getWorkspaceService() {
+		workspaceService
+	}
 	
 	override initialize(InitializeParams params) {
 		methodCalls.put('initialize', params)
@@ -76,7 +89,7 @@ class MockedLanguageServer implements LanguageServer {
 	}
 	
 	@FinalFieldsConstructor
-	private static class TextDocumentServiceImpl implements TextDocumentService {
+	static class MockedTextDocumentService implements TextDocumentService {
 		
 		val MockedLanguageServer server
 		
@@ -185,7 +198,7 @@ class MockedLanguageServer implements LanguageServer {
 		
 	}
 	
-	private static class WindowServiceImpl implements WindowService {
+	static class MockedWindowService implements WindowService {
 		
 		val List<NotificationCallback<MessageParams>> showMessageCallbacks = newArrayList
 		
@@ -226,7 +239,7 @@ class MockedLanguageServer implements LanguageServer {
 	}
 	
 	@FinalFieldsConstructor
-	private static class WorkspaceServiceImpl implements WorkspaceService {
+	static class MockedWorkspaceService implements WorkspaceService {
 		
 		val MockedLanguageServer server
 		
