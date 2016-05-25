@@ -3,5 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Language Server API Java bindings
 Bundle-SymbolicName: io.typefox.lsapi
 Bundle-Version: 0.1.0.qualifier
-Export-Package: io.typefox.lsapi
+Export-Package: io.typefox.lsapi,
+ io.typefox.lsapi.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

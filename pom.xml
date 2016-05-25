@@ -124,12 +124,12 @@
 	</profiles>
 	<distributionManagement>
 		<snapshotRepository>
-			<id>ossrh</id>
+			<id>sonatype-nexus-snapshots</id>
 			<name>Sonatype Nexus Snapshots</name>
 			<url>${sonatypeOssDistMgmtSnapshotsUrl}</url>
 		</snapshotRepository>
 		<repository>
-			<id>ossrh</id>
+			<id>sonatype-nexus-snapshots</id>
 			<name>Nexus Release Repository</name>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
