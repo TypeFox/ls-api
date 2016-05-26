@@ -22,7 +22,7 @@
 	</modules>
 
 	<properties>
-		<xtext-version>2.10.0-SNAPSHOT</xtext-version>
+		<xtext-version>2.10.1-SNAPSHOT</xtext-version>
 		<xtend-maven-plugin.version>${xtext-version}</xtend-maven-plugin.version>
 		<xtend-library.version>${xtext-version}</xtend-library.version>
 
