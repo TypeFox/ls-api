@@ -165,17 +165,18 @@ class LanguageServerProtocol implements MessageAcceptor {
 	protected def send(Message message, String charset) {
 		if (message.jsonrpc === null && message instanceof MessageImpl)
 			(message as MessageImpl).jsonrpc = JSONRPC_VERSION
+		val content = jsonHandler.serialize(message)
+		
+		val responseBytes = content.getBytes(charset)
+		val headerBuilder = new StringBuilder
+		headerBuilder.append(H_CONTENT_LENGTH).append(': ').append(responseBytes.length).append('\r\n')
+		if (charset !== 'UTF-8')
+			headerBuilder.append(H_CONTENT_TYPE).append(': ').append(CT_JSON).append('; charset=').append(charset).append('\r\n')
+		headerBuilder.append('\r\n')
 		synchronized (outputLock) {
-			val content = jsonHandler.serialize(message)
-			
-			val responseBytes = content.getBytes(charset)
-			val headerBuilder = new StringBuilder
-			headerBuilder.append(H_CONTENT_LENGTH).append(': ').append(responseBytes.length).append('\r\n')
-			if (charset !== 'UTF-8')
-				headerBuilder.append(H_CONTENT_TYPE).append(': ').append(CT_JSON).append('; charset=').append(charset).append('\r\n')
-			headerBuilder.append('\r\n')
 			output.write(headerBuilder.toString.bytes)
 			output.write(responseBytes)
+			output.flush
 			
 			logOutgoingMessage(message, content)
 		}

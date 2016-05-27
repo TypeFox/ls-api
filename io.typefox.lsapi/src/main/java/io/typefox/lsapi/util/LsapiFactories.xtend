@@ -10,6 +10,8 @@ package io.typefox.lsapi.util
 import io.typefox.lsapi.PositionImpl
 import io.typefox.lsapi.RangeImpl
 import io.typefox.lsapi.TextEditImpl
+import io.typefox.lsapi.Range
+import io.typefox.lsapi.Position
 
 /**
  * @author Sven Efftinge - Initial contribution and API
@@ -23,10 +25,24 @@ class LsapiFactories {
         ]
     }
     
+    static def PositionImpl copyPosition(Position position) {
+        new PositionImpl => [
+            it.line = position.line
+            it.character = position.character
+        ]
+    }
+    
     static def RangeImpl newRange(PositionImpl start, PositionImpl end) {
         new RangeImpl => [
             it.start = start
             it.end = end
+        ]
+    }
+    
+    static def RangeImpl copyRange(Range source) {
+        new RangeImpl => [
+            it.start = copyPosition(source.start)
+            it.end = copyPosition(source.end)
         ]
     }
     

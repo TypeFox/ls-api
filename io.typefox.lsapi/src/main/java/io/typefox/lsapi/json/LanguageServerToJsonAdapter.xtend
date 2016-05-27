@@ -174,7 +174,7 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 		} catch (Exception e) {
 			protocol.logError(e)
 
-			sendResponseError(message.id, e.message, ResponseError.INTERNAL_ERROR)
+			sendResponseError(message.id, e.class.name+" : "+e.message, ResponseError.INTERNAL_ERROR)
 		} finally {
 			if (doStop)
 				inputListener.stop()
