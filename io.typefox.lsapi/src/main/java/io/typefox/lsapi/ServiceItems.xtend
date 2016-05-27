@@ -33,6 +33,24 @@ interface InitializeError {
 }
 
 /**
+ * Represents a collection of completion items to be presented in the editor.
+ */
+@LanguageServerAPI
+interface CompletionList {
+	
+	/**
+     * This list it not complete. Further typing should result in recomputing this list.
+     */
+    def boolean isIncomplete()
+    
+    /**
+     * The completion items.
+     */
+    def List<? extends CompletionItem> getItems()
+    
+}
+
+/**
  * The Completion request is sent from the client to the server to compute completion items at a given cursor position.
  * Completion items are presented in the IntelliSense user interface. If computing complete completion items is expensive
  * servers can additional provide a handler for the resolve completion item request. This request is send when a

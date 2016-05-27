@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Language Server API
 Bundle-SymbolicName: io.typefox.lsapi
-Bundle-Version: 0.1.0.qualifier
-Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ActivationPolicy: lazy
+Bundle-Version: 0.2.0.qualifier
 Bundle-Vendor: TypeFox
+Bundle-Localization: plugin
+Bundle-ActivationPolicy: lazy
 Export-Package: io.typefox.lsapi
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

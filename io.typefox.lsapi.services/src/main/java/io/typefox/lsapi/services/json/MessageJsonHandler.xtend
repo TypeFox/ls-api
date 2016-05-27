@@ -5,17 +5,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.json
+package io.typefox.lsapi.services.json
 
 import com.google.common.collect.Lists
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import io.typefox.lsapi.CancelParamsImpl
 import io.typefox.lsapi.CodeActionParamsImpl
 import io.typefox.lsapi.CodeLensImpl
 import io.typefox.lsapi.CodeLensParamsImpl
 import io.typefox.lsapi.CommandImpl
 import io.typefox.lsapi.CompletionItemImpl
+import io.typefox.lsapi.CompletionListImpl
 import io.typefox.lsapi.DidChangeConfigurationParamsImpl
 import io.typefox.lsapi.DidChangeTextDocumentParamsImpl
 import io.typefox.lsapi.DidChangeWatchedFilesParamsImpl
@@ -79,7 +81,7 @@ class MessageJsonHandler {
 	
 	static val RESPONSE_RESULT_TYPES = #{
 		MessageMethods.INITIALIZE -> InitializeResultImpl,
-		MessageMethods.DOC_COMPLETION -> CompletionItemImpl,
+		MessageMethods.DOC_COMPLETION -> CompletionListImpl,
 		MessageMethods.RESOLVE_COMPLETION -> CompletionItemImpl,
 		MessageMethods.DOC_HOVER -> HoverImpl,
 		MessageMethods.DOC_SIGNATURE_HELP -> SignatureHelpImpl,
@@ -106,7 +108,8 @@ class MessageJsonHandler {
 		MessageMethods.DID_SAVE_DOC -> DidSaveTextDocumentParamsImpl,
 		MessageMethods.SHOW_MESSAGE -> MessageParamsImpl,
 		MessageMethods.LOG_MESSAGE -> MessageParamsImpl,
-		MessageMethods.SHOW_MESSAGE_REQUEST -> ShowMessageRequestParamsImpl
+		MessageMethods.SHOW_MESSAGE_REQUEST -> ShowMessageRequestParamsImpl,
+		MessageMethods.CANCEL -> CancelParamsImpl
 	}
 	
 	val jsonParser = new JsonParser

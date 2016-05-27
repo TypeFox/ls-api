@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.json
+package io.typefox.lsapi.services.json
 
 import io.typefox.lsapi.ResponseError
 import org.eclipse.xtend.lib.annotations.Accessors

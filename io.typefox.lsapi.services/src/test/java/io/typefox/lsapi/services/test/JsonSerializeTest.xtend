@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.test
+package io.typefox.lsapi.services.test
 
 import com.google.gson.GsonBuilder
 import io.typefox.lsapi.Diagnostic
@@ -26,7 +26,7 @@ import io.typefox.lsapi.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.TextEditImpl
 import io.typefox.lsapi.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.WorkspaceEditImpl
-import io.typefox.lsapi.json.MessageJsonHandler
+import io.typefox.lsapi.services.json.MessageJsonHandler
 import java.util.ArrayList
 import java.util.HashMap
 import org.junit.Assert
