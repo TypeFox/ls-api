@@ -5,7 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi
+package io.typefox.lsapi.services
+
+import io.typefox.lsapi.Message
 
 /**
  * A generic acceptor interface for messages.

@@ -5,8 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.json
+package io.typefox.lsapi.services.json
 
+import io.typefox.lsapi.CancelParams
 import io.typefox.lsapi.CodeActionParams
 import io.typefox.lsapi.CodeLens
 import io.typefox.lsapi.CodeLensParams
@@ -22,9 +23,7 @@ import io.typefox.lsapi.DocumentOnTypeFormattingParams
 import io.typefox.lsapi.DocumentRangeFormattingParams
 import io.typefox.lsapi.DocumentSymbolParams
 import io.typefox.lsapi.InitializeParams
-import io.typefox.lsapi.LanguageServer
 import io.typefox.lsapi.Message
-import io.typefox.lsapi.MessageAcceptor
 import io.typefox.lsapi.NotificationMessage
 import io.typefox.lsapi.NotificationMessageImpl
 import io.typefox.lsapi.ReferenceParams
@@ -35,8 +34,14 @@ import io.typefox.lsapi.ResponseErrorImpl
 import io.typefox.lsapi.ResponseMessageImpl
 import io.typefox.lsapi.TextDocumentPositionParams
 import io.typefox.lsapi.WorkspaceSymbolParams
+import io.typefox.lsapi.services.LanguageServer
+import io.typefox.lsapi.services.MessageAcceptor
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.Map
+import java.util.concurrent.CancellationException
+import java.util.concurrent.CompletionException
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import org.eclipse.xtend.lib.annotations.Accessors
@@ -55,7 +60,9 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 	@Accessors
 	val LanguageServerProtocol protocol
 	
-	val executorService = Executors.newCachedThreadPool
+	val ExecutorService executorService
+	
+	val Map<String, Future<?>> requestFutures = newHashMap
 	
 	Future<?> inputListenerJoin
 	
@@ -65,7 +72,12 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 	}
 	
 	new(LanguageServer delegate, MessageJsonHandler jsonHandler) {
+		this(delegate, jsonHandler, Executors.newCachedThreadPool)
+	}
+	
+	new(LanguageServer delegate, MessageJsonHandler jsonHandler, ExecutorService executorService) {
 		this.delegate = delegate
+		this.executorService = executorService
 		protocol = new LanguageServerProtocol(jsonHandler, this)
 		inputListener = new LanguageServerProtocol.InputListener(protocol)
 		delegate.textDocumentService.onPublishDiagnostics[
@@ -117,7 +129,7 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 	protected def dispatch doAccept(RequestMessage message) {
 		var doStop = false
 		try {
-			val result = switch message.method {
+			val future = switch message.method {
 				case MessageMethods.INITIALIZE:
 					delegate.initialize(message.params as InitializeParams)
 				case MessageMethods.DOC_COMPLETION:
@@ -167,17 +179,38 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 					null
 				}
 			}
-			if (result !== null)
-				sendResponse(message.id, result)
-		} catch (InvalidMessageException e) {
-			sendResponseError(message.id, e.message, e.errorCode)
+			if (future !== null) {
+				synchronized (requestFutures) {
+					requestFutures.put(message.id, future)
+				}
+				future.whenComplete[ result, exception |
+					synchronized (requestFutures) {
+						requestFutures.remove(message.id)
+					}
+					if (!future.isCancelled) {
+						if (result !== null)
+							sendResponse(message.id, result)
+						else if (exception instanceof CompletionException)
+							handleRequestError(exception.cause, message)
+						else if (exception !== null)
+							handleRequestError(exception, message)
+					}
+				]
+			}
 		} catch (Exception e) {
-			protocol.logError(e)
-
-			sendResponseError(message.id, e.message, ResponseError.INTERNAL_ERROR)
+			handleRequestError(e, message)
 		} finally {
 			if (doStop)
 				inputListener.stop()
+		}
+	}
+	
+	protected def void handleRequestError(Throwable exception, RequestMessage message) {
+		if (exception instanceof InvalidMessageException) {
+			sendResponseError(message.id, exception.message, exception.errorCode)
+		} else if (!(exception instanceof CancellationException || exception instanceof InterruptedException)) {
+			protocol.logError(exception)
+			sendResponseError(message.id, exception.message, ResponseError.INTERNAL_ERROR)
 		}
 	}
 	
@@ -196,9 +229,19 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 					delegate.workspaceService.didChangeConfiguraton(message.params as DidChangeConfigurationParams)
 				case MessageMethods.DID_CHANGE_FILES:
 					delegate.workspaceService.didChangeWatchedFiles(message.params as DidChangeWatchedFilesParams)
+				case MessageMethods.CANCEL:
+					cancel(message.params as CancelParams)
 			}
 		} catch (Exception e) {
 			protocol.logError(e)
+		}
+	}
+	
+	protected def cancel(CancelParams params) {
+		synchronized (requestFutures) {
+			val future = requestFutures.get(params.id)
+			if (future !== null)
+				future.cancel(true)
 		}
 	}
 	

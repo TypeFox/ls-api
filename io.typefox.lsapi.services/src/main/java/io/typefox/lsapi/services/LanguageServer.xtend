@@ -6,7 +6,11 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
  
-package io.typefox.lsapi
+package io.typefox.lsapi.services
+
+import io.typefox.lsapi.InitializeParams
+import io.typefox.lsapi.InitializeResult
+import java.util.concurrent.CompletableFuture
 
 /**
  * Interface for implementations of
@@ -17,7 +21,7 @@ interface LanguageServer {
     /**
      * The initialize request is sent as the first request from the client to the server.
      */
-    def InitializeResult initialize(InitializeParams params)
+    def CompletableFuture<InitializeResult> initialize(InitializeParams params)
     
     /**
      * The shutdown request is sent from the client to the server. It asks the server to shutdown, but to not exit 

@@ -5,38 +5,35 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.test
+package io.typefox.lsapi.services.test
 
+import io.typefox.lsapi.DidOpenTextDocumentParamsImpl
 import io.typefox.lsapi.InitializeParamsImpl
 import io.typefox.lsapi.PositionImpl
 import io.typefox.lsapi.TextDocumentIdentifierImpl
+import io.typefox.lsapi.TextDocumentItemImpl
 import io.typefox.lsapi.TextDocumentPositionParamsImpl
-import io.typefox.lsapi.json.JsonBasedLanguageServer
-import io.typefox.lsapi.json.LanguageServerProtocol
+import io.typefox.lsapi.services.json.JsonBasedLanguageServer
+import io.typefox.lsapi.services.json.LanguageServerProtocol
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
 import static org.junit.Assert.*
-import java.util.concurrent.LinkedBlockingQueue
-import io.typefox.lsapi.DidOpenTextDocumentParamsImpl
-import io.typefox.lsapi.TextDocumentItemImpl
 
 class JsonBasedLanguageServerTest {
 	
-	static val TIMEOUT = 2000
+	static val TIMEOUT = 20000
 	
 	JsonBasedLanguageServer server
 	OutputStream serverInput
 	ByteArrayOutputStream serverOutput
-	ExecutorService executorService
 	
 	@Before
 	def void setup() {
@@ -44,7 +41,6 @@ class JsonBasedLanguageServerTest {
 		serverOutput = new ByteArrayOutputStream
 		server = new JsonBasedLanguageServer
 		serverInput = new PipedOutputStream(pipe)
-		executorService = Executors.newCachedThreadPool
 		server.connect(pipe, serverOutput)
 		server.onError[ message, t |
 			if (t !== null)
@@ -73,6 +69,7 @@ class JsonBasedLanguageServerTest {
 		headerBuilder.append(LanguageServerProtocol.H_CONTENT_LENGTH).append(': ').append(responseBytes.length).append('\r\n\r\n')
 		serverInput.write(headerBuilder.toString.bytes)
 		serverInput.write(responseBytes)
+		serverInput.flush()
 	}
 	
 	protected def assertOutput(String expected) {
@@ -86,11 +83,9 @@ class JsonBasedLanguageServerTest {
 	
 	@Test
 	def void testInitialize() {
-		val future = executorService.submit[
-			server.initialize(new InitializeParamsImpl => [
-				rootPath = 'file:///tmp/'
-			])
-		]
+		val future = server.initialize(new InitializeParamsImpl => [
+			rootPath = 'file:///tmp/'
+		])
 		waitForOutput(0)
 		writeMessage('''
 			{
@@ -139,9 +134,7 @@ class JsonBasedLanguageServerTest {
 	
 	@Test
 	def void testDidOpen() {
-		executorService.submit[
-			server.initialize(new InitializeParamsImpl)
-		]
+		server.initialize(new InitializeParamsImpl)
 		waitForOutput(0)
 		writeMessage('''{"jsonrpc":"2.0","id":"0","result":{"capabilities":{"textDocumentSync":2}}}''')
 		server.textDocumentService.didOpen(new DidOpenTextDocumentParamsImpl => [
@@ -161,58 +154,64 @@ class JsonBasedLanguageServerTest {
 	
 	@Test
 	def void testCompletion() {
-		val future = executorService.submit[
-			server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
-				textDocument = new TextDocumentIdentifierImpl => [
-					uri = "file:///tmp/foo"
-				]
-				position = new PositionImpl => [
-					line = 4
-					character = 7
-				]
-			])
-		]
+		val future = server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
+			textDocument = new TextDocumentIdentifierImpl => [
+				uri = "file:///tmp/foo"
+			]
+			position = new PositionImpl => [
+				line = 4
+				character = 7
+			]
+		])
 		waitForOutput(0)
 		writeMessage('''
 			{
 				"jsonrpc": "2.0",
 				"id": "0",
-				"result": [
-					{
-						"detail": "State",
-						"insertText": "bar",
-						"label": "bar"
-					},
-					{
-						"detail": "State",
-						"insertText": "foo",
-						"label": "foo"
-					}
-				]
+				"result": {
+					"items": [
+						{
+							"detail": "State",
+							"insertText": "bar",
+							"label": "bar"
+						},
+						{
+							"detail": "State",
+							"insertText": "foo",
+							"label": "foo"
+						}
+					]
+				}
 			}
 		''')
 		future.get(TIMEOUT, TimeUnit.MILLISECONDS).assertResult('''
-			[CompletionItemImpl [
-			  label = "bar"
-			  kind = null
-			  detail = "State"
-			  documentation = null
-			  sortText = null
-			  filterText = null
-			  insertText = "bar"
-			  textEdit = null
-			  data = null
-			], CompletionItemImpl [
-			  label = "foo"
-			  kind = null
-			  detail = "State"
-			  documentation = null
-			  sortText = null
-			  filterText = null
-			  insertText = "foo"
-			  textEdit = null
-			  data = null
-			]]
+			CompletionListImpl [
+			  incomplete = false
+			  items = ArrayList (
+			    CompletionItemImpl [
+			      label = "bar"
+			      kind = null
+			      detail = "State"
+			      documentation = null
+			      sortText = null
+			      filterText = null
+			      insertText = "bar"
+			      textEdit = null
+			      data = null
+			    ],
+			    CompletionItemImpl [
+			      label = "foo"
+			      kind = null
+			      detail = "State"
+			      documentation = null
+			      sortText = null
+			      filterText = null
+			      insertText = "foo"
+			      textEdit = null
+			      data = null
+			    ]
+			  )
+			]
 		''')
 		assertOutput('''
 			Content-Length: 149
@@ -222,14 +221,101 @@ class JsonBasedLanguageServerTest {
 	}
 	
 	@Test
+	def void testInvertedCompletionResponses() {
+		val future1 = server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
+			textDocument = new TextDocumentIdentifierImpl => [
+				uri = "file:///tmp/foo"
+			]
+			position = new PositionImpl => [
+				line = 4
+				character = 7
+			]
+		])
+		val future2 = server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
+			textDocument = new TextDocumentIdentifierImpl => [
+				uri = "file:///tmp/foo"
+			]
+			position = new PositionImpl => [
+				line = 5
+				character = 3
+			]
+		])
+		waitForOutput(0)
+		writeMessage('''
+			{
+				"jsonrpc": "2.0",
+				"id": "1",
+				"result": {
+					"items": [
+						{
+							"detail": "State",
+							"insertText": "bar",
+							"label": "bar"
+						}
+					]
+				}
+			}
+		''')
+		writeMessage('''
+			{
+				"jsonrpc": "2.0",
+				"id": "0",
+				"result": {
+					"items": [
+						{
+							"detail": "State",
+							"insertText": "foo",
+							"label": "foo"
+						}
+					]
+				}
+			}
+		''')
+		future1.get(TIMEOUT, TimeUnit.MILLISECONDS).assertResult('''
+			CompletionListImpl [
+			  incomplete = false
+			  items = ArrayList (
+			    CompletionItemImpl [
+			      label = "foo"
+			      kind = null
+			      detail = "State"
+			      documentation = null
+			      sortText = null
+			      filterText = null
+			      insertText = "foo"
+			      textEdit = null
+			      data = null
+			    ]
+			  )
+			]
+		''')
+		future2.get(TIMEOUT, TimeUnit.MILLISECONDS).assertResult('''
+			CompletionListImpl [
+			  incomplete = false
+			  items = ArrayList (
+			    CompletionItemImpl [
+			      label = "bar"
+			      kind = null
+			      detail = "State"
+			      documentation = null
+			      sortText = null
+			      filterText = null
+			      insertText = "bar"
+			      textEdit = null
+			      data = null
+			    ]
+			  )
+			]
+		''')
+	}
+	
+	@Test
 	def void testPublishDiagnostics() {
 		val diagnostics = new LinkedBlockingQueue
 		server.textDocumentService.onPublishDiagnostics[
 			diagnostics.add(it)
 		]
-		executorService.submit[
-			server.initialize(new InitializeParamsImpl)
-		]
+		server.initialize(new InitializeParamsImpl)
 		waitForOutput(0)
 		writeMessage('''{"jsonrpc":"2.0","id":"0","result":{"capabilities":{"textDocumentSync":2}}}''')
 		writeMessage('''
@@ -279,6 +365,28 @@ class JsonBasedLanguageServerTest {
 			    ]
 			  )
 			]
+		''')
+	}
+	
+	@Test
+	def void testCancel() {
+		val future = server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
+			textDocument = new TextDocumentIdentifierImpl => [
+				uri = "file:///tmp/foo"
+			]
+			position = new PositionImpl => [
+				line = 4
+				character = 7
+			]
+		])
+		waitForOutput(0)
+		future.cancel(true)
+		assertOutput('''
+			Content-Length: 149
+			
+			{"id":"0","method":"textDocument/completion","params":{"textDocument":{"uri":"file:///tmp/foo"},"position":{"line":4,"character":7}},"jsonrpc":"2.0"}Content-Length: 64
+			
+			{"method":"$/cancelRequest","params":{"id":"0"},"jsonrpc":"2.0"}
 		''')
 	}
 	

@@ -5,14 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.test
+package io.typefox.lsapi.services.test
 
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
 import io.typefox.lsapi.CodeActionParams
 import io.typefox.lsapi.CodeLens
 import io.typefox.lsapi.CodeLensParams
-import io.typefox.lsapi.Command
 import io.typefox.lsapi.CompletionItem
 import io.typefox.lsapi.DidChangeConfigurationParams
 import io.typefox.lsapi.DidChangeTextDocumentParams
@@ -21,35 +20,36 @@ import io.typefox.lsapi.DidCloseTextDocumentParams
 import io.typefox.lsapi.DidOpenTextDocumentParams
 import io.typefox.lsapi.DidSaveTextDocumentParams
 import io.typefox.lsapi.DocumentFormattingParams
-import io.typefox.lsapi.DocumentHighlight
 import io.typefox.lsapi.DocumentOnTypeFormattingParams
 import io.typefox.lsapi.DocumentRangeFormattingParams
 import io.typefox.lsapi.DocumentSymbolParams
-import io.typefox.lsapi.Hover
 import io.typefox.lsapi.InitializeParams
 import io.typefox.lsapi.InitializeResult
-import io.typefox.lsapi.LanguageServer
-import io.typefox.lsapi.Location
 import io.typefox.lsapi.MessageParams
-import io.typefox.lsapi.NotificationCallback
 import io.typefox.lsapi.PublishDiagnosticsParams
 import io.typefox.lsapi.ReferenceParams
 import io.typefox.lsapi.RenameParams
 import io.typefox.lsapi.ShowMessageRequestParams
-import io.typefox.lsapi.SignatureHelp
-import io.typefox.lsapi.SymbolInformation
 import io.typefox.lsapi.TextDocumentPositionParams
-import io.typefox.lsapi.TextDocumentService
-import io.typefox.lsapi.TextEdit
-import io.typefox.lsapi.WindowService
-import io.typefox.lsapi.WorkspaceEdit
-import io.typefox.lsapi.WorkspaceService
 import io.typefox.lsapi.WorkspaceSymbolParams
+import io.typefox.lsapi.services.LanguageServer
+import io.typefox.lsapi.services.TextDocumentService
+import io.typefox.lsapi.services.WindowService
+import io.typefox.lsapi.services.WorkspaceService
+import io.typefox.lsapi.services.json.InvalidMessageException
 import java.util.List
+import java.util.concurrent.CompletableFuture
+import java.util.function.Consumer
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
 class MockedLanguageServer implements LanguageServer {
+	
+	static class ForcedException extends InvalidMessageException {
+		new(String message) {
+			super(message)
+		}
+	}
 	
 	val textDocumentService = new MockedTextDocumentService(this)
 	
@@ -62,6 +62,29 @@ class MockedLanguageServer implements LanguageServer {
 	
 	@Accessors(PUBLIC_SETTER)
 	Object response
+	
+	@Accessors(PUBLIC_SETTER)
+	boolean blockResponse
+	
+	@Accessors(PUBLIC_SETTER)
+	String generateError
+	
+	protected def <T> CompletableFuture<T> getPromise() {
+		if (generateError !== null) {
+			CompletableFuture.supplyAsync[
+				throw new ForcedException(generateError)
+			]
+		} else if (blockResponse) {
+			CompletableFuture.supplyAsync[
+				while (blockResponse) {
+					Thread.sleep(100)
+				}
+				return response as T
+			]
+		} else {
+			CompletableFuture.completedFuture(response as T)
+		}
+	}
 	
 	override MockedTextDocumentService getTextDocumentService() {
 		textDocumentService
@@ -77,7 +100,7 @@ class MockedLanguageServer implements LanguageServer {
 	
 	override initialize(InitializeParams params) {
 		methodCalls.put('initialize', params)
-		return response as InitializeResult
+		CompletableFuture.supplyAsync[response as InitializeResult]
 	}
 	
 	override shutdown() {
@@ -93,81 +116,81 @@ class MockedLanguageServer implements LanguageServer {
 		
 		val MockedLanguageServer server
 		
-		val List<NotificationCallback<PublishDiagnosticsParams>> publishDiagnosticCallbacks = newArrayList
+		val List<Consumer<PublishDiagnosticsParams>> publishDiagnosticCallbacks = newArrayList
 		
 		override completion(TextDocumentPositionParams position) {
 			server.methodCalls.put('completion', position)
-			return server.response as List<? extends CompletionItem>
+			return server.promise
 		}
 		
 		override resolveCompletionItem(CompletionItem unresolved) {
 			server.methodCalls.put('resolveCompletionItem', unresolved)
-			return server.response as CompletionItem
+			return server.promise
 		}
 		
 		override hover(TextDocumentPositionParams position) {
 			server.methodCalls.put('hover', position)
-			return server.response as Hover
+			return server.promise
 		}
 		
 		override signatureHelp(TextDocumentPositionParams position) {
 			server.methodCalls.put('signatureHelp', position)
-			return server.response as SignatureHelp
+			return server.promise
 		}
 		
 		override definition(TextDocumentPositionParams position) {
 			server.methodCalls.put('definition', position)
-			return server.response as List<? extends Location>
+			return server.promise
 		}
 		
 		override references(ReferenceParams params) {
 			server.methodCalls.put('references', params)
-			return server.response as List<? extends Location>
+			return server.promise
 		}
 		
 		override documentHighlight(TextDocumentPositionParams position) {
 			server.methodCalls.put('documentHighlight', position)
-			return server.response as DocumentHighlight
+			return server.promise
 		}
 		
 		override documentSymbol(DocumentSymbolParams params) {
 			server.methodCalls.put('documentSymbol', params)
-			return server.response as List<? extends SymbolInformation>
+			return server.promise
 		}
 		
 		override codeAction(CodeActionParams params) {
 			server.methodCalls.put('codeAction', params)
-			return server.response as List<? extends Command>
+			return server.promise
 		}
 		
 		override codeLens(CodeLensParams params) {
 			server.methodCalls.put('codeLens', params)
-			return server.response as List<? extends CodeLens>
+			return server.promise
 		}
 		
 		override resolveCodeLens(CodeLens unresolved) {
 			server.methodCalls.put('resolveCodeLens', unresolved)
-			return server.response as CodeLens
+			return server.promise
 		}
 		
 		override formatting(DocumentFormattingParams params) {
 			server.methodCalls.put('formatting', params)
-			return server.response as List<? extends TextEdit>
+			return server.promise
 		}
 		
 		override rangeFormatting(DocumentRangeFormattingParams params) {
 			server.methodCalls.put('rangeFormatting', params)
-			return server.response as List<? extends TextEdit>
+			return server.promise
 		}
 		
 		override onTypeFormatting(DocumentOnTypeFormattingParams params) {
 			server.methodCalls.put('onTypeFormatting', params)
-			return server.response as List<? extends TextEdit>
+			return server.promise
 		}
 		
 		override rename(RenameParams params) {
 			server.methodCalls.put('rename', params)
-			return server.response as WorkspaceEdit
+			return server.promise
 		}
 		
 		override didOpen(DidOpenTextDocumentParams params) {
@@ -186,13 +209,13 @@ class MockedLanguageServer implements LanguageServer {
 			server.methodCalls.put('didSave', params)
 		}
 		
-		override onPublishDiagnostics(NotificationCallback<PublishDiagnosticsParams> callback) {
+		override onPublishDiagnostics(Consumer<PublishDiagnosticsParams> callback) {
 			publishDiagnosticCallbacks.add(callback)
 		}
 		
 		def void publishDiagnostics(PublishDiagnosticsParams params) {
 			for (c : publishDiagnosticCallbacks) {
-				c.call(params)
+				c.accept(params)
 			}
 		}
 		
@@ -200,39 +223,39 @@ class MockedLanguageServer implements LanguageServer {
 	
 	static class MockedWindowService implements WindowService {
 		
-		val List<NotificationCallback<MessageParams>> showMessageCallbacks = newArrayList
+		val List<Consumer<MessageParams>> showMessageCallbacks = newArrayList
 		
-		val List<NotificationCallback<ShowMessageRequestParams>> showMessageRequestCallbacks = newArrayList
+		val List<Consumer<ShowMessageRequestParams>> showMessageRequestCallbacks = newArrayList
 		
-		val List<NotificationCallback<MessageParams>> logMessageCallbacks = newArrayList
+		val List<Consumer<MessageParams>> logMessageCallbacks = newArrayList
 		
-		override onShowMessage(NotificationCallback<MessageParams> callback) {
+		override onShowMessage(Consumer<MessageParams> callback) {
 			showMessageCallbacks.add(callback)
 		}
 		
 		def void showMessage(MessageParams params) {
 			for (c : showMessageCallbacks) {
-				c.call(params)
+				c.accept(params)
 			}
 		}
 		
-		override onShowMessageRequest(NotificationCallback<ShowMessageRequestParams> callback) {
+		override onShowMessageRequest(Consumer<ShowMessageRequestParams> callback) {
 			showMessageRequestCallbacks.add(callback)
 		}
 		
 		def void showMessageRequest(ShowMessageRequestParams params) {
 			for (c : showMessageRequestCallbacks) {
-				c.call(params)
+				c.accept(params)
 			}
 		}
 		
-		override onLogMessage(NotificationCallback<MessageParams> callback) {
+		override onLogMessage(Consumer<MessageParams> callback) {
 			logMessageCallbacks.add(callback)
 		}
 		
 		def void logMessage(MessageParams params) {
 			for (c : logMessageCallbacks) {
-				c.call(params)
+				c.accept(params)
 			}
 		}
 		
@@ -245,7 +268,7 @@ class MockedLanguageServer implements LanguageServer {
 		
 		override symbol(WorkspaceSymbolParams params) {
 			server.methodCalls.put('symbol', params)
-			return server.response as List<? extends SymbolInformation>
+			return server.promise
 		}
 		
 		override didChangeConfiguraton(DidChangeConfigurationParams params) {

@@ -10,7 +10,7 @@
 	
 	<groupId>io.typefox.lsapi</groupId>
 	<artifactId>lsapi-parent</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>lsapi-parent</name>
@@ -19,6 +19,7 @@
 	<modules>
 		<module>io.typefox.lsapi</module>
 		<module>io.typefox.lsapi.annotations</module>
+		<module>io.typefox.lsapi.services</module>
 	</modules>
 
 	<properties>

@@ -7,7 +7,7 @@
  *******************************************************************************/
 package io.typefox.lsapi.test
 
-import io.typefox.lsapi.CancelParams
+import io.typefox.lsapi.Message
 import io.typefox.lsapi.annotations.LanguageServerAPI
 import org.junit.Assert
 import org.junit.Test
@@ -15,6 +15,6 @@ import org.junit.Test
 class NoAnnotationTest {
     
     @Test def void testNoAnnotation() {
-        Assert.assertFalse(CancelParams.annotations.exists[annotationType == LanguageServerAPI])
+        Assert.assertFalse(Message.annotations.exists[annotationType == LanguageServerAPI])
     }
 }

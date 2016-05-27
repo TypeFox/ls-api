@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.json
+package io.typefox.lsapi.services.json
 
 final class MessageMethods {
 	
@@ -39,6 +39,8 @@ final class MessageMethods {
 	public static val SHOW_MESSAGE = 'window/showMessage'
 	public static val SHOW_MESSAGE_REQUEST = 'window/showMessageRequest'
 	public static val LOG_MESSAGE = 'window/logMessage'
+	
+	public static val CANCEL = '$/cancelRequest'
 	
 	/** Hidden constructor to avoid instantiation. */
 	private new() {}

@@ -5,16 +5,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.json
+package io.typefox.lsapi.services.json
 
 import io.typefox.lsapi.Message
-import io.typefox.lsapi.MessageAcceptor
 import io.typefox.lsapi.MessageImpl
 import io.typefox.lsapi.RequestMessage
 import io.typefox.lsapi.ResponseError
 import io.typefox.lsapi.ResponseErrorImpl
 import io.typefox.lsapi.ResponseMessage
 import io.typefox.lsapi.ResponseMessageImpl
+import io.typefox.lsapi.services.MessageAcceptor
 import java.io.IOException
 import java.io.InputStream
 import java.io.InterruptedIOException
@@ -176,6 +176,7 @@ class LanguageServerProtocol implements MessageAcceptor {
 			headerBuilder.append('\r\n')
 			output.write(headerBuilder.toString.bytes)
 			output.write(responseBytes)
+			output.flush()
 			
 			logOutgoingMessage(message, content)
 		}
@@ -226,9 +227,7 @@ class LanguageServerProtocol implements MessageAcceptor {
 			thread = Thread.currentThread
 			active = true
 			try {
-				while (active) {
-					protocol.listen(input)
-				}
+				protocol.listen(input)
 			} catch (InterruptedIOException e) {
 				// The listener was interrupted, e.g. by calling stop()
 			} catch (ClosedChannelException e) {
@@ -242,7 +241,6 @@ class LanguageServerProtocol implements MessageAcceptor {
 		}
 		
 		def void stop() {
-			active = false
 			thread?.interrupt()
 		}
 		

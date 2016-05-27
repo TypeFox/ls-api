@@ -29,18 +29,12 @@ interface InitializeParams {
 	/**
 	 * The capabilities provided by the client (editor)
 	 */
-	def Object getCapabilities()
+	def ClientCapabilities getCapabilities()
 	
 }
 
 @LanguageServerAPI
-interface CancelParams {
-	
-	/**
-	 * The request id to cancel.
-	 */
-	def String getId()
-	
+interface ClientCapabilities {
 }
 
 /**
@@ -250,7 +244,7 @@ interface DidChangeTextDocumentParams {
 	
 	/**
 	 * The document that did change. The version number points to the version after all provided content changes have
-     * been applied.
+	 * been applied.
 	 */
 	def VersionedTextDocumentIdentifier getTextDocument()
 	
@@ -483,5 +477,18 @@ interface MessageActionItem {
 	 * A short title like 'Retry', 'Open Log' etc.
 	 */
 	def String getTitle()
+	
+}
+
+/**
+ * To cancel a request a notification message with the following properties is sent:
+ */
+@LanguageServerAPI
+interface CancelParams {
+	
+	/**
+	 * The request id to cancel.
+	 */
+	def String getId()
 	
 }

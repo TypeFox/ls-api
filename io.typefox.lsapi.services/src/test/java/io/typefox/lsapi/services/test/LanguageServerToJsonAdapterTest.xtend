@@ -5,18 +5,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.test
+package io.typefox.lsapi.services.test
 
 import io.typefox.lsapi.CompletionItemImpl
 import io.typefox.lsapi.CompletionOptionsImpl
+import io.typefox.lsapi.Diagnostic
 import io.typefox.lsapi.DiagnosticImpl
 import io.typefox.lsapi.InitializeResultImpl
 import io.typefox.lsapi.PositionImpl
 import io.typefox.lsapi.PublishDiagnosticsParamsImpl
 import io.typefox.lsapi.RangeImpl
 import io.typefox.lsapi.ServerCapabilitiesImpl
-import io.typefox.lsapi.json.LanguageServerProtocol
-import io.typefox.lsapi.json.LanguageServerToJsonAdapter
+import io.typefox.lsapi.services.json.LanguageServerProtocol
+import io.typefox.lsapi.services.json.LanguageServerToJsonAdapter
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.PipedInputStream
@@ -26,11 +27,10 @@ import org.junit.Before
 import org.junit.Test
 
 import static org.junit.Assert.*
-import io.typefox.lsapi.Diagnostic
 
 class LanguageServerToJsonAdapterTest {
 	
-	static val TIMEOUT = 200000
+	static val TIMEOUT = 2000
 	
 	MockedLanguageServer mockedServer
 	LanguageServerToJsonAdapter adapter
@@ -46,10 +46,12 @@ class LanguageServerToJsonAdapterTest {
 		adapterInput = new PipedOutputStream(pipe)
 		adapter.connect(pipe, adapterOutput)
 		adapter.protocol.addErrorListener[ message, t |
-			if (t !== null)
-				t.printStackTrace()
-			else if (message !== null)
-				System.err.println(message)
+			if (!(t instanceof MockedLanguageServer.ForcedException)) {
+				if (t !== null)
+					t.printStackTrace()
+				else if (message !== null)
+					System.err.println(message)
+			}
 		]
 		adapter.start()
 	}
@@ -65,6 +67,7 @@ class LanguageServerToJsonAdapterTest {
 		headerBuilder.append(LanguageServerProtocol.H_CONTENT_LENGTH).append(': ').append(responseBytes.length).append('\r\n\r\n')
 		adapterInput.write(headerBuilder.toString.bytes)
 		adapterInput.write(responseBytes)
+		adapterInput.flush()
 	}
 	
 	protected def void assertOutput(String expected) {
@@ -215,6 +218,43 @@ class LanguageServerToJsonAdapterTest {
 	}
 	
 	@Test
+	def void testDelayedCompletion() {
+		mockedServer.response = newArrayList(
+			new CompletionItemImpl => [
+				insertText = "foo"
+			],
+			new CompletionItemImpl => [
+				insertText = "bar"
+			]
+		)
+		mockedServer.blockResponse = true
+		writeMessage('''
+			{
+				"jsonrpc": "2.0",
+				"id": "0",
+				"method": "textDocument/completion",
+				"params": {
+					"textDocument": {
+						"uri": "file:///tmp/foo"
+					},
+					"position": {
+						"line": 4,
+						"character": 7
+					}
+				}
+			}
+		''')
+		Thread.sleep(150)
+		assertEquals('', adapterOutput.toString)
+		mockedServer.blockResponse = false
+		assertOutput('''
+			Content-Length: 79
+			
+			{"id":"0","result":[{"insertText":"foo"},{"insertText":"bar"}],"jsonrpc":"2.0"}
+		''')
+	}
+	
+	@Test
 	def void testPublishDiagnostics() {
 		mockedServer.textDocumentService.publishDiagnostics(new PublishDiagnosticsParamsImpl => [
 			diagnostics = newArrayList(
@@ -239,6 +279,67 @@ class LanguageServerToJsonAdapterTest {
 			Content-Length: 273
 			
 			{"method":"textDocument/publishDiagnostics","params":{"uri":"file:///tmp/foo","diagnostics":[{"range":{"start":{"line":4,"character":22},"end":{"line":4,"character":26}},"severity":1,"message":"Couldn\u0027t resolve reference to State \u0027bard\u0027."}]},"jsonrpc":"2.0"}
+		''')
+	}
+	
+	@Test
+	def void testCancel() {
+		mockedServer.response = 'dummy'
+		mockedServer.blockResponse = true
+		writeMessage('''
+			{
+				"jsonrpc": "2.0",
+				"id": "0",
+				"method": "textDocument/completion",
+				"params": {
+					"textDocument": {
+						"uri": "file:///tmp/foo"
+					},
+					"position": {
+						"line": 4,
+						"character": 7
+					}
+				}
+			}
+		''')
+		Thread.sleep(50)
+		writeMessage('''
+			{
+				"jsonrpc": "2.0",
+				"method": "$/cancelRequest",
+				"params": {
+					"id": "0"
+				}
+			}
+		''')
+		Thread.sleep(150)
+		assertEquals('', adapterOutput.toString)
+		mockedServer.blockResponse = false
+	}
+	
+	@Test
+	def void testError() {
+		mockedServer.generateError = 'Foo!'
+		writeMessage('''
+			{
+				"jsonrpc": "2.0",
+				"id": "0",
+				"method": "textDocument/completion",
+				"params": {
+					"textDocument": {
+						"uri": "file:///tmp/foo"
+					},
+					"position": {
+						"line": 4,
+						"character": 7
+					}
+				}
+			}
+		''')
+		assertOutput('''
+			Content-Length: 67
+			
+			{"id":"0","error":{"code":-32600,"message":"Foo!"},"jsonrpc":"2.0"}
 		''')
 	}
 	

@@ -5,9 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi
+package io.typefox.lsapi.services
 
+import io.typefox.lsapi.DidChangeConfigurationParams
+import io.typefox.lsapi.DidChangeWatchedFilesParams
+import io.typefox.lsapi.SymbolInformation
+import io.typefox.lsapi.WorkspaceSymbolParams
 import java.util.List
+import java.util.concurrent.CompletableFuture
 
 interface WorkspaceService {
     
@@ -15,7 +20,7 @@ interface WorkspaceService {
      * The workspace symbol request is sent from the client to the server to list project-wide symbols matching
      * the query string.
      */
-    def List<? extends SymbolInformation> symbol(WorkspaceSymbolParams params)
+    def CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params)
     
     /**
      * A notification sent from the client to the server to signal the change of configuration settings.
