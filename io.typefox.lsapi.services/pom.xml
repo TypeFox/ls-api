@@ -20,9 +20,6 @@
             <resource>
                 <directory>${basedir}/src/main/xtend-gen</directory>
             </resource>
-			<resource>
-				<directory>${basedir}/src/main/resources</directory>
-			</resource>
 		</resources>
 		<plugins>
 			<plugin>
