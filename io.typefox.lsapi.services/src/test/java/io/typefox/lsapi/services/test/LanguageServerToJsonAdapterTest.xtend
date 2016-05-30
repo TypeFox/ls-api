@@ -22,28 +22,15 @@ import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
-import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
-import org.junit.runners.Parameterized.Parameters
 
 import static org.junit.Assert.*
 
-@FinalFieldsConstructor
-@RunWith(Parameterized)
 class LanguageServerToJsonAdapterTest {
 	
 	static val TIMEOUT = 2000
-	
-	@Parameters(name = "Synchronous IO: {0}")
-	static def data() {
-		#[false, true]
-	}
-	
-	val boolean synchronousIO
 	
 	MockedLanguageServer mockedServer
 	LanguageServerToJsonAdapter adapter
@@ -56,7 +43,6 @@ class LanguageServerToJsonAdapterTest {
 		val pipe = new PipedInputStream
 		adapterOutput = new ByteArrayOutputStream
 		adapter = new LanguageServerToJsonAdapter(mockedServer)
-		adapter.protocol.synchronousIO = synchronousIO
 		adapterInput = new PipedOutputStream(pipe)
 		adapter.connect(pipe, adapterOutput)
 		adapter.protocol.addErrorListener[ message, t |

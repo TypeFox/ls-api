@@ -7,8 +7,6 @@
  *******************************************************************************/
 package io.typefox.lsapi.services.json
 
-import com.google.common.collect.Lists
-import com.google.common.collect.Queues
 import io.typefox.lsapi.Message
 import io.typefox.lsapi.MessageImpl
 import io.typefox.lsapi.RequestMessage
@@ -24,7 +22,6 @@ import java.io.OutputStream
 import java.io.UnsupportedEncodingException
 import java.nio.channels.ClosedChannelException
 import java.util.List
-import java.util.concurrent.BlockingQueue
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
@@ -50,17 +47,14 @@ class LanguageServerProtocol implements MessageAcceptor {
 	@Accessors
 	val IOHandler ioHandler = new IOHandler(this)
 	
-	@Accessors
-	String outputEncoding = 'UTF-8'
+	val outputLock = new Object
 	
 	@Accessors
-	boolean synchronousIO = false
+	String outputEncoding = 'UTF-8'
 	
 	val List<(String, Throwable)=>void> errorListeners = newArrayList
 	val List<(Message, String)=>void> incomingMessageListeners = newArrayList
 	val List<(Message, String)=>void> outgoingMessageListeners = newArrayList
-	
-	val BlockingQueue<Message> outgoingMessageQueue = Queues.newLinkedBlockingQueue
 	
 	def void addErrorListener((String, Throwable)=>void listener) {
 		errorListeners.add(listener)
@@ -100,28 +94,10 @@ class LanguageServerProtocol implements MessageAcceptor {
 	}
 	
 	override accept(Message message) {
-		val ioHandlerThread = ioHandler.thread
-		if (synchronousIO && ioHandlerThread !== null && ioHandlerThread != Thread.currentThread) {
-			outgoingMessageQueue.add(message)
-			ioHandlerThread.interrupt()
-		} else {
-			val output = ioHandler.output
-			try {
-				sendQueuedMessages(output)
-				send(message, output)
-			} catch (IOException e) {
-				logError(e)
-			}
-		}
-	}
-	
-	protected def sendQueuedMessages(OutputStream output) throws IOException {
-		if (!outgoingMessageQueue.empty) {
-			val messages = Lists.newArrayListWithExpectedSize(outgoingMessageQueue.size)
-			outgoingMessageQueue.drainTo(messages)
-			for (message : messages) {
-				send(message, output)
-			}
+		try {
+			send(message, ioHandler.output)
+		} catch (IOException e) {
+			logError(e)
 		}
 	}
 	
@@ -137,9 +113,11 @@ class LanguageServerProtocol implements MessageAcceptor {
 		if (charset !== 'UTF-8')
 			headerBuilder.append(H_CONTENT_TYPE).append(': ').append(CT_JSON).append('; charset=').append(charset).append('\r\n')
 		headerBuilder.append('\r\n')
-		output.write(headerBuilder.toString.bytes)
-		output.write(responseBytes)
-		output.flush()
+		synchronized (outputLock) {
+			output.write(headerBuilder.toString.bytes)
+			output.write(responseBytes)
+			output.flush()
+		}
 		
 		logOutgoingMessage(message, content)
 	}
@@ -216,7 +194,6 @@ class LanguageServerProtocol implements MessageAcceptor {
 		}
 		
 		protected def run(InputStream input, OutputStream output) throws IOException {
-			protocol.sendQueuedMessages(output)
 			keepRunning = true
 			var StringBuilder headerBuilder
 			var StringBuilder debugBuilder
@@ -263,10 +240,6 @@ class LanguageServerProtocol implements MessageAcceptor {
 					}
 				} catch (InterruptedIOException exception) {
 					// The read operation has been interrupted
-				}
-				if (keepRunning) {
-					// in synchronous IO mode outgoing messages are put into a queue
-					protocol.sendQueuedMessages(output)
 				}
 			}
 		}

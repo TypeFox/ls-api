@@ -21,28 +21,15 @@ import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
-import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
-import org.junit.runners.Parameterized.Parameters
 
 import static org.junit.Assert.*
 
-@FinalFieldsConstructor
-@RunWith(Parameterized)
 class JsonBasedLanguageServerTest {
 	
 	static val TIMEOUT = 2000
-	
-	@Parameters(name = "Synchronous IO: {0}")
-	static def data() {
-		#[false, true]
-	}
-	
-	val boolean synchronousIO
 	
 	JsonBasedLanguageServer server
 	OutputStream serverInput
@@ -53,7 +40,6 @@ class JsonBasedLanguageServerTest {
 		val pipe = new PipedInputStream
 		serverOutput = new ByteArrayOutputStream
 		server = new JsonBasedLanguageServer
-		server.protocol.synchronousIO = synchronousIO
 		serverInput = new PipedOutputStream(pipe)
 		server.connect(pipe, serverOutput)
 		server.onError[ message, t |
