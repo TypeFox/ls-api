@@ -36,8 +36,6 @@ import io.typefox.lsapi.TextDocumentPositionParams
 import io.typefox.lsapi.WorkspaceSymbolParams
 import io.typefox.lsapi.services.LanguageServer
 import io.typefox.lsapi.services.MessageAcceptor
-import java.io.InputStream
-import java.io.OutputStream
 import java.util.Map
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletionException
@@ -49,23 +47,12 @@ import org.eclipse.xtend.lib.annotations.Accessors
 /**
  * Wraps a language server implementation and adapts it to the JSON-based protocol.
  */
-class LanguageServerToJsonAdapter implements MessageAcceptor {
+class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements MessageAcceptor {
 	
 	@Accessors(PROTECTED_GETTER)
 	val LanguageServer delegate
 	
-	@Accessors(PROTECTED_GETTER)
-	val LanguageServerProtocol.InputListener inputListener
-	
-	@Accessors
-	val LanguageServerProtocol protocol
-	
-	val ExecutorService executorService
-	
 	val Map<String, Future<?>> requestFutures = newHashMap
-	
-	Future<?> inputListenerJoin
-	
 	
 	new(LanguageServer delegate) {
 		this(delegate, new MessageJsonHandler)
@@ -76,10 +63,9 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 	}
 	
 	new(LanguageServer delegate, MessageJsonHandler jsonHandler, ExecutorService executorService) {
+		super(executorService)
 		this.delegate = delegate
-		this.executorService = executorService
-		protocol = new LanguageServerProtocol(jsonHandler, this)
-		inputListener = new LanguageServerProtocol.InputListener(protocol)
+		protocol = createProtocol(jsonHandler)
 		delegate.textDocumentService.onPublishDiagnostics[
 			sendNotification(MessageMethods.SHOW_DIAGNOSTICS, it)
 		]
@@ -94,40 +80,21 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 		]
 	}
 	
-	def void connect(InputStream input, OutputStream output) {
-		if (isActive)
-			throw new IllegalStateException("Cannot connect while the adapter is active.")
-		protocol.output = output
-		inputListener.input = input
+	protected def createProtocol(MessageJsonHandler jsonHandler) {
+		new LanguageServerProtocol(jsonHandler, this)
 	}
 	
-	def synchronized void start() {
-		if (isActive)
-			throw new IllegalStateException("Cannot start while the adapter is active.")
-		inputListenerJoin = executorService.submit(inputListener)
-	}
-	
-	def boolean isActive() {
-		inputListener.isActive
-	}
-	
-	def void join() {
-		if (inputListenerJoin === null)
-			throw new IllegalStateException("Cannot join before the adapter has been started.")
-		inputListenerJoin.get()
-	}
-	
-	def synchronized void stop() {
-		inputListener.stop()
-		delegate.shutdown()
+	override exit() {
+		delegate.exit()
+		executorService.shutdown()
+		super.exit()
 	}
 	
 	override accept(Message message) {
 		doAccept(message)
 	}
 	
-	protected def dispatch doAccept(RequestMessage message) {
-		var doStop = false
+	protected def dispatch void doAccept(RequestMessage message) {
 		try {
 			val future = switch message.method {
 				case MessageMethods.INITIALIZE:
@@ -166,12 +133,10 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 					delegate.workspaceService.symbol(message.params as WorkspaceSymbolParams)
 				case MessageMethods.SHUTDOWN: {
 					delegate.shutdown()
-					doStop = true
 					null
 				}
 				case MessageMethods.EXIT: {
-					delegate.exit()
-					doStop = true
+					exit()
 					null
 				}
 				default: {
@@ -199,9 +164,6 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 			}
 		} catch (Exception e) {
 			handleRequestError(e, message)
-		} finally {
-			if (doStop)
-				inputListener.stop()
 		}
 	}
 	
@@ -214,7 +176,7 @@ class LanguageServerToJsonAdapter implements MessageAcceptor {
 		}
 	}
 	
-	protected def dispatch doAccept(NotificationMessage message) {
+	protected def dispatch void doAccept(NotificationMessage message) {
 		try {
 			switch message.method {
 				case MessageMethods.DID_OPEN_DOC:
