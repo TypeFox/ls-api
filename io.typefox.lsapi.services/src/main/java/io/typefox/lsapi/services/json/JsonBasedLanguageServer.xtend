@@ -53,8 +53,6 @@ import io.typefox.lsapi.services.MessageAcceptor
 import io.typefox.lsapi.services.TextDocumentService
 import io.typefox.lsapi.services.WindowService
 import io.typefox.lsapi.services.WorkspaceService
-import java.io.InputStream
-import java.io.OutputStream
 import java.util.List
 import java.util.Map
 import java.util.concurrent.CancellationException
@@ -70,7 +68,7 @@ import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 /**
  * A language server that delegates to an input and an output stream through the JSON-based protocol.
  */
-class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
+class JsonBasedLanguageServer extends AbstractJsonBasedServer implements LanguageServer, MessageAcceptor {
 	
 	@Accessors(PUBLIC_GETTER)
 	val textDocumentService = new TextDocumentServiceImpl(this)
@@ -80,13 +78,6 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 	
 	@Accessors(PUBLIC_GETTER)
 	val workspaceService = new WorkspaceServiceImpl(this)
-	
-	val LanguageServerProtocol.InputListener inputListener
-	
-	@Accessors(PROTECTED_GETTER)
-	val LanguageServerProtocol protocol
-	
-	val ExecutorService executorService
 	
 	val nextRequestId = new AtomicInteger
 	
@@ -103,29 +94,17 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 	}
 	
 	new(MessageJsonHandler jsonHandler, ExecutorService executorService) {
-		this.executorService = executorService
+		super(executorService)
 		jsonHandler.responseMethodResolver = [ id |
 			synchronized (requestHandlerMap) {
 				requestHandlerMap.get(id)?.methodId
 			}
 		]
-		protocol = new LanguageServerProtocol(jsonHandler, this)
-		inputListener = new LanguageServerProtocol.InputListener(protocol)
+		protocol = createProtocol(jsonHandler)
 	}
 	
-	def void connect(InputStream input, OutputStream output) {
-		if (inputListener.isActive)
-			throw new IllegalStateException("Cannot connect after the communication has started.")
-		protocol.output = output
-		inputListener.input = input
-	}
-	
-	protected def void ensureInputListener() {
-		synchronized (inputListener) {
-			if (!inputListener.active) {
-				executorService.execute(inputListener)
-			}
-		}
+	protected def createProtocol(MessageJsonHandler jsonHandler) {
+		new LanguageServerProtocol(jsonHandler, this)
 	}
 	
 	override accept(Message message) {
@@ -214,12 +193,12 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 			sendRequest(MessageMethods.EXIT, null)
 		} finally {
 			executorService.shutdownNow()
-			inputListener.stop()
 			synchronized (requestHandlerMap) {
 				for (handler : requestHandlerMap.values) {
 					handler.cancel()
 				}
 			}
+			super.exit()
 		}
 	}
 	
@@ -378,7 +357,6 @@ class JsonBasedLanguageServer implements LanguageServer, MessageAcceptor {
 				method = methodId
 				params = parameter
 			]
-			server.ensureInputListener()
 			server.protocol.accept(message)
 			synchronized (this) {
 				while (result === null) {

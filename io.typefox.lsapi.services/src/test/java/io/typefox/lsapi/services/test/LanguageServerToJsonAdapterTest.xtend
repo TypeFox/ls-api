@@ -22,15 +22,28 @@ import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
+import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+import org.junit.runners.Parameterized.Parameters
 
 import static org.junit.Assert.*
 
+@FinalFieldsConstructor
+@RunWith(Parameterized)
 class LanguageServerToJsonAdapterTest {
 	
 	static val TIMEOUT = 2000
+	
+	@Parameters(name = "Synchronous IO: {0}")
+	static def data() {
+		#[false, true]
+	}
+	
+	val boolean synchronousIO
 	
 	MockedLanguageServer mockedServer
 	LanguageServerToJsonAdapter adapter
@@ -43,6 +56,7 @@ class LanguageServerToJsonAdapterTest {
 		val pipe = new PipedInputStream
 		adapterOutput = new ByteArrayOutputStream
 		adapter = new LanguageServerToJsonAdapter(mockedServer)
+		adapter.protocol.synchronousIO = synchronousIO
 		adapterInput = new PipedOutputStream(pipe)
 		adapter.connect(pipe, adapterOutput)
 		adapter.protocol.addErrorListener[ message, t |
@@ -58,7 +72,7 @@ class LanguageServerToJsonAdapterTest {
 	
 	@After
 	def void teardown() {
-		adapter.stop()
+		adapter.exit()
 	}
 	
 	protected def void writeMessage(String content) {
@@ -126,7 +140,7 @@ class LanguageServerToJsonAdapterTest {
 	}
 	
 	@Test
-	def void testShutdown() {
+	def void testExit() {
 		val startTime = System.currentTimeMillis
 		while (!adapter.isActive) {
 			Thread.sleep(10)
@@ -136,7 +150,7 @@ class LanguageServerToJsonAdapterTest {
 			{
 				"jsonrpc": "2.0",
 				"id": "0",
-				"method": "shutdown"
+				"method": "exit"
 			}
 		''')
 		while (adapter.isActive) {
