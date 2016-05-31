@@ -34,33 +34,23 @@ interface LanguageDescription {
     /**
      * The language id.
      */
-    def String languageId()
+    def String getLanguageId()
     
     /**
      * The optional content types this language is associated with.
      */
-    def List<String> mimeTypes()
+    def List<String> getMimeTypes()
     
     /**
      * The fileExtension this language is associated with. At least one extension must be provided.
      */
-    def List<String> fileExtensions()
+    def List<String> getFileExtensions()
     
     /**
      * The optional highlighting configuration to support client side syntax highlighting.
+     * The format is client (editor) dependent.
      */
-    def HighlightingConfiguration getHighlightingConfiguration()
-}
-
-@LanguageServerAPI
-interface HighlightingConfiguration {
-    
-    /**
-     * The grammar as a string.
-     * Format depends on the client.
-     */
-    def String grammar()
-    
+    def String getHighlightingConfiguration()
 }
 
 @LanguageServerAPI
