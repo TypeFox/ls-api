@@ -31,6 +31,12 @@ interface InitializeParams {
 	 */
 	def ClientCapabilities getCapabilities()
 	
+	/**
+	 * An optional extension to the protocol.
+	 * To tell the server what client (editor) is talking to it.
+	 */
+	def String getClientName()
+
 }
 
 @LanguageServerAPI

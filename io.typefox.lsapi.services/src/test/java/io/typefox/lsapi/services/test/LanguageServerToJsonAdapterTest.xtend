@@ -121,6 +121,7 @@ class LanguageServerToJsonAdapterTest {
 			  processId = 123
 			  rootPath = "file:///tmp/"
 			  capabilities = null
+			  clientName = null
 			]
 		''')
 	}

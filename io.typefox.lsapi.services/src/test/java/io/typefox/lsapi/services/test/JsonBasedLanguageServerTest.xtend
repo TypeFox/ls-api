@@ -124,6 +124,7 @@ class JsonBasedLanguageServerTest {
 			    documentOnTypeFormattingProvider = null
 			    renameProvider = null
 			  ]
+			  supportedLanguages = null
 			]
 		''')
 		assertOutput('''

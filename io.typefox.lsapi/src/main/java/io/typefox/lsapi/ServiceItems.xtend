@@ -19,6 +19,48 @@ interface InitializeResult {
 	 */
 	def ServerCapabilities getCapabilities()
 	
+	
+	/**
+	 * An optional extension to the protocol, 
+	 * that allows to provide information about the supported languages.
+	 */
+	def List<? extends LanguageDescription> getSupportedLanguages()
+	
+}
+
+@LanguageServerAPI
+interface LanguageDescription {
+    
+    /**
+     * The language id.
+     */
+    def String languageId()
+    
+    /**
+     * The optional content types this language is associated with.
+     */
+    def List<String> mimeTypes()
+    
+    /**
+     * The fileExtension this language is associated with. At least one extension must be provided.
+     */
+    def List<String> fileExtensions()
+    
+    /**
+     * The optional highlighting configuration to support client side syntax highlighting.
+     */
+    def HighlightingConfiguration getHighlightingConfiguration()
+}
+
+@LanguageServerAPI
+interface HighlightingConfiguration {
+    
+    /**
+     * The grammar as a string.
+     * Format depends on the client.
+     */
+    def String grammar()
+    
 }
 
 @LanguageServerAPI
