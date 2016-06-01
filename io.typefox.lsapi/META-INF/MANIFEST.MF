@@ -6,6 +6,5 @@ Bundle-Version: 0.2.0.qualifier
 Bundle-Vendor: TypeFox
 Bundle-ActivationPolicy: lazy
 Export-Package: io.typefox.lsapi,
- io.typefox.lsapi.json,
- io.typefox.lsapi.util
+ io.typefox.lsapi.util;uses:="io.typefox.lsapi"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
