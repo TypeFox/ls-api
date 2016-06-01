@@ -272,7 +272,11 @@ class LanguageServerProtocol implements MessageAcceptor {
 			try {
 				val contentLength = headers.contentLength
 				val buffer = newByteArrayOfSize(contentLength)
-				val bytesRead = input.read(buffer, 0, contentLength)
+				var bytesRead = 0
+				
+				while (bytesRead < contentLength) 
+				    bytesRead += input.read(buffer, bytesRead, contentLength - bytesRead)
+				
 				if (bytesRead == contentLength)
 					protocol.handleMessage(new String(buffer, headers.charset))
 				else
