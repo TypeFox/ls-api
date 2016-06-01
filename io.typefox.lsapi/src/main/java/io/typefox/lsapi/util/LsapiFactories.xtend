@@ -27,6 +27,7 @@ import io.typefox.lsapi.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.TextEditImpl
 import io.typefox.lsapi.VersionedTextDocumentIdentifierImpl
 import java.util.List
+import io.typefox.lsapi.WorkspaceSymbolParamsImpl
 
 /**
  * @author Sven Efftinge - Initial contribution and API
@@ -127,6 +128,12 @@ class LsapiFactories {
 	static def DocumentSymbolParamsImpl newDocumentSymbolParams(String uri) {
 		val params = new DocumentSymbolParamsImpl
 		params.textDocument = uri.newTextDocumentIdentifier
+		return params
+	}
+
+	static def WorkspaceSymbolParamsImpl newWorkspaceSymbolParams(String query) {
+		val params = new WorkspaceSymbolParamsImpl
+		params.query = query
 		return params
 	}
 
