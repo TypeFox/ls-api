@@ -13,7 +13,9 @@ import io.typefox.lsapi.DidCloseTextDocumentParamsImpl
 import io.typefox.lsapi.DidOpenTextDocumentParamsImpl
 import io.typefox.lsapi.DocumentSymbolParamsImpl
 import io.typefox.lsapi.FileEventImpl
+import io.typefox.lsapi.HoverImpl
 import io.typefox.lsapi.InitializeParamsImpl
+import io.typefox.lsapi.MarkedStringImpl
 import io.typefox.lsapi.Position
 import io.typefox.lsapi.PositionImpl
 import io.typefox.lsapi.Range
@@ -26,8 +28,8 @@ import io.typefox.lsapi.TextDocumentItemImpl
 import io.typefox.lsapi.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.TextEditImpl
 import io.typefox.lsapi.VersionedTextDocumentIdentifierImpl
-import java.util.List
 import io.typefox.lsapi.WorkspaceSymbolParamsImpl
+import java.util.List
 
 /**
  * @author Sven Efftinge - Initial contribution and API
@@ -170,6 +172,24 @@ class LsapiFactories {
 		params.textDocument = newVersionedTextDocumentIdentifier(uri, version)
 		params.contentChanges = contentChanges
 		return params
+	}
+	
+	static def MarkedStringImpl newMarkedString(String value, String language) {
+		val markedString = new MarkedStringImpl
+		markedString.value = value
+		markedString.language = language
+		return markedString
+	}
+	
+	static def HoverImpl emptyHover() {
+		return newHover(emptyList, null)
+	}
+	
+	static def HoverImpl newHover(List<MarkedStringImpl> contents, RangeImpl range) {
+		val hover = new HoverImpl
+		hover.contents = contents
+		hover.range = range
+		return hover
 	}
 
 }
