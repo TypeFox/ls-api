@@ -57,7 +57,6 @@ class LanguageServerLauncher {
 					println('Connection accepted')
 
 					languageServer.connect(in, out)
-					languageServer.start()
 					languageServer.join()
 
 					channel.close()

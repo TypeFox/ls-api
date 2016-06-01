@@ -32,9 +32,10 @@ abstract class AbstractJsonBasedServer {
 			throw new IllegalStateException("Cannot connect while active.")
 		protocol.ioHandler.output = output
 		protocol.ioHandler.input = input
+		start();
 	}
 	
-	def synchronized void start() {
+	private def synchronized void start() {
 		if (isActive)
 			throw new IllegalStateException("Cannot start while active.")
 		ioHandlerJoin = executorService.submit(protocol.ioHandler)

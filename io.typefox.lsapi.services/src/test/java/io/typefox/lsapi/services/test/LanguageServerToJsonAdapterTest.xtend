@@ -44,7 +44,6 @@ class LanguageServerToJsonAdapterTest {
 		adapterOutput = new ByteArrayOutputStream
 		adapter = new LanguageServerToJsonAdapter(mockedServer)
 		adapterInput = new PipedOutputStream(pipe)
-		adapter.connect(pipe, adapterOutput)
 		adapter.protocol.addErrorListener[ message, t |
 			if (!(t instanceof MockedLanguageServer.ForcedException)) {
 				if (t !== null)
@@ -53,7 +52,7 @@ class LanguageServerToJsonAdapterTest {
 					System.err.println(message)
 			}
 		]
-		adapter.start()
+		adapter.connect(pipe, adapterOutput)
 	}
 	
 	@After

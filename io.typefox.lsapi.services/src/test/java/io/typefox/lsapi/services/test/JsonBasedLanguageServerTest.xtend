@@ -41,14 +41,13 @@ class JsonBasedLanguageServerTest {
 		serverOutput = new ByteArrayOutputStream
 		server = new JsonBasedLanguageServer
 		serverInput = new PipedOutputStream(pipe)
-		server.connect(pipe, serverOutput)
 		server.onError[ message, t |
 			if (t !== null)
 				t.printStackTrace()
 			else if (message !== null)
 				System.err.println(message)
 		]
-		server.start()
+		server.connect(pipe, serverOutput)
 	}
 	
 	@After
