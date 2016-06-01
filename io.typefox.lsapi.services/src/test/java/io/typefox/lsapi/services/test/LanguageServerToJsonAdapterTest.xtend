@@ -42,7 +42,9 @@ class LanguageServerToJsonAdapterTest {
 		mockedServer = new MockedLanguageServer
 		val pipe = new PipedInputStream
 		adapterOutput = new ByteArrayOutputStream
-		adapter = new LanguageServerToJsonAdapter(mockedServer)
+		adapter = new LanguageServerToJsonAdapter(mockedServer) => [
+		    afterExit = []
+		]
 		adapterInput = new PipedOutputStream(pipe)
 		adapter.protocol.addErrorListener[ message, t |
 			if (!(t instanceof MockedLanguageServer.ForcedException)) {

@@ -45,6 +45,7 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.function.Consumer
 
 /**
  * Wraps a language server implementation and adapts it to the JSON-based protocol.
@@ -105,15 +106,19 @@ class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Mes
 		return exitCode == 0
 	}
 	
-	override exit() {
+	override void exit() {
 		try {
 			delegate.exit()
 			executorService.shutdown()
 			super.exit()
 		} finally {
-			System.exit(if (shutdownReceived.get) 0 else 1)
+			afterExit?.accept(shutdownReceived.get)
 		}
 	}
+	
+	@Accessors Consumer<Boolean> afterExit = [shutdownReceived|
+	    System.exit(if (shutdownReceived) 0 else 1)
+	]
 	
 	override accept(Message message) {
 		doAccept(message)

@@ -242,7 +242,6 @@ class LanguageServerProtocol implements MessageAcceptor {
 					// The read operation has been interrupted
 				}
 			}
-			protocol.logError("InputStream terminated. Contents was : "+debugBuilder, null)
 		}
 		
 		private def matches(int c1, char c2) {
