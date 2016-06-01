@@ -19,7 +19,7 @@ interface InitializeParams {
 	/**
 	 * The process Id of the parent process that started the server.
 	 */
-	def int getProcessId()
+	def Integer getProcessId()
 	
 	/**
 	 * The rootPath of the workspace. Is null if no folder is open.

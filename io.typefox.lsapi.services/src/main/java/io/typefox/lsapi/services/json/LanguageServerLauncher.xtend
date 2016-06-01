@@ -1,6 +1,5 @@
 package io.typefox.lsapi.services.json
 
-import io.typefox.lsapi.RequestMessage
 import io.typefox.lsapi.services.LanguageServer
 import java.io.IOException
 import java.io.PrintWriter
@@ -23,8 +22,6 @@ class LanguageServerLauncher {
 		return new LanguageServerLauncher(server, socketAddress)
 	}
 
-	boolean exitRequested
-
 	val SocketAddress socketAddress
 
 	val LanguageServerToJsonAdapter languageServer
@@ -32,14 +29,6 @@ class LanguageServerLauncher {
 	new(LanguageServerToJsonAdapter languageServer, SocketAddress socketAddress) {
 		this.socketAddress = socketAddress
 		this.languageServer = languageServer
-		languageServer.protocol.addIncomingMessageListener [ message, json |
-			if (message instanceof RequestMessage) {
-				switch message.method {
-					case MessageMethods.EXIT:
-						exitRequested = true
-				}
-			}
-		]
 	}
 
 	def void launch() {
@@ -67,8 +56,8 @@ class LanguageServerLauncher {
 					exc.printStackTrace
 				}
 
-			})
-			while (!exitRequested) {
+			}) 
+			while (true) {
 				Thread.sleep(2000)
 			}
 		} catch (Throwable t) {

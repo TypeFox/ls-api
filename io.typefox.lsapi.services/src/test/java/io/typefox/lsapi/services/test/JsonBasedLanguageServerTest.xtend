@@ -52,7 +52,8 @@ class JsonBasedLanguageServerTest {
 	
 	@After
 	def void teardown() {
-		server.exit()
+		server.shutdown
+		server.exit
 	}
 	
 	protected def void waitForOutput(int startSize) {
@@ -127,9 +128,9 @@ class JsonBasedLanguageServerTest {
 			]
 		''')
 		assertOutput('''
-			Content-Length: 99
+			Content-Length: 85
 			
-			{"id":"0","method":"initialize","params":{"processId":0,"rootPath":"file:///tmp/"},"jsonrpc":"2.0"}
+			{"id":"0","method":"initialize","params":{"rootPath":"file:///tmp/"},"jsonrpc":"2.0"}
 		''')
 	}
 	
@@ -147,9 +148,9 @@ class JsonBasedLanguageServerTest {
 		])
 		waitForOutput(initReqSize)
 		assertOutput('''
-			Content-Length: 73
+			Content-Length: 60
 			
-			{"id":"0","method":"initialize","params":{"processId":0},"jsonrpc":"2.0"}Content-Length: 130
+			{"id":"0","method":"initialize","params":{},"jsonrpc":"2.0"}Content-Length: 130
 			
 			{"method":"textDocument/didOpen","params":{"textDocument":{"uri":"file:///tmp/foo","version":0,"text":"bla bla"}},"jsonrpc":"2.0"}
 		''')

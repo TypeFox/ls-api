@@ -42,6 +42,8 @@ import java.util.concurrent.CompletionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import org.eclipse.xtend.lib.annotations.Accessors
 
 /**
@@ -53,6 +55,8 @@ class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Mes
 	val LanguageServer delegate
 	
 	val Map<String, Future<?>> requestFutures = newHashMap
+	
+	AtomicBoolean shutdownReceived = new AtomicBoolean(false)
 	
 	new(LanguageServer delegate) {
 		this(delegate, new MessageJsonHandler)
@@ -84,10 +88,31 @@ class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Mes
 		new LanguageServerProtocol(jsonHandler, this)
 	}
 	
+	protected def void checkAlive(Integer processId) {
+		if (processId === null) return;
+		
+		val executor = Executors.newSingleThreadScheduledExecutor
+		executor.scheduleAtFixedRate([
+			if (!processId.alive) {
+				exit
+			}
+		], 3000, 3000, TimeUnit.MILLISECONDS)
+	}
+
+	protected def boolean isAlive(int processId) {
+		val process = Runtime.runtime.exec(#['kill', '-0', String.valueOf(processId)])
+		val exitCode = process.waitFor
+		return exitCode == 0
+	}
+	
 	override exit() {
-		delegate.exit()
-		executorService.shutdown()
-		super.exit()
+		try {
+			delegate.exit()
+			executorService.shutdown()
+			super.exit()
+		} finally {
+			System.exit(if (shutdownReceived.get) 0 else 1)
+		}
 	}
 	
 	override accept(Message message) {
@@ -97,8 +122,11 @@ class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Mes
 	protected def dispatch void doAccept(RequestMessage message) {
 		try {
 			val future = switch message.method {
-				case MessageMethods.INITIALIZE:
-					delegate.initialize(message.params as InitializeParams)
+				case MessageMethods.INITIALIZE: {
+					val params = message.params as InitializeParams
+					checkAlive(params.processId)
+					delegate.initialize(params)
+				}
 				case MessageMethods.DOC_COMPLETION:
 					delegate.textDocumentService.completion(message.params as TextDocumentPositionParams)
 				case MessageMethods.RESOLVE_COMPLETION:
@@ -132,6 +160,7 @@ class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Mes
 				case MessageMethods.WORKSPACE_SYMBOL:
 					delegate.workspaceService.symbol(message.params as WorkspaceSymbolParams)
 				case MessageMethods.SHUTDOWN: {
+					shutdownReceived.set(true)
 					delegate.shutdown()
 					null
 				}
