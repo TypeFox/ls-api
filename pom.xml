@@ -171,6 +171,19 @@
 				<javadoc.opts>-Xdoclint:none</javadoc.opts>
 			</properties>
 		</profile>
+		<profile>
+			<!-- Mac OSX Jdk fails to load javadoc -->
+			<id>javadoc-location-mac</id>
+			<activation>
+				<file>
+					<exists>${java.home}/../bin/javadoc</exists>
+					<missing>${java.home}/bin/javadoc</missing>
+				</file>
+			</activation>
+			<properties>
+				<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
+			</properties>
+		</profile>
 	</profiles>
 	<distributionManagement>
 		<snapshotRepository>
