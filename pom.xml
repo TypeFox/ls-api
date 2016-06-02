@@ -7,7 +7,7 @@
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
 	</parent>
-	
+
 	<groupId>io.typefox.lsapi</groupId>
 	<artifactId>lsapi-parent</artifactId>
 	<version>0.2.0-SNAPSHOT</version>
@@ -35,6 +35,8 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<xtend-output-src>${basedir}/src/main/xtend-gen</xtend-output-src>
 		<xtend-output-src-test>${basedir}/src/test/xtend-gen</xtend-output-src-test>
+
+		<sign.skip>true</sign.skip>
 	</properties>
 	<build>
 		<plugins>
@@ -51,6 +53,40 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.6</version>
+				<configuration>
+					<skip>${sign.skip}</skip>
+				</configuration>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<additionalparam>${javadoc.opts}</additionalparam>
+				</configuration>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -71,14 +107,18 @@
 								<includes>
 									<include>**/*</include>
 								</includes>
-								<excludes><exclude>.gitignore</exclude></excludes>
+								<excludes>
+									<exclude>.gitignore</exclude>
+								</excludes>
 							</fileset>
 							<fileset>
 								<directory>${xtend-output-src-test}</directory>
 								<includes>
 									<include>**/*</include>
 								</includes>
-								<excludes><exclude>.gitignore</exclude></excludes>
+								<excludes>
+									<exclude>.gitignore</exclude>
+								</excludes>
 							</fileset>
 						</filesets>
 					</configuration>
@@ -121,6 +161,15 @@
 					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
 				</pluginRepository>
 			</pluginRepositories>
+		</profile>
+		<profile>
+			<id>doclint-java8-disable</id>
+			<activation>
+				<jdk>[1.8,)</jdk>
+			</activation>
+			<properties>
+				<javadoc.opts>-Xdoclint:none</javadoc.opts>
+			</properties>
 		</profile>
 	</profiles>
 	<distributionManagement>
