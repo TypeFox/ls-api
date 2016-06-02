@@ -1,10 +1,22 @@
 Manifest-Version: 1.0
+Bnd-LastModified: 1464878518629
+Build-Jdk: 1.8.0_45
+Built-By: dhuebner
+Bundle-ActivationPolicy: lazy
+Bundle-Description: Language Server API Java bindings
 Bundle-ManifestVersion: 2
 Bundle-Name: Language Server API Java bindings
-Bundle-SymbolicName: io.typefox.lsapi
-Bundle-Version: 0.2.0.qualifier
-Bundle-Vendor: TypeFox
-Bundle-ActivationPolicy: lazy
-Export-Package: io.typefox.lsapi,
- io.typefox.lsapi.util;uses:="io.typefox.lsapi"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-SymbolicName: io.typefox.lsapi
+Bundle-Vendor: TypeFox
+Bundle-Version: 0.2.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin
+Export-Package: 
+ io.typefox.lsapi;uses:="org.eclipse.xtext.xbase.lib";version="0.2.0",
+ io.typefox.lsapi.util;uses:="io.typefox.lsapi";version="0.2.0"
+Import-Package: 
+ io.typefox.lsapi,
+ org.eclipse.xtext.xbase.lib;version="[2.10,3)",
+ org.eclipse.xtext.xbase.lib.util;version="[2.10,3)"
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.7))"
+Tool: Bnd-3.0.0.201509101326

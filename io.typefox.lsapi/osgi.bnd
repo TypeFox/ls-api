@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Language Server API Java bindings
+Bundle-SymbolicName: io.typefox.lsapi
+Bundle-Vendor: TypeFox
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Description: Language Server API Java bindings
