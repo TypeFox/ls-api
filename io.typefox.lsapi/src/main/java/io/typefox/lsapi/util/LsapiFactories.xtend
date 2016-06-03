@@ -22,6 +22,8 @@ import io.typefox.lsapi.Range
 import io.typefox.lsapi.RangeImpl
 import io.typefox.lsapi.ReferenceContextImpl
 import io.typefox.lsapi.ReferenceParamsImpl
+import io.typefox.lsapi.SignatureHelpImpl
+import io.typefox.lsapi.SignatureInformationImpl
 import io.typefox.lsapi.TextDocumentContentChangeEventImpl
 import io.typefox.lsapi.TextDocumentIdentifierImpl
 import io.typefox.lsapi.TextDocumentItemImpl
@@ -30,6 +32,7 @@ import io.typefox.lsapi.TextEditImpl
 import io.typefox.lsapi.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.WorkspaceSymbolParamsImpl
 import java.util.List
+import io.typefox.lsapi.ParameterInformationImpl
 
 /**
  * @author Sven Efftinge - Initial contribution and API
@@ -173,23 +176,52 @@ class LsapiFactories {
 		params.contentChanges = contentChanges
 		return params
 	}
-	
+
 	static def MarkedStringImpl newMarkedString(String value, String language) {
 		val markedString = new MarkedStringImpl
 		markedString.value = value
 		markedString.language = language
 		return markedString
 	}
-	
+
 	static def HoverImpl emptyHover() {
 		return newHover(emptyList, null)
 	}
-	
+
 	static def HoverImpl newHover(List<MarkedStringImpl> contents, RangeImpl range) {
 		val hover = new HoverImpl
 		hover.contents = contents
 		hover.range = range
 		return hover
+	}
+
+	static def SignatureHelpImpl emptySignatureHelp() {
+		return newSignatureHelp(emptyList, null, null)
+	}
+
+	static def SignatureHelpImpl newSignatureHelp(List<SignatureInformationImpl> signatures, Integer activeSignature,
+		Integer activeParameter) {
+		val signatureHelp = new SignatureHelpImpl
+		signatureHelp.signatures = signatures
+		signatureHelp.activeSignature = activeSignature
+		signatureHelp.activeParameter = activeParameter
+		return signatureHelp
+	}
+
+	static def SignatureInformationImpl newSignatureInformation(String label, String documentation,
+		List<ParameterInformationImpl> parameters) {
+		val signatureInformation = new SignatureInformationImpl
+		signatureInformation.label = label
+		signatureInformation.documentation = documentation
+		signatureInformation.parameters = parameters
+		return signatureInformation
+	}
+
+	static def ParameterInformationImpl newParameterInformation(String label, String documentation) {
+		val parameterInformation = new ParameterInformationImpl
+		parameterInformation.label = label
+		parameterInformation.documentation = documentation
+		return parameterInformation
 	}
 
 }
