@@ -1,0 +1,5 @@
+description 'Xtend active annotations that generate Java code from Language Server interfaces'
+
+dependencies {
+	compile "org.eclipse.xtend:org.eclipse.xtend.lib:${xtextVersion}"
+}

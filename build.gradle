@@ -1,0 +1,38 @@
+buildscript {
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath 'org.xtext:xtext-gradle-plugin:1.0.2'
+	}
+}
+
+subprojects {
+	ext.xtextVersion = '2.10.1-SNAPSHOT'
+	repositories {
+		jcenter()
+		maven {
+			url 'https://oss.sonatype.org/content/repositories/snapshots'
+		}
+	}
+	
+	apply plugin: 'java'
+	apply plugin: 'org.xtext.xtend'
+	apply from: "${rootDir}/gradle/maven-deployment.gradle"
+	apply plugin: 'eclipse'
+	
+	group = 'io.typefox.lsapi'
+	version = '0.2.0-SNAPSHOT'
+	
+	sourceCompatibility = '1.8'
+	targetCompatibility = '1.8'
+	
+	sourceSets {
+		main.xtendOutputDir = 'src/main/xtend-gen'
+		test.xtendOutputDir = 'src/test/xtend-gen'
+	}
+	
+	javadoc {
+		options.addStringOption('-Xdoclint:none')
+	}
+}
