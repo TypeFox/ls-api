@@ -31,6 +31,7 @@ import static org.junit.Assert.*
 class LanguageServerToJsonAdapterTest {
 	
 	static val TIMEOUT = 2000
+	static val BUFFER_SIZE = 256
 	
 	MockedLanguageServer mockedServer
 	LanguageServerToJsonAdapter adapter
@@ -40,7 +41,7 @@ class LanguageServerToJsonAdapterTest {
 	@Before
 	def void setup() {
 		mockedServer = new MockedLanguageServer
-		val pipe = new PipedInputStream
+		val pipe = new PipedInputStream(BUFFER_SIZE)
 		adapterOutput = new ByteArrayOutputStream
 		adapter = new LanguageServerToJsonAdapter(mockedServer) => [
 		    afterExit = []
@@ -342,6 +343,27 @@ class LanguageServerToJsonAdapterTest {
 			Content-Length: 67
 			
 			{"id":"0","error":{"code":-32600,"message":"Foo!"},"jsonrpc":"2.0"}
+		''')
+	}
+	
+	@Test
+	def void testMessageExceedsBuffer() {
+		mockedServer.response = new InitializeResultImpl
+		writeMessage('''
+			{
+				"jsonrpc":"2.0",
+				"id": "0",
+				"method": "initialize",
+				"params": {
+					"processId": 123,
+					"rootPath": "file:///very/long/path/aaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccdddd"
+				}
+			}
+		''')
+		assertOutput('''
+			Content-Length: 38
+			
+			{"id":"0","result":{},"jsonrpc":"2.0"}
 		''')
 	}
 	

@@ -274,13 +274,14 @@ class LanguageServerProtocol implements MessageAcceptor {
 				val buffer = newByteArrayOfSize(contentLength)
 				var bytesRead = 0
 				
-				while (bytesRead < contentLength) 
-				    bytesRead += input.read(buffer, bytesRead, contentLength - bytesRead)
+				while (bytesRead < contentLength) { 
+				    val readResult = input.read(buffer, bytesRead, contentLength - bytesRead)
+				    if (readResult == -1)
+				    	return false
+				    bytesRead += readResult
+			    }
 				
-				if (bytesRead == contentLength)
-					protocol.handleMessage(new String(buffer, headers.charset))
-				else
-					return false
+				protocol.handleMessage(new String(buffer, headers.charset))
 			} catch (UnsupportedEncodingException e) {
 				protocol.logError(e)
 			}

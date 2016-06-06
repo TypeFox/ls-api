@@ -30,6 +30,7 @@ import static org.junit.Assert.*
 class JsonBasedLanguageServerTest {
 	
 	static val TIMEOUT = 2000
+	static val BUFFER_SIZE = 512
 	
 	JsonBasedLanguageServer server
 	OutputStream serverInput
@@ -37,7 +38,7 @@ class JsonBasedLanguageServerTest {
 	
 	@Before
 	def void setup() {
-		val pipe = new PipedInputStream
+		val pipe = new PipedInputStream(BUFFER_SIZE)
 		serverOutput = new ByteArrayOutputStream
 		server = new JsonBasedLanguageServer
 		serverInput = new PipedOutputStream(pipe)
@@ -394,6 +395,42 @@ class JsonBasedLanguageServerTest {
 			
 			{"method":"$/cancelRequest","params":{"id":"0"},"jsonrpc":"2.0"}
 		''')
+	}
+	
+	@Test
+	def void testMessageExceedsBuffer() {
+		val future = server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
+			textDocument = new TextDocumentIdentifierImpl => [
+				uri = "file:///tmp/foo"
+			]
+			position = new PositionImpl => [
+				line = 4
+				character = 7
+			]
+		])
+		waitForOutput(0)
+		writeMessage('''
+			{
+				"jsonrpc": "2.0",
+				"id": "0",
+				"result": {
+					"items": [
+						{
+							"detail": "State",
+							"insertText": "foo",
+							"label": "very long label: aaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccdddd"
+						},
+						{
+							"detail": "State",
+							"insertText": "bar",
+							"label": "very long label: aaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccdddd"
+						}
+					]
+				}
+			}
+		''')
+		val result = future.get(TIMEOUT, TimeUnit.MILLISECONDS)
+		assertEquals(337, result.items.get(0).label.length)
 	}
 	
 }
