@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>io.typefox.lsapi.annotations</name>
-	<comment/>
+	<comment>Xtend active annotations that generate Java code from Language Server interfaces</comment>
 	<projects/>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>

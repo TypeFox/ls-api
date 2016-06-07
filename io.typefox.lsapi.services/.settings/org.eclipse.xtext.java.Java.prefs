@@ -1,9 +1,0 @@
-#Mon Jun 06 11:35:10 CEST 2016
-includeDateInGenerated=false
-BuilderConfiguration.is_project_specific=true
-eclipse.preferences.version=1
-generateGeneratedAnnotation=false
-useJavaCompilerCompliance=false
-generateSuppressWarnings=true
-ValidatorConfiguration.is_project_specific=true
-targetJavaVersion=Java6

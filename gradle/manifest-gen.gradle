@@ -1,0 +1,16 @@
+apply plugin: 'osgi'
+
+jar.manifest {
+	def baseVersion = project.version
+	if (baseVersion.endsWith('-SNAPSHOT'))
+		baseVersion = baseVersion.substring(0, baseVersion.length() - 9)
+	version = baseVersion + '.' + buildTime
+}
+
+task eclipseManifest(type: Copy) {
+	dependsOn(jar)
+    from "$buildDir/tmp/jar/MANIFEST.MF"
+    into 'META-INF'
+}
+
+tasks['eclipse'].dependsOn(eclipseManifest)

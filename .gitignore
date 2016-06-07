@@ -2,6 +2,10 @@ bin/
 target/
 build/
 .gradle/
+META-INF/
+org.eclipse.jdt.core.prefs
+org.eclipse.xtext.java.Java.prefs
+org.eclipse.xtend.core.Xtend.prefs
 *.class
 *._trace
 *.xtendbin

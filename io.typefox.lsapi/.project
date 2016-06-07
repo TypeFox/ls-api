@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>io.typefox.lsapi</name>
-	<comment/>
+	<comment>Data structures implementing the Language Server Protocol</comment>
 	<projects/>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
