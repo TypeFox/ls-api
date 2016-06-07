@@ -1,8 +1,16 @@
-description 'Java interface and JSON implementation of the Language Server Protocol'
+description 'Java services interface and JSON implementation of the Language Server Protocol'
 
 dependencies {
 	compile project(":io.typefox.lsapi")
 	compile "org.eclipse.xtend:org.eclipse.xtend.lib:${xtextVersion}"
 	compile "com.google.code.gson:gson:2.5"
 	testCompile "junit:junit:4.12"
+}
+
+jar.manifest {
+	name = 'Language Server API Services'
+	vendor = 'TypeFox'
+	instruction 'Import-Package', "com.google.common.*;version=\"$guavaVersion\""
+	instruction 'Import-Package', "io.typefox.lsapi.*;version=\"$version\""
+	instruction 'Import-Package', '*'
 }

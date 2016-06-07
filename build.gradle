@@ -7,8 +7,12 @@ buildscript {
 	}
 }
 
+def timestampFormat = new java.text.SimpleDateFormat('yyyyMMddHHmm')
+def buildTime = new Date()
+
 subprojects {
 	ext.xtextVersion = '2.10.1-SNAPSHOT'
+	ext.guavaVersion = '[14.0,19)'
 	repositories {
 		jcenter()
 		maven {
@@ -19,6 +23,7 @@ subprojects {
 	apply plugin: 'java'
 	apply plugin: 'org.xtext.xtend'
 	apply from: "${rootDir}/gradle/maven-deployment.gradle"
+	apply plugin: 'osgi'
 	apply plugin: 'eclipse'
 	
 	group = 'io.typefox.lsapi'
@@ -34,5 +39,12 @@ subprojects {
 	
 	javadoc {
 		options.addStringOption('-Xdoclint:none')
+	}
+	
+	jar.manifest {
+		def baseVersion = project.version
+		if (baseVersion.endsWith('-SNAPSHOT'))
+			baseVersion = baseVersion.substring(0, baseVersion.length() - 9)
+		version = baseVersion + '.' + timestampFormat.format(buildTime)
 	}
 }

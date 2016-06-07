@@ -9,5 +9,11 @@ dependencies {
 }
 
 jar {
-   from sourceSets.main.allJava
+	from sourceSets.main.allJava
+}
+
+jar.manifest {
+	name = 'Language Server API Java bindings'
+	vendor = 'TypeFox'
+	instruction 'Import-Package', '!org.eclipse.xtext.xbase.*'
 }

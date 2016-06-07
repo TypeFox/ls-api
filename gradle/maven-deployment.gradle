@@ -45,26 +45,26 @@ uploadArchives.repositories.mavenDeployer {
 			developer {
 				name 'Sven Efftinge'
 				email 'sven.efftinge@typefox.io'
-				organization = 'TypeFox'
-				organizationUrl = 'http://typefox.io'
+				organization 'TypeFox'
+				organizationUrl 'http://typefox.io'
 			}
 			developer {
 				name 'Dennis Hübner'
 				email 'dennis.huebner@typefox.io'
-				organization = 'TypeFox'
-				organizationUrl = 'http://typefox.io'
+				organization 'TypeFox'
+				organizationUrl 'http://typefox.io'
 			}
 			developer {
 				name 'Anton Kosyakov'
 				email 'anton.kosyakov@typefox.io'
-				organization = 'TypeFox'
-				organizationUrl = 'http://typefox.io'
+				organization 'TypeFox'
+				organizationUrl 'http://typefox.io'
 			}
 			developer {
 				name 'Miro Spönemann'
 				email 'miro.spoenemann@typefox.io'
-				organization = 'TypeFox'
-				organizationUrl = 'http://typefox.io'
+				organization 'TypeFox'
+				organizationUrl 'http://typefox.io'
 			}
 		}
 		scm {
