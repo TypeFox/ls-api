@@ -30,6 +30,14 @@ signing {
 	sign configurations.archives
 }
 
+def envSonatypeUser = System.getenv('SONATYPE_USER')
+if (envSonatypeUser != null)
+	ext.'sonatypeUserName' = envSonatypeUser
+def envSonatypePassword = System.getenv('SONATYPE_PASSWORD')
+if (envSonatypePassword != null)
+	ext.'sonatypePassword' = envSonatypePassword
+
+
 uploadArchives.repositories.mavenDeployer {
 	beforeDeployment { deployment -> signing.signPom(deployment) }
 	repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
