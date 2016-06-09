@@ -15,6 +15,16 @@ artifacts {
 	archives sourcesJar, javadocJar
 }
 
+def envSecretKeyRingFile = System.getenv('SIGNING_KEY_RING')
+if (envSecretKeyRingFile != null)
+	ext.'signing.secretKeyRingFile' = envSecretKeyRingFile
+def envKeyId = System.getenv('SIGNING_KEY_ID')
+if (envKeyId != null)
+	ext.'signing.keyId' = envKeyId
+def envPassword = System.getenv('SIGNING_PASSWORD')
+if (envPassword != null)
+	ext.'signing.password' = envPassword
+
 signing {
 	required { gradle.taskGraph.hasTask(uploadArchives) }
 	sign configurations.archives
