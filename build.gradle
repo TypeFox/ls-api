@@ -20,6 +20,7 @@ subprojects {
 	}
 	
 	group = 'io.typefox.lsapi'
+	
 	version = '0.2.0-SNAPSHOT'
 	
 	apply plugin: 'java'
