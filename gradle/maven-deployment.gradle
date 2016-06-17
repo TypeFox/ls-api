@@ -11,6 +11,15 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 	from javadoc.destinationDir
 }
 
+task createLocalMavenRepo(type: Upload) {
+  configuration = configurations['archives']
+  repositories {
+    mavenDeployer {
+      repository(url: "file:" + file("../build/maven-repository"))
+    }
+  }
+}
+
 artifacts {
 	archives sourcesJar, javadocJar
 }
@@ -45,7 +54,6 @@ uploadArchives.repositories.mavenDeployer {
 			authentication(userName: sonatypeUserName, password: sonatypePassword)
 		}
 	}
-	snapshotRepository(url: "file:" + file("../build/maven-repository"))
 	snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
 		if (project.hasProperty('sonatypeUserName') && project.hasProperty('sonatypePassword')) {
 			authentication(userName: sonatypeUserName, password: sonatypePassword)
