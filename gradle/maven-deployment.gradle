@@ -40,12 +40,12 @@ if (envSonatypePassword != null)
 
 uploadArchives.repositories.mavenDeployer {
 	beforeDeployment { deployment -> signing.signPom(deployment) }
-	repository(url: "file:" + file("../build/maven-repository"))
 	repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
 		if (project.hasProperty('sonatypeUserName') && project.hasProperty('sonatypePassword')) {
 			authentication(userName: sonatypeUserName, password: sonatypePassword)
 		}
 	}
+	snapshotRepository(url: "file:" + file("../build/maven-repository"))
 	snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
 		if (project.hasProperty('sonatypeUserName') && project.hasProperty('sonatypePassword')) {
 			authentication(userName: sonatypeUserName, password: sonatypePassword)
