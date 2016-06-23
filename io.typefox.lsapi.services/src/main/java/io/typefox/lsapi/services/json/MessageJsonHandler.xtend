@@ -87,6 +87,7 @@ class MessageJsonHandler {
 		MessageMethods.DOC_SIGNATURE_HELP -> SignatureHelpImpl,
 		MessageMethods.DOC_DEFINITION -> LocationImpl,
 		MessageMethods.DOC_HIGHLIGHT -> DocumentHighlightImpl,
+		MessageMethods.DOC_REFERENCES -> LocationImpl,
 		MessageMethods.DOC_SYMBOL -> SymbolInformationImpl,
 		MessageMethods.WORKSPACE_SYMBOL -> SymbolInformationImpl,
 		MessageMethods.DOC_CODE_ACTION -> CommandImpl,
