@@ -14,7 +14,6 @@ import io.typefox.lsapi.ResponseError
 import io.typefox.lsapi.ResponseErrorImpl
 import io.typefox.lsapi.ResponseMessage
 import io.typefox.lsapi.ResponseMessageImpl
-import io.typefox.lsapi.services.MessageAcceptor
 import java.io.IOException
 import java.io.InputStream
 import java.io.InterruptedIOException
@@ -22,11 +21,12 @@ import java.io.OutputStream
 import java.io.UnsupportedEncodingException
 import java.nio.channels.ClosedChannelException
 import java.util.List
+import java.util.function.Consumer
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
 @FinalFieldsConstructor
-class LanguageServerProtocol implements MessageAcceptor {
+class LanguageServerProtocol implements Consumer<Message> {
 	
 	public static val JSONRPC_VERSION = '2.0'
 	
@@ -42,7 +42,7 @@ class LanguageServerProtocol implements MessageAcceptor {
 	
 	val MessageJsonHandler jsonHandler
 	
-	val MessageAcceptor incomingMessageAcceptor
+	val Consumer<Message> incomingMessageAcceptor
 	
 	@Accessors
 	val IOHandler ioHandler = new IOHandler(this)

@@ -35,7 +35,6 @@ import io.typefox.lsapi.ResponseMessageImpl
 import io.typefox.lsapi.TextDocumentPositionParams
 import io.typefox.lsapi.WorkspaceSymbolParams
 import io.typefox.lsapi.services.LanguageServer
-import io.typefox.lsapi.services.MessageAcceptor
 import java.util.Map
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletionException
@@ -44,13 +43,13 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import org.eclipse.xtend.lib.annotations.Accessors
 import java.util.function.Consumer
+import org.eclipse.xtend.lib.annotations.Accessors
 
 /**
  * Wraps a language server implementation and adapts it to the JSON-based protocol.
  */
-class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements MessageAcceptor {
+class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Consumer<Message> {
 	
 	@Accessors(PROTECTED_GETTER)
 	val LanguageServer delegate

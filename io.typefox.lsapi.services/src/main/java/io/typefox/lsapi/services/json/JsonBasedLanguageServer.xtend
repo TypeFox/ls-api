@@ -49,7 +49,6 @@ import io.typefox.lsapi.TextEdit
 import io.typefox.lsapi.WorkspaceEdit
 import io.typefox.lsapi.WorkspaceSymbolParams
 import io.typefox.lsapi.services.LanguageServer
-import io.typefox.lsapi.services.MessageAcceptor
 import io.typefox.lsapi.services.TextDocumentService
 import io.typefox.lsapi.services.WindowService
 import io.typefox.lsapi.services.WorkspaceService
@@ -68,7 +67,7 @@ import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 /**
  * A language server that delegates to an input and an output stream through the JSON-based protocol.
  */
-class JsonBasedLanguageServer extends AbstractJsonBasedServer implements LanguageServer, MessageAcceptor {
+class JsonBasedLanguageServer extends AbstractJsonBasedServer implements LanguageServer, Consumer<Message> {
 	
 	@Accessors(PUBLIC_GETTER)
 	val textDocumentService = new TextDocumentServiceImpl(this)
