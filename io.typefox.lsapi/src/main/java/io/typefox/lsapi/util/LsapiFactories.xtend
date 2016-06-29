@@ -40,38 +40,38 @@ import io.typefox.lsapi.ParameterInformationImpl
 class LsapiFactories {
 
 	static def PositionImpl newPosition(int line, int character) {
-		new PositionImpl => [
-			it.line = line
-			it.character = character
-		]
+		val position = new PositionImpl
+		position.line = line
+		position.character = character
+		return position
 	}
 
 	static def PositionImpl copyPosition(Position position) {
-		new PositionImpl => [
-			it.line = position.line
-			it.character = position.character
-		]
+		val copy = new PositionImpl
+		copy.line = position.line
+		copy.character = position.character
+		return copy
 	}
 
 	static def RangeImpl newRange(PositionImpl start, PositionImpl end) {
-		new RangeImpl => [
-			it.start = start
-			it.end = end
-		]
+		val range = new RangeImpl
+		range.start = start
+		range.end = end
+		return range
 	}
 
 	static def RangeImpl copyRange(Range source) {
-		new RangeImpl => [
-			it.start = copyPosition(source.start)
-			it.end = copyPosition(source.end)
-		]
+		val copy = new RangeImpl
+		copy.start = copyPosition(source.start)
+		copy.end = copyPosition(source.end)
+		return copy
 	}
 
 	static def TextEditImpl newTextEdit(RangeImpl range, String newText) {
-		new TextEditImpl => [
-			it.range = range
-			it.newText = newText
-		]
+		val textEdit = new TextEditImpl
+		textEdit.range = range
+		textEdit.newText = newText
+		return textEdit
 	}
 
 	static def TextDocumentIdentifierImpl newTextDocumentIdentifier(String uri) {
