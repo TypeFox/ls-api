@@ -27,17 +27,11 @@ abstract class AbstractJsonBasedServer {
 	
 	Future<?> ioHandlerJoin
 	
-	def void connect(InputStream input, OutputStream output) {
+	def synchronized void connect(InputStream input, OutputStream output) {
 		if (isActive)
 			throw new IllegalStateException("Cannot connect while active.")
 		protocol.ioHandler.output = output
 		protocol.ioHandler.input = input
-		start();
-	}
-	
-	private def synchronized void start() {
-		if (isActive)
-			throw new IllegalStateException("Cannot start while active.")
 		ioHandlerJoin = executorService.submit(protocol.ioHandler)
 	}
 	
@@ -51,7 +45,7 @@ abstract class AbstractJsonBasedServer {
 	
 	def void join() throws InterruptedException, ExecutionException {
 		if (ioHandlerJoin === null)
-			throw new IllegalStateException("Cannot join before started.")
+			throw new IllegalStateException("Cannot join before connected.")
 		try {
 			ioHandlerJoin.get()
 		} catch (CancellationException e) {

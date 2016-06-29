@@ -47,8 +47,6 @@ class LanguageServerProtocol implements Consumer<Message> {
 	@Accessors
 	val IOHandler ioHandler = new IOHandler(this)
 	
-	val outputLock = new Object
-	
 	@Accessors
 	String outputEncoding = 'UTF-8'
 	
@@ -95,31 +93,14 @@ class LanguageServerProtocol implements Consumer<Message> {
 	
 	override accept(Message message) {
 		try {
-			send(message, ioHandler.output)
+			if (message.jsonrpc === null && message instanceof MessageImpl)
+				(message as MessageImpl).jsonrpc = JSONRPC_VERSION
+			val content = jsonHandler.serialize(message)
+			ioHandler.send(content, outputEncoding)
+			logOutgoingMessage(message, content)
 		} catch (IOException e) {
 			logError(e)
 		}
-	}
-	
-	protected def send(Message message, OutputStream output) throws IOException {
-		if (message.jsonrpc === null && message instanceof MessageImpl)
-			(message as MessageImpl).jsonrpc = JSONRPC_VERSION
-		val content = jsonHandler.serialize(message)
-		val charset = outputEncoding
-		
-		val responseBytes = content.getBytes(charset)
-		val headerBuilder = new StringBuilder
-		headerBuilder.append(H_CONTENT_LENGTH).append(': ').append(responseBytes.length).append('\r\n')
-		if (charset !== 'UTF-8')
-			headerBuilder.append(H_CONTENT_TYPE).append(': ').append(CT_JSON).append('; charset=').append(charset).append('\r\n')
-		headerBuilder.append('\r\n')
-		synchronized (outputLock) {
-			output.write(headerBuilder.toString.bytes)
-			output.write(responseBytes)
-			output.flush()
-		}
-		
-		logOutgoingMessage(message, content)
 	}
 	
 	protected def ResponseMessage createErrorResponse(String errorMessage, int errorCode, String requestId) {
@@ -160,6 +141,8 @@ class LanguageServerProtocol implements Consumer<Message> {
 		@Accessors(PUBLIC_SETTER)
 		OutputStream output
 		
+		val outputLock = new Object
+		
 		@Accessors(PUBLIC_GETTER)
 		boolean isRunning
 		
@@ -173,11 +156,11 @@ class LanguageServerProtocol implements Consumer<Message> {
 		
 		override run() {
 			if (isRunning)
-				throw new IllegalStateException("The input listener is already running.")
+				throw new IllegalStateException("The I/O handler is already running.")
 			thread = Thread.currentThread
 			isRunning = true
 			try {
-				run(input, output)
+				run(input)
 			} catch (ClosedChannelException e) {
 				// The channel whose stream has been listened was closed
 			} catch (Exception e) {
@@ -193,7 +176,7 @@ class LanguageServerProtocol implements Consumer<Message> {
 			thread?.interrupt()
 		}
 		
-		protected def run(InputStream input, OutputStream output) throws IOException {
+		protected def run(InputStream input) throws IOException {
 			keepRunning = true
 			var StringBuilder headerBuilder
 			var StringBuilder debugBuilder
@@ -286,6 +269,24 @@ class LanguageServerProtocol implements Consumer<Message> {
 				protocol.logError(e)
 			}
 			return true
+		}
+		
+		def void send(String content, String charset) {
+			send(output, content, charset)
+		}
+		
+		protected def void send(OutputStream output, String content, String charset) {
+			val responseBytes = content.getBytes(charset)
+			val headerBuilder = new StringBuilder
+			headerBuilder.append(H_CONTENT_LENGTH).append(': ').append(responseBytes.length).append('\r\n')
+			if (charset !== 'UTF-8')
+				headerBuilder.append(H_CONTENT_TYPE).append(': ').append(CT_JSON).append('; charset=').append(charset).append('\r\n')
+			headerBuilder.append('\r\n')
+			synchronized (outputLock) {
+				output.write(headerBuilder.toString.bytes)
+				output.write(responseBytes)
+				output.flush()
+			}
 		}
 		
 	}
