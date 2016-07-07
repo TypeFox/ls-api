@@ -48,3 +48,7 @@ subprojects {
 		options.addStringOption('-Xdoclint:none')
 	}
 }
+
+allprojects {
+	apply plugin: 'idea'
+}
