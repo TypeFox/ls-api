@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="io.typefox.lsapi" version="0.2.0.qualifier">
+      <category name="lsapi"/>
+   </bundle>
+   <bundle id="io.typefox.lsapi.annotations" version="0.2.0.qualifier">
+      <category name="lsapi"/>
+   </bundle>
+   <bundle id="io.typefox.lsapi.services" version="0.2.0.qualifier">
+      <category name="lsapi"/>
+   </bundle>
+   <category-def name="lsapi" label="lsapi"/>
+</site>
