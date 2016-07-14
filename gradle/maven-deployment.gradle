@@ -20,12 +20,6 @@ task createLocalMavenRepo(type: Upload) {
   }
 }
 
-//task createLocalP2Repo(type: Exec) {
-//  dependsOn createLocalMavenRepo
-//  workingDir '../gradle/maven-tycho-p2-repository'
-//  commandLine 'mvn', 'install'
-//}
-//
 artifacts {
 	archives sourcesJar, javadocJar
 }

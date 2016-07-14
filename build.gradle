@@ -48,3 +48,13 @@ subprojects {
 		options.addStringOption('-Xdoclint:none')
 	}
 }
+
+task createLocalP2Repo(type: Exec) {
+  dependsOn {
+    ":io.typefox.lsapi:createLocalMavenRepo"
+    ":io.typefox.lsapi.annotations:createLocalMavenRepo"
+    ":io.typefox.lsapi.services:createLocalMavenRepo"
+  }
+  workingDir 'gradle/maven-tycho-p2-repository'
+  commandLine 'mvn', 'install'
+}
