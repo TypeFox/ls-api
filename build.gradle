@@ -71,6 +71,8 @@ configurations {
 
 dependencies {
   javaMaven 'ch.qos.logback:logback-classic:0.9.24'
+  javaMaven 'org.apache.maven.wagon:wagon-http:2.10'
+  javaMaven 'org.apache.maven.wagon:wagon-file:2.10'
   javaMaven 'org.apache.maven:maven-embedder:3.3.9'
 }
 
