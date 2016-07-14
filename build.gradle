@@ -70,9 +70,14 @@ configurations {
 }
 
 dependencies {
-  javaMaven 'ch.qos.logback:logback-classic:0.9.24'
+  // http://stackoverflow.com/questions/4206679/can-anyone-give-a-good-example-of-using-org-apache-maven-cli-mavencli-programatt
+  javaMaven 'org.slf4j:slf4j-simple:1.7.21'
+  javaMaven 'org.eclipse.aether:aether-connector-basic:1.1.0'
+  javaMaven 'org.eclipse.aether:aether-transport-wagon:1.1.0'
   javaMaven 'org.apache.maven.wagon:wagon-http:2.10'
   javaMaven 'org.apache.maven.wagon:wagon-file:2.10'
+  javaMaven 'org.apache.maven.wagon:wagon-http-lightweight:2.10'
+  javaMaven 'org.apache.maven.wagon:wagon-provider-api:2.10'
   javaMaven 'org.apache.maven:maven-embedder:3.3.9'
 }
 
