@@ -10,3 +10,4 @@ org.eclipse.xtend.core.Xtend.prefs
 *._trace
 *.xtendbin
 .classpath
+xtend-gen
