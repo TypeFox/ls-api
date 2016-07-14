@@ -70,6 +70,7 @@ configurations {
 }
 
 dependencies {
+  javaMaven 'ch.qos.logback:logback-classic:0.9.24'
   javaMaven 'org.apache.maven:maven-embedder:3.3.9'
 }
 
