@@ -61,13 +61,30 @@ subprojects {
 	}
 }
 
-task createLocalP2Repo(type: Exec) {
+repositories {
+  mavenCentral()
+}
+
+configurations {
+  javaMaven
+}
+
+dependencies {
+  javaMaven 'org.apache.maven:maven-embedder:3.3.9'
+}
+
+task createLocalP2Repo(type: JavaExec) {
   group = 'Repository'
   description = 'Create a local P2 repository'
   dependsOn cleanLocalP2Repo,
     ":io.typefox.lsapi:createLocalMavenRepo",
     ":io.typefox.lsapi.annotations:createLocalMavenRepo",
     ":io.typefox.lsapi.services:createLocalMavenRepo"
+  classpath configurations.javaMaven
   workingDir 'gradle/maven-tycho-p2-repository'
-  commandLine 'mvn', 'install'
+  main = 'org.apache.maven.cli.MavenCli'
+  systemProperties = [
+    'maven.multiModuleProjectDirectory': 'gradle/maven-tycho-p2-repository'
+  ]
+  args 'install'
 }
