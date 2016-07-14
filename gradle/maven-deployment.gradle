@@ -12,6 +12,9 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 task createLocalMavenRepo(type: Upload) {
+  group = 'Repository'
+  description = 'Install artifact into local Maven repository'
+  dependsOn ":cleanLocalMavenRepo"
   configuration = configurations['archives']
   repositories {
     mavenDeployer {

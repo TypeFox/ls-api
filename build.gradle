@@ -9,6 +9,18 @@ buildscript {
 
 ext.buildTime = new java.text.SimpleDateFormat('yyyyMMddHHmm').format(new Date())
 
+task cleanLocalMavenRepo(type: Delete) {
+  group = 'Repository'
+  description = 'Delete the local Maven repository'
+  delete 'build/maven-repository'
+}
+
+task cleanLocalP2Repo(type: Delete) {
+  group = 'Repository'
+  description = 'Delete the local P2 repository'
+  delete 'build/p2-repository'
+}
+
 subprojects {
 	ext.xtextVersion = '2.10.1-SNAPSHOT'
 	ext.guavaVersion = '[14.0,19)'
@@ -50,11 +62,12 @@ subprojects {
 }
 
 task createLocalP2Repo(type: Exec) {
-  dependsOn {
-    ":io.typefox.lsapi:createLocalMavenRepo"
-    ":io.typefox.lsapi.annotations:createLocalMavenRepo"
+  group = 'Repository'
+  description = 'Create a local P2 repository'
+  dependsOn cleanLocalP2Repo,
+    ":io.typefox.lsapi:createLocalMavenRepo",
+    ":io.typefox.lsapi.annotations:createLocalMavenRepo",
     ":io.typefox.lsapi.services:createLocalMavenRepo"
-  }
   workingDir 'gradle/maven-tycho-p2-repository'
   commandLine 'mvn', 'install'
 }
