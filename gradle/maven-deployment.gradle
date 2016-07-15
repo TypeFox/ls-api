@@ -1,5 +1,5 @@
-apply plugin: 'maven'
-apply plugin: 'signing'
+//------------------------------------------------------
+// Create additional sources and Javadoc artifacts
 
 task sourcesJar(type: Jar, dependsOn: classes) {
 	classifier = 'sources'
@@ -11,21 +11,14 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 	from javadoc.destinationDir
 }
 
-task createLocalMavenRepo(type: Upload) {
-  group = 'Repository'
-  description = 'Install artifact into local Maven repository'
-  dependsOn ":cleanLocalMavenRepo"
-  configuration = configurations['archives']
-  repositories {
-    mavenDeployer {
-      repository(url: "file:" + file("../build/maven-repository"))
-    }
-  }
-}
-
 artifacts {
 	archives sourcesJar, javadocJar
 }
+
+//------------------------------------------------------
+// Sign the artifacts if the signing info is complete
+
+apply plugin: 'signing'
 
 def envSecretKeyRingFile = System.getenv('SIGNING_KEY_RING')
 if (envSecretKeyRingFile != null)
@@ -41,27 +34,18 @@ signing {
 	required { gradle.taskGraph.hasTask(uploadArchives) }
 	sign configurations.archives
 }
+if (!project.hasProperty('signing.secretKeyRingFile') || !project.property('signing.secretKeyRingFile')
+		|| !project.hasProperty('signing.keyId') || !project.property('signing.keyId')
+		|| !project.hasProperty('signing.password') || !project.property('signing.password')) {
+	signArchives.enabled = false
+}
 
-def envSonatypeUser = System.getenv('SONATYPE_USER')
-if (envSonatypeUser != null)
-	ext.'sonatypeUserName' = envSonatypeUser
-def envSonatypePassword = System.getenv('SONATYPE_PASSWORD')
-if (envSonatypePassword != null)
-	ext.'sonatypePassword' = envSonatypePassword
+//------------------------------------------------------
+// Configuration function for generated POMs
 
+apply plugin: 'maven'
 
-uploadArchives.repositories.mavenDeployer {
-	beforeDeployment { deployment -> signing.signPom(deployment) }
-	repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-		if (project.hasProperty('sonatypeUserName') && project.hasProperty('sonatypePassword')) {
-			authentication(userName: sonatypeUserName, password: sonatypePassword)
-		}
-	}
-	snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-		if (project.hasProperty('sonatypeUserName') && project.hasProperty('sonatypePassword')) {
-			authentication(userName: sonatypeUserName, password: sonatypePassword)
-		}
-	}
+def configurePom = { pom ->
 	pom.project {
 		packaging 'jar'
 		url 'https://github.com/TypeFox/ls-api'
@@ -103,4 +87,43 @@ uploadArchives.repositories.mavenDeployer {
 			url 'git@github.com:TypeFox/ls-api.git'
 		}
 	}
+}
+
+//------------------------------------------------------
+// Task for copying to a local Maven repository
+
+task createLocalMavenRepo(type: Upload) {
+	group = 'Repository'
+	description = 'Create or update the local Maven repository'
+	dependsOn ":cleanLocalMavenRepo"
+	configuration = configurations.archives
+	repositories.mavenDeployer {
+		repository(url: "file:" + file("../build/maven-repository"))
+		configurePom(pom)
+	}
+}
+
+//------------------------------------------------------
+// Task for uploading to a remote Maven repository
+
+def envSonatypeUser = System.getenv('SONATYPE_USER')
+if (envSonatypeUser != null)
+	ext.'sonatypeUserName' = envSonatypeUser
+def envSonatypePassword = System.getenv('SONATYPE_PASSWORD')
+if (envSonatypePassword != null)
+	ext.'sonatypePassword' = envSonatypePassword
+
+uploadArchives.repositories.mavenDeployer {
+	beforeDeployment { deployment -> signing.signPom(deployment) }
+	repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+		if (project.hasProperty('sonatypeUserName') && project.hasProperty('sonatypePassword')) {
+			authentication(userName: sonatypeUserName, password: sonatypePassword)
+		}
+	}
+	snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+		if (project.hasProperty('sonatypeUserName') && project.hasProperty('sonatypePassword')) {
+			authentication(userName: sonatypeUserName, password: sonatypePassword)
+		}
+	}
+	configurePom(pom)
 }
