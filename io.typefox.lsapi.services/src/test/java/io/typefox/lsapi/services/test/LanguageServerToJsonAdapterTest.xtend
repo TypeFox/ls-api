@@ -28,6 +28,8 @@ import org.junit.Test
 
 import static org.junit.Assert.*
 
+import static extension io.typefox.lsapi.services.test.LineEndings.*
+
 class LanguageServerToJsonAdapterTest {
 	
 	static val TIMEOUT = 2000
@@ -80,7 +82,7 @@ class LanguageServerToJsonAdapterTest {
 			Thread.sleep(10)
 			assertTrue(System.currentTimeMillis - startTime < TIMEOUT)
 		}
-		assertEquals(trimmed, adapterOutput.toString.replace('\r', ''))
+		assertEquals(trimmed, adapterOutput.toString.toSystemLineEndings)
 	}
 	
 	protected def void assertMethodCall(String method, String params) {
@@ -90,7 +92,7 @@ class LanguageServerToJsonAdapterTest {
 			assertTrue(System.currentTimeMillis - startTime < TIMEOUT)
 		}
 		if (params !== null)
-			assertEquals(params.trim, String.valueOf(mockedServer.methodCalls.get(method).head))
+			assertEquals(params.trim, String.valueOf(mockedServer.methodCalls.get(method).head).toSystemLineEndings)
 	}
 	
 	@Test

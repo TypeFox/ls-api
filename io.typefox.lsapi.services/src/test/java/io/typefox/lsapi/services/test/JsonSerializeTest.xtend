@@ -33,6 +33,8 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
+import static extension io.typefox.lsapi.services.test.LineEndings.*
+
 class JsonSerializeTest {
 	
 	MessageJsonHandler jsonHandler
@@ -44,7 +46,7 @@ class JsonSerializeTest {
 	}
 	
 	private def assertSerialize(Message message, CharSequence expected) {
-		Assert.assertEquals(expected.toString.trim, jsonHandler.serialize(message))
+		Assert.assertEquals(expected.toString.trim, jsonHandler.serialize(message).toSystemLineEndings)
 	}
 	
 	@Test

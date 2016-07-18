@@ -27,6 +27,8 @@ import org.junit.Test
 
 import static org.junit.Assert.*
 
+import static extension io.typefox.lsapi.services.test.LineEndings.*
+
 class JsonBasedLanguageServerTest {
 	
 	static val TIMEOUT = 2000
@@ -75,12 +77,12 @@ class JsonBasedLanguageServerTest {
 	}
 	
 	protected def assertOutput(String expected) {
-		assertEquals(expected.trim, serverOutput.toString.replace('\r', ''))
+		assertEquals(expected.trim, serverOutput.toString.toSystemLineEndings)
 	}
 	
 	protected def assertResult(Object result, String expected) {
 		assertNotNull(result)
-		assertEquals(expected.trim, result.toString)
+		assertEquals(expected.trim, result.toString.toSystemLineEndings)
 	}
 	
 	@Test
