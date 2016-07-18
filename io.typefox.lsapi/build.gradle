@@ -15,5 +15,4 @@ jar {
 jar.manifest {
 	name = 'Language Server API Java bindings'
 	vendor = 'TypeFox'
-	instruction 'Import-Package', '!org.eclipse.xtext.xbase.*'
 }
