@@ -198,19 +198,34 @@ class JsonParseTest {
 				"id": "12",
 				"result": {
 					"changes": {
-						"file:///tmp/foo": {
-							"range": {
-								"start": {
-									"character": 22,
-									"line": 4
+						"file:///tmp/foo": [
+							{
+								"range": {
+									"start": {
+										"character": 32,
+										"line": 3
+									},
+									"end": {
+										"character": 35,
+										"line": 3
+									}
 								},
-								"end": {
-									"character": 25,
-									"line": 4
-								}
+								"newText": "foobar"
 							},
-							"newText": "foobar"
-						}
+							{
+								"range": {
+									"start": {
+										"character": 22,
+										"line": 4
+									},
+									"end": {
+										"character": 25,
+										"line": 4
+									}
+								},
+								"newText": "foobar"
+							}
+						]
 					}
 				}
 			}
@@ -219,19 +234,34 @@ class JsonParseTest {
 			id = "12"
 			result = new WorkspaceEditImpl => [
 				changes = new HashMap => [
-					put("file:///tmp/foo", new TextEditImpl => [
-						range = new RangeImpl => [
-							start = new PositionImpl => [
-								line = 4
-								character = 22
+					put("file:///tmp/foo", newArrayList(
+						new TextEditImpl => [
+							range = new RangeImpl => [
+								start = new PositionImpl => [
+									line = 3
+									character = 32
+								]
+								end = new PositionImpl => [
+									line = 3
+									character = 35
+								]
 							]
-							end = new PositionImpl => [
-								line = 4
-								character = 25
+							newText = "foobar"
+						],
+						new TextEditImpl => [
+							range = new RangeImpl => [
+								start = new PositionImpl => [
+									line = 4
+									character = 22
+								]
+								end = new PositionImpl => [
+									line = 4
+									character = 25
+								]
 							]
+							newText = "foobar"
 						]
-						newText = "foobar"
-					])
+					))
 				]
 			]
 		])

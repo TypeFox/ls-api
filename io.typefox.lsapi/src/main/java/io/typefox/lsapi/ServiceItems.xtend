@@ -413,7 +413,7 @@ interface WorkspaceEdit {
 	/**
 	 * Holds changes to existing resources.
 	 */
-	def Map<String, ? extends TextEdit> getChanges()
+	def Map<String, ? extends List<? extends TextEdit>> getChanges()
 	
 }
 

@@ -110,19 +110,31 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 			return returnType.type.implName.findTypeGlobally.newTypeReference
 		}
 		val typeArguments = returnType.actualTypeArguments
-		if (returnType.type == List.findTypeGlobally && typeArguments.size == 1) {
-			val contentTypeRef = typeArguments.get(0)
-			val contentType = if (contentTypeRef.isWildCard) contentTypeRef.upperBound
-			if (contentType.isLanguageServiceAPI) {
+		val globalListType = List.findTypeGlobally
+		if (returnType.type == globalListType && typeArguments.size == 1) {
+			var contentType = typeArguments.get(0)
+			if (contentType.isWildCard)
+				contentType = contentType.upperBound
+			if (contentType.isLanguageServiceAPI)
 				return List.newTypeReference(contentType.type.implName.findTypeGlobally.newTypeReference)
-			}
 		}
-		if (returnType.type == Map.findTypeGlobally && typeArguments.size == 2) {
-			val contentTypeRef = typeArguments.get(1)
-			val contentType = if (contentTypeRef.isWildCard) contentTypeRef.upperBound
-			if (contentType.isLanguageServiceAPI) {
+		val globalMapType = Map.findTypeGlobally
+		if (returnType.type == globalMapType && typeArguments.size == 2) {
+			var contentType = typeArguments.get(1)
+			if (contentType.isWildCard)
+				contentType = contentType.upperBound
+			if (contentType.type == globalListType && contentType.actualTypeArguments.size == 1) {
+				contentType = contentType.actualTypeArguments.get(0)
+				if (contentType.isWildCard)
+					contentType = contentType.upperBound
+				if (contentType.isLanguageServiceAPI) {
+					return Map.newTypeReference(
+						typeArguments.get(0),
+						List.newTypeReference(contentType.type.implName.findTypeGlobally.newTypeReference)
+					)
+				}
+			} else if (contentType.isLanguageServiceAPI)
 				return Map.newTypeReference(typeArguments.get(0), contentType.type.implName.findTypeGlobally.newTypeReference)
-			}
 		}
 		return returnType
 	}
