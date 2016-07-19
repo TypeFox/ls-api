@@ -24,7 +24,6 @@ import io.typefox.lsapi.DocumentOnTypeFormattingParams
 import io.typefox.lsapi.DocumentRangeFormattingParams
 import io.typefox.lsapi.DocumentSymbolParams
 import io.typefox.lsapi.InitializeParams
-import io.typefox.lsapi.InitializeResult
 import io.typefox.lsapi.MessageParams
 import io.typefox.lsapi.PublishDiagnosticsParams
 import io.typefox.lsapi.ReferenceParams
@@ -100,7 +99,7 @@ class MockedLanguageServer implements LanguageServer {
 	
 	override initialize(InitializeParams params) {
 		methodCalls.put('initialize', params)
-		CompletableFuture.supplyAsync[response as InitializeResult]
+		return promise
 	}
 	
 	override shutdown() {

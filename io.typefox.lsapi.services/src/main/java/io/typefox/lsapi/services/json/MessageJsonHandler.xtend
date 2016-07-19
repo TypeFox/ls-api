@@ -9,6 +9,7 @@ package io.typefox.lsapi.services.json
 
 import com.google.common.collect.Lists
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import io.typefox.lsapi.CancelParamsImpl
@@ -120,7 +121,7 @@ class MessageJsonHandler {
 	var (String)=>String responseMethodResolver
 	
 	new() {
-		this.gson = new Gson
+		this.gson = new GsonBuilder().registerTypeAdapterFactory(new EnumTypeAdapterFactory).create()
 	}
 	
 	new(Gson gson) {

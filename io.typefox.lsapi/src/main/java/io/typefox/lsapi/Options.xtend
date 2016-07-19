@@ -100,25 +100,9 @@ interface SignatureHelpOptions {
 interface ServerCapabilities {
 	
 	/**
-	 * Documents should not be synced at all.
-	 */
-	val SYNC_NONE = 0
-	
-	/**
-	 * Documents are synced by always sending the full content of the document.
-	 */
-	val SYNC_FULL = 1
-	
-	/**
-	 * Documents are synced by sending the full content on open. After that only incremental
-     * updates to the document are send.
-	 */
-	val SYNC_INCREMENTAL = 2
-	
-	/**
 	 * Defines how text documents are synced.
 	 */
-	def Integer getTextDocumentSync()
+	def TextDocumentSyncKind getTextDocumentSync()
 	
 	/**
 	 * The server provides hover support.

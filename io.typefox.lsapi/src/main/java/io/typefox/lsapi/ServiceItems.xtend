@@ -91,25 +91,6 @@ interface CompletionList {
 @LanguageServerAPI
 interface CompletionItem {
 	
-	val KIND_TEXT = 1
-	val KIND_METHOD = 2
-	val KIND_FUNCTION = 3
-	val KIND_CONSTRUCTOR = 4
-	val KIND_FIELD = 5
-	val KIND_VARIABLE = 6
-	val KIND_CLASS = 7
-	val KIND_INTERFACE = 8
-	val KIND_MODULE = 9
-	val KIND_PROPERTY = 10
-	val KIND_UNIT = 11
-	val KIND_VALUE = 12
-	val KIND_ENUM = 13
-	val KIND_KEYWORD = 14
-	val KIND_SNIPPET = 15
-	val KIND_COLOR = 16
-	val KIND_FILE = 17
-	val KIND_REFERENCE = 18
-	
 	/**
 	 * The label of this completion item. By default also the text that is inserted when selecting this completion.
 	 */
@@ -118,7 +99,7 @@ interface CompletionItem {
 	/**
 	 * The kind of this completion item. Based of the kind an icon is chosen by the editor.
 	 */
-	def Integer getKind()
+	def CompletionItemKind getKind()
 	
 	/**
 	 * A human-readable string with additional information about this item, like type or symbol information.
@@ -275,25 +256,6 @@ interface ParameterInformation {
 @LanguageServerAPI
 interface SymbolInformation {
 	
-	val KIND_FILE = 1
-	val KIND_MODULE = 2
-	val KIND_NAMESPACE = 3
-	val KIND_PACKAGE = 4
-	val KIND_CLASS = 5
-	val KIND_METHOD = 6
-	val KIND_PROPERTY = 7
-	val KIND_FIELD = 8
-	val KIND_CONSTRUCTOR = 9
-	val KIND_ENUM = 10
-	val KIND_INTERFACE = 11
-	val KIND_FUNCTION = 12
-	val KIND_VARIABLE = 13
-	val KIND_CONSTANT = 14
-	val KIND_STRING = 15
-	val KIND_NUMBER = 16
-	val KIND_BOOLEAN = 17
-	val KIND_ARRAY = 18
-	
 	/**
 	 * The name of this symbol.
 	 */
@@ -302,7 +264,7 @@ interface SymbolInformation {
 	/**
 	 * The kind of this symbol.
 	 */
-	def int getKind()
+	def SymbolKind getKind()
 	
 	/**
 	 * The location of this symbol.
@@ -323,26 +285,6 @@ interface SymbolInformation {
 interface Diagnostic {
 	
 	/**
-	 * Reports an error.
-	 */
-	val SEVERITY_ERROR = 1
-	
-	/**
-	 * Reports a warning.
-	 */
-	val SEVERITY_WARNING = 2
-	
-	/**
-	 * Reports an information.
-	 */
-	val SEVERITY_INFO = 3
-	
-	/**
-	 * Reports a hint.
-	 */
-	val SEVERITY_HINT = 5
-	
-	/**
 	 * The range at which the message applies
 	 */
 	def Range getRange()
@@ -351,7 +293,7 @@ interface Diagnostic {
 	 * The diagnostic's severity. Can be omitted. If omitted it is up to the client to interpret diagnostics as error,
 	 * warning, info or hint.
 	 */
-	def Integer getSeverity()
+	def DiagnosticSeverity getSeverity()
 	
 	/**
 	 * The diagnostic's code. Can be omitted.
@@ -378,29 +320,14 @@ interface Diagnostic {
 interface DocumentHighlight {
 	
 	/**
-	 * A textual occurrance.
-	 */
-	val KIND_TEXT = 1
-	
-	/**
-	 * Read-access of a symbol, like reading a variable.
-	 */
-	val KIND_READ = 2
-	
-	/**
-	 * Write-access of a symbol, like writing to a variable.
-	 */
-	val KIND_WRITE = 3
-	
-	/**
 	 * The range this highlight applies to.
 	 */
 	def Range getRange()
 	
 	/**
-	 * The highlight kind, default is KIND_TEXT.
+	 * The highlight kind, default is {@link DocumentHighlightKind#Text}.
 	 */
-	def Integer getKind()
+	def DocumentHighlightKind getKind()
 	
 }
 

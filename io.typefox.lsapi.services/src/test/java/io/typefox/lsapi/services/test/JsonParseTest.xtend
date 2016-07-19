@@ -7,8 +7,8 @@
  *******************************************************************************/
 package io.typefox.lsapi.services.test
 
-import io.typefox.lsapi.Diagnostic
 import io.typefox.lsapi.DiagnosticImpl
+import io.typefox.lsapi.DiagnosticSeverity
 import io.typefox.lsapi.DidChangeTextDocumentParamsImpl
 import io.typefox.lsapi.Message
 import io.typefox.lsapi.NotificationMessageImpl
@@ -16,7 +16,7 @@ import io.typefox.lsapi.PositionImpl
 import io.typefox.lsapi.PublishDiagnosticsParamsImpl
 import io.typefox.lsapi.RangeImpl
 import io.typefox.lsapi.RequestMessageImpl
-import io.typefox.lsapi.ResponseError
+import io.typefox.lsapi.ResponseErrorCode
 import io.typefox.lsapi.ResponseErrorImpl
 import io.typefox.lsapi.ResponseMessageImpl
 import io.typefox.lsapi.TextDocumentContentChangeEventImpl
@@ -176,7 +176,7 @@ class JsonParseTest {
 								character = 25
 							]
 						]
-						severity = Diagnostic.SEVERITY_ERROR
+						severity = DiagnosticSeverity.Error
 						message = "Couldn't resolve reference to State 'bar'."
 					])
 				]
@@ -288,7 +288,7 @@ class JsonParseTest {
 			jsonrpc = "2.0"
 			id = "12"
 			error = new ResponseErrorImpl => [
-				code = ResponseError.INVALID_REQUEST
+				code = ResponseErrorCode.InvalidRequest
 				message = "Could not parse request."
 			]
 		])

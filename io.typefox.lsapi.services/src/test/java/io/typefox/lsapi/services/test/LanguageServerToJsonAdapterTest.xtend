@@ -9,8 +9,8 @@ package io.typefox.lsapi.services.test
 
 import io.typefox.lsapi.CompletionItemImpl
 import io.typefox.lsapi.CompletionOptionsImpl
-import io.typefox.lsapi.Diagnostic
 import io.typefox.lsapi.DiagnosticImpl
+import io.typefox.lsapi.DiagnosticSeverity
 import io.typefox.lsapi.InitializeResultImpl
 import io.typefox.lsapi.PositionImpl
 import io.typefox.lsapi.PublishDiagnosticsParamsImpl
@@ -29,6 +29,7 @@ import org.junit.Test
 import static org.junit.Assert.*
 
 import static extension io.typefox.lsapi.services.test.LineEndings.*
+import io.typefox.lsapi.TextDocumentSyncKind
 
 class LanguageServerToJsonAdapterTest {
 	
@@ -99,6 +100,7 @@ class LanguageServerToJsonAdapterTest {
 	def void testInitialize() {
 		mockedServer.response = new InitializeResultImpl => [
 			capabilities = new ServerCapabilitiesImpl => [
+				textDocumentSync = TextDocumentSyncKind.Incremental
 				completionProvider = new CompletionOptionsImpl => [
 					resolveProvider = true
 				]
@@ -116,9 +118,9 @@ class LanguageServerToJsonAdapterTest {
 			}
 		''')
 		assertOutput('''
-			Content-Length: 100
+			Content-Length: 121
 			
-			{"id":"0","result":{"capabilities":{"completionProvider":{"resolveProvider":true}}},"jsonrpc":"2.0"}
+			{"id":"0","result":{"capabilities":{"textDocumentSync":2,"completionProvider":{"resolveProvider":true}}},"jsonrpc":"2.0"}
 		''')
 		assertMethodCall('initialize', '''
 			InitializeParamsImpl [
@@ -274,7 +276,7 @@ class LanguageServerToJsonAdapterTest {
 							character = 26
 						]
 					]
-					severity = Diagnostic.SEVERITY_ERROR
+					severity = DiagnosticSeverity.Error
 					message = "Couldn't resolve reference to State 'bard'."
 				]
 			)

@@ -7,7 +7,7 @@
  *******************************************************************************/
 package io.typefox.lsapi.services.json
 
-import io.typefox.lsapi.ResponseError
+import io.typefox.lsapi.ResponseErrorCode
 import org.eclipse.xtend.lib.annotations.Accessors
 
 @Accessors
@@ -15,27 +15,27 @@ class InvalidMessageException extends RuntimeException {
 	
 	val String requestId
 	
-	val int errorCode
+	val ResponseErrorCode errorCode
 	
 	new(String message) {
 		super(message)
 		this.requestId = null
-		this.errorCode = ResponseError.INVALID_REQUEST
+		this.errorCode = ResponseErrorCode.InvalidRequest
 	}
 	
 	new(String message, String requestId) {
 		super(message)
 		this.requestId = requestId
-		this.errorCode = ResponseError.INVALID_REQUEST
+		this.errorCode = ResponseErrorCode.InvalidRequest
 	}
 	
 	new(String message, String requestId, Throwable cause) {
 		super(message, cause)
 		this.requestId = requestId
-		this.errorCode = ResponseError.INVALID_REQUEST
+		this.errorCode = ResponseErrorCode.InvalidRequest
 	}
 	
-	new(String message, String requestId, int errorCode) {
+	new(String message, String requestId, ResponseErrorCode errorCode) {
 		super(message)
 		this.requestId = requestId
 		this.errorCode = errorCode

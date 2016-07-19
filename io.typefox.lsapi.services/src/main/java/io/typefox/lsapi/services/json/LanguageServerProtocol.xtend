@@ -10,7 +10,7 @@ package io.typefox.lsapi.services.json
 import io.typefox.lsapi.Message
 import io.typefox.lsapi.MessageImpl
 import io.typefox.lsapi.RequestMessage
-import io.typefox.lsapi.ResponseError
+import io.typefox.lsapi.ResponseErrorCode
 import io.typefox.lsapi.ResponseErrorImpl
 import io.typefox.lsapi.ResponseMessage
 import io.typefox.lsapi.ResponseMessageImpl
@@ -81,7 +81,7 @@ class LanguageServerProtocol implements Consumer<Message> {
 			accept(createErrorResponse(e.message, e.errorCode, e.requestId))
 		} catch (Exception e) {
 			logError(e)
-			accept(createErrorResponse(e.message, ResponseError.INTERNAL_ERROR, requestId))
+			accept(createErrorResponse(e.message, ResponseErrorCode.InternalError, requestId))
 		}
 	}
 	
@@ -103,7 +103,7 @@ class LanguageServerProtocol implements Consumer<Message> {
 		}
 	}
 	
-	protected def ResponseMessage createErrorResponse(String errorMessage, int errorCode, String requestId) {
+	protected def ResponseMessage createErrorResponse(String errorMessage, ResponseErrorCode errorCode, String requestId) {
 		val response = new ResponseMessageImpl
 		response.jsonrpc = JSONRPC_VERSION
 		if (requestId !== null)

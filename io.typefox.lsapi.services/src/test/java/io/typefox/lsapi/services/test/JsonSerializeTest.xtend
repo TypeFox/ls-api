@@ -8,8 +8,8 @@
 package io.typefox.lsapi.services.test
 
 import com.google.gson.GsonBuilder
-import io.typefox.lsapi.Diagnostic
 import io.typefox.lsapi.DiagnosticImpl
+import io.typefox.lsapi.DiagnosticSeverity
 import io.typefox.lsapi.DidChangeTextDocumentParamsImpl
 import io.typefox.lsapi.Message
 import io.typefox.lsapi.NotificationMessageImpl
@@ -17,7 +17,7 @@ import io.typefox.lsapi.PositionImpl
 import io.typefox.lsapi.PublishDiagnosticsParamsImpl
 import io.typefox.lsapi.RangeImpl
 import io.typefox.lsapi.RequestMessageImpl
-import io.typefox.lsapi.ResponseError
+import io.typefox.lsapi.ResponseErrorCode
 import io.typefox.lsapi.ResponseErrorImpl
 import io.typefox.lsapi.ResponseMessageImpl
 import io.typefox.lsapi.TextDocumentContentChangeEventImpl
@@ -26,6 +26,7 @@ import io.typefox.lsapi.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.TextEditImpl
 import io.typefox.lsapi.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.WorkspaceEditImpl
+import io.typefox.lsapi.services.json.EnumTypeAdapterFactory
 import io.typefox.lsapi.services.json.MessageJsonHandler
 import java.util.ArrayList
 import java.util.HashMap
@@ -41,7 +42,7 @@ class JsonSerializeTest {
 	
 	@Before
 	def void setup() {
-		val gsonBuilder = new GsonBuilder().setPrettyPrinting
+		val gsonBuilder = new GsonBuilder().registerTypeAdapterFactory(new EnumTypeAdapterFactory).setPrettyPrinting
 		jsonHandler = new MessageJsonHandler(gsonBuilder.create())
 	}
 	
@@ -159,7 +160,7 @@ class JsonSerializeTest {
 								character = 25
 							]
 						]
-						severity = Diagnostic.SEVERITY_ERROR
+						severity = DiagnosticSeverity.Error
 						message = "Couldn't resolve reference to State 'bar'."
 					])
 				]
@@ -276,7 +277,7 @@ class JsonSerializeTest {
 			jsonrpc = "2.0"
 			id = "12"
 			error = new ResponseErrorImpl => [
-				code = ResponseError.INVALID_REQUEST
+				code = ResponseErrorCode.InvalidRequest
 				message = "Could not parse request."
 			]
 		]

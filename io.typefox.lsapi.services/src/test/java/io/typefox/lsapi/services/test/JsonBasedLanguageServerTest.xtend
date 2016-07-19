@@ -108,7 +108,7 @@ class JsonBasedLanguageServerTest {
 		future.get(TIMEOUT, TimeUnit.MILLISECONDS).assertResult('''
 			InitializeResultImpl [
 			  capabilities = ServerCapabilitiesImpl [
-			    textDocumentSync = 2
+			    textDocumentSync = Incremental
 			    hoverProvider = null
 			    completionProvider = CompletionOptionsImpl [
 			      resolveProvider = false
@@ -365,7 +365,7 @@ class JsonBasedLanguageServerTest {
 			          character = 26
 			        ]
 			      ]
-			      severity = 1
+			      severity = Error
 			      code = null
 			      source = null
 			      message = "Couldn't resolve reference to State 'bard'."

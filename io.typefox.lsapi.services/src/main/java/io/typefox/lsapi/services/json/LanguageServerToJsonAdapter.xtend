@@ -29,7 +29,7 @@ import io.typefox.lsapi.NotificationMessageImpl
 import io.typefox.lsapi.ReferenceParams
 import io.typefox.lsapi.RenameParams
 import io.typefox.lsapi.RequestMessage
-import io.typefox.lsapi.ResponseError
+import io.typefox.lsapi.ResponseErrorCode
 import io.typefox.lsapi.ResponseErrorImpl
 import io.typefox.lsapi.ResponseMessageImpl
 import io.typefox.lsapi.TextDocumentPositionParams
@@ -173,7 +173,7 @@ class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Con
 					null
 				}
 				default: {
-					sendResponseError(message.id, "Invalid method: " + message.method, ResponseError.METHOD_NOT_FOUND)
+					sendResponseError(message.id, "Invalid method: " + message.method, ResponseErrorCode.MethodNotFound)
 					null
 				}
 			}
@@ -205,7 +205,7 @@ class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Con
 			sendResponseError(message.id, exception.message, exception.errorCode)
 		} else if (!(exception instanceof CancellationException || exception instanceof InterruptedException)) {
 			protocol.logError(exception)
-			sendResponseError(message.id, exception.class.name+":"+exception.message, ResponseError.INTERNAL_ERROR)
+			sendResponseError(message.id, exception.class.name+":"+exception.message, ResponseErrorCode.InternalError)
 		}
 	}
 	
@@ -258,11 +258,11 @@ class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Con
 		protocol.accept(message)
 	}
 	
-	protected def sendResponseError(String responseId, String errorMessage, int errorCode) {
+	protected def sendResponseError(String responseId, String errorMessage, ResponseErrorCode errorCode) {
 		sendResponseError(responseId, errorMessage, errorCode, null)
 	}
 	
-	protected def sendResponseError(String responseId, String errorMessage, int errorCode, Object errorData) {
+	protected def sendResponseError(String responseId, String errorMessage, ResponseErrorCode errorCode, Object errorData) {
 		val message = new ResponseMessageImpl => [
 			jsonrpc = LanguageServerProtocol.JSONRPC_VERSION
 			id = responseId

@@ -87,18 +87,10 @@ interface ResponseMessage extends Message {
 @LanguageServerAPI
 interface ResponseError {
 	
-	val PARSE_ERROR = -32700
-	val INVALID_REQUEST = -32600
-	val METHOD_NOT_FOUND = -32601
-	val INVALID_PARAMS = -32602
-	val INTERNAL_ERROR = -32603
-	val SERVER_ERROR_START = -32099
-	val SERVER_ERROR_END = -32000
-	
 	/**
 	 * A number indicating the error type that occured.
 	 */
-	def int getCode()
+	def ResponseErrorCode getCode()
 	
 	/**
 	 * A string providing a short decription of the error.

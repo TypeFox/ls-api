@@ -33,6 +33,7 @@ import io.typefox.lsapi.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.WorkspaceSymbolParamsImpl
 import java.util.List
 import io.typefox.lsapi.ParameterInformationImpl
+import io.typefox.lsapi.FileChangeType
 
 /**
  * @author Sven Efftinge - Initial contribution and API
@@ -96,7 +97,7 @@ class LsapiFactories {
 		return item
 	}
 
-	static def FileEventImpl newFileEvent(String uri, int type) {
+	static def FileEventImpl newFileEvent(String uri, FileChangeType type) {
 		val fileEvent = new FileEventImpl
 		fileEvent.uri = uri
 		fileEvent.type = type

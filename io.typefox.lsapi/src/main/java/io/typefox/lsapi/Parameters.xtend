@@ -312,21 +312,6 @@ interface DidChangeWatchedFilesParams {
 interface FileEvent {
 	
 	/**
-	 * The file got created.
-	 */
-	val TYPE_CREATED = 1
-	
-	/**
-	 * The file got changed.
-	 */
-	val TYPE_CHANGED = 2
-	
-	/**
-	 * The file got deleted.
-	 */
-	val TYPE_DELETED = 3
-	
-	/**
 	 * The file's uri.
 	 */
 	def String getUri()
@@ -334,7 +319,7 @@ interface FileEvent {
 	/**
 	 * The change type.
 	 */
-	def int getType()
+	def FileChangeType getType()
 	
 }
 
@@ -425,29 +410,9 @@ interface PublishDiagnosticsParams {
 interface MessageParams {
 	
 	/**
-	 * An error message.
-	 */
-	val TYPE_ERROR = 1
-	
-	/**
-	 * A warning message.
-	 */
-	val TYPE_WARNING = 2
-	
-	/**
-	 * An information message.
-	 */
-	val TYPE_INFO = 3
-	
-	/**
-	 * A log message.
-	 */
-	val TYPE_LOG = 1
-	
-	/**
 	 * The message type.
 	 */
-	def int getType()
+	def MessageType getType()
 	
 	/**
 	 * The actual message.
