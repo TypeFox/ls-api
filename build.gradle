@@ -26,33 +26,15 @@ subprojects {
 	}
 	
 	group = 'io.typefox.lsapi'
-	
 	version = '0.2.0-SNAPSHOT'
 	
 	apply plugin: 'java'
 	apply plugin: 'org.xtext.xtend'
 	apply plugin: 'eclipse'
+	apply from: "${rootDir}/gradle/java-compiler-settings.gradle"
+	apply from: "${rootDir}/gradle/xtend-compiler-settings.gradle"
 	apply from: "${rootDir}/gradle/maven-deployment.gradle"
 	apply from: "${rootDir}/gradle/manifest-gen.gradle"
-	
-	sourceCompatibility = '1.8'
-	targetCompatibility = '1.8'
-
-	xtend {
-		debugger {
-			sourceInstaller = 'PRIMARY'
-			hideSyntheticVariables = false
-		}
-	}
-	
-	sourceSets {
-		main.xtendOutputDir = 'src/main/xtend-gen'
-		test.xtendOutputDir = 'src/test/xtend-gen'
-	}
-	
-	javadoc {
-		options.addStringOption('-Xdoclint:none')
-	}
 }
 
 apply from: "${rootDir}/gradle/p2-deployment.gradle"

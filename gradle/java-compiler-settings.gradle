@@ -1,0 +1,14 @@
+plugins.withType(JavaBasePlugin) {
+	sourceCompatibility = '1.8'
+}
+
+tasks.withType(Javadoc) {
+	options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+eclipse {
+	project {
+		natures 'org.eclipse.xtext.ui.shared.xtextNature'
+		buildCommand 'org.eclipse.xtext.ui.shared.xtextBuilder'
+	}
+}
