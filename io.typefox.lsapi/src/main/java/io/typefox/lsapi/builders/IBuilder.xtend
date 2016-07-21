@@ -5,17 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.test
+package io.typefox.lsapi.builders
 
-import io.typefox.lsapi.Message
-import io.typefox.lsapi.annotations.LanguageServerAPI
-import org.junit.Assert
-import org.junit.Test
-
-class NoAnnotationTest {
-    
-    @Test def void testNoAnnotation() {
-        Assert.assertFalse(Message.annotations.exists[annotationType == LanguageServerAPI])
-    }
-    
+/**
+ * Interface for builders of protocol classes.
+ */
+interface IBuilder<T> {
+	
+	def T build()
+	
 }

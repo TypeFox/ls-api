@@ -26,8 +26,12 @@ import io.typefox.lsapi.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.TextEditImpl
 import io.typefox.lsapi.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.WorkspaceEditImpl
+import io.typefox.lsapi.builders.CompletionListBuilder
+import io.typefox.lsapi.builders.RequestMessageBuilder
+import io.typefox.lsapi.builders.ResponseMessageBuilder
 import io.typefox.lsapi.services.json.EnumTypeAdapterFactory
 import io.typefox.lsapi.services.json.MessageJsonHandler
+import io.typefox.lsapi.services.json.MessageMethods
 import java.util.ArrayList
 import java.util.HashMap
 import org.junit.Assert
@@ -35,6 +39,7 @@ import org.junit.Before
 import org.junit.Test
 
 import static extension io.typefox.lsapi.services.test.LineEndings.*
+import io.typefox.lsapi.builders.DocumentFormattingParamsBuilder
 
 class JsonSerializeTest {
 	
@@ -55,15 +60,10 @@ class JsonSerializeTest {
 		val message = new RequestMessageImpl => [
 			jsonrpc = "2.0"
 			id = "1"
-			method = "textDocument/completion"
+			method = MessageMethods.DOC_COMPLETION
 			params = new TextDocumentPositionParamsImpl => [
-				textDocument = new TextDocumentIdentifierImpl => [
-					uri = "file:///tmp/foo"
-				]
-				position = new PositionImpl => [
-					line = 4
-					character = 22
-				]
+				textDocument = new TextDocumentIdentifierImpl("file:///tmp/foo")
+				position = new PositionImpl(4, 22)
 			]
 		]
 		message.assertSerialize('''
@@ -88,7 +88,7 @@ class JsonSerializeTest {
 	def void testDidChange() {
 		val message = new NotificationMessageImpl => [
 			jsonrpc = "2.0"
-			method = "textDocument/didChange"
+			method = MessageMethods.DID_CHANGE_DOC
 			params = new DidChangeTextDocumentParamsImpl => [
 				textDocument = new VersionedTextDocumentIdentifierImpl => [
 					uri = "file:///tmp/foo"
@@ -96,14 +96,8 @@ class JsonSerializeTest {
 				contentChanges = new ArrayList => [
 					add(new TextDocumentContentChangeEventImpl => [
 						range = new RangeImpl => [
-							start = new PositionImpl => [
-								line = 7
-								character = 12
-							]
-							end = new PositionImpl => [
-								line = 8
-								character = 16
-							]
+							start = new PositionImpl(7, 12)
+							end = new PositionImpl(8, 16)
 						]
 						rangeLength = 20
 						text = "bar"
@@ -145,20 +139,14 @@ class JsonSerializeTest {
 	def void testPublishDiagnostics() {
 		val message = new NotificationMessageImpl => [
 			jsonrpc = "2.0"
-			method = "textDocument/publishDiagnostics"
+			method = MessageMethods.SHOW_DIAGNOSTICS
 			params = new PublishDiagnosticsParamsImpl => [
 				uri = "file:///tmp/foo"
 				diagnostics = new ArrayList => [
 					add(new DiagnosticImpl => [
 						range = new RangeImpl => [
-							start = new PositionImpl => [
-								line = 4
-								character = 22
-							]
-							end = new PositionImpl => [
-								line = 4
-								character = 25
-							]
+							start = new PositionImpl(4, 22)
+							end = new PositionImpl(4, 25)
 						]
 						severity = DiagnosticSeverity.Error
 						message = "Couldn't resolve reference to State 'bar'."
@@ -203,27 +191,15 @@ class JsonSerializeTest {
 					put("file:///tmp/foo", newArrayList(
 						new TextEditImpl => [
 							range = new RangeImpl => [
-								start = new PositionImpl => [
-									line = 3
-									character = 32
-								]
-								end = new PositionImpl => [
-									line = 3
-									character = 35
-								]
+								start = new PositionImpl(3, 32)
+								end = new PositionImpl(3, 35)
 							]
 							newText = "foobar"
 						],
 						new TextEditImpl => [
 							range = new RangeImpl => [
-								start = new PositionImpl => [
-									line = 4
-									character = 22
-								]
-								end = new PositionImpl => [
-									line = 4
-									character = 25
-								]
+								start = new PositionImpl(4, 22)
+								end = new PositionImpl(4, 25)
 							]
 							newText = "foobar"
 						]
@@ -287,6 +263,60 @@ class JsonSerializeTest {
 			  "error": {
 			    "code": -32600,
 			    "message": "Could not parse request."
+			  },
+			  "jsonrpc": "2.0"
+			}
+		''')
+	}
+	
+	@Test
+	def void testBuildCompletionList() {
+		val message = new ResponseMessageBuilder [
+			jsonrpc("2.0")
+			id("12")
+			result(new CompletionListBuilder[
+				incomplete(true)
+			].build)
+		].build
+		message.assertSerialize('''
+			{
+			  "id": "12",
+			  "result": {
+			    "incomplete": true
+			  },
+			  "jsonrpc": "2.0"
+			}
+		''')
+	}
+	
+	@Test
+	def void testBuildDocumentFormattingParams() {
+		val message = new RequestMessageBuilder [
+			jsonrpc("2.0")
+			id("12")
+			method(MessageMethods.DOC_FORMATTING)
+			params(new DocumentFormattingParamsBuilder[
+				textDocument[
+					uri("file:///tmp/foo")
+				]
+				options[
+					tabSize(4)
+					insertSpaces(false)
+				]
+			].build)
+		].build
+		message.assertSerialize('''
+			{
+			  "id": "12",
+			  "method": "textDocument/formatting",
+			  "params": {
+			    "textDocument": {
+			      "uri": "file:///tmp/foo"
+			    },
+			    "options": {
+			      "tabSize": 4,
+			      "insertSpaces": false
+			    }
 			  },
 			  "jsonrpc": "2.0"
 			}

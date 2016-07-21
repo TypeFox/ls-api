@@ -162,13 +162,8 @@ class JsonBasedLanguageServerTest {
 	@Test
 	def void testCompletion() {
 		val future = server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
-			textDocument = new TextDocumentIdentifierImpl => [
-				uri = "file:///tmp/foo"
-			]
-			position = new PositionImpl => [
-				line = 4
-				character = 7
-			]
+			textDocument = new TextDocumentIdentifierImpl("file:///tmp/foo")
+			position = new PositionImpl(4, 7)
 		])
 		waitForOutput(0)
 		writeMessage('''
@@ -230,22 +225,12 @@ class JsonBasedLanguageServerTest {
 	@Test
 	def void testInvertedCompletionResponses() {
 		val future1 = server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
-			textDocument = new TextDocumentIdentifierImpl => [
-				uri = "file:///tmp/foo"
-			]
-			position = new PositionImpl => [
-				line = 4
-				character = 7
-			]
+			textDocument = new TextDocumentIdentifierImpl("file:///tmp/foo")
+			position = new PositionImpl(4, 7)
 		])
 		val future2 = server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
-			textDocument = new TextDocumentIdentifierImpl => [
-				uri = "file:///tmp/foo"
-			]
-			position = new PositionImpl => [
-				line = 5
-				character = 3
-			]
+			textDocument = new TextDocumentIdentifierImpl("file:///tmp/foo")
+			position = new PositionImpl(5, 3)
 		])
 		waitForOutput(0)
 		writeMessage('''
@@ -378,13 +363,8 @@ class JsonBasedLanguageServerTest {
 	@Test
 	def void testCancel() {
 		val future = server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
-			textDocument = new TextDocumentIdentifierImpl => [
-				uri = "file:///tmp/foo"
-			]
-			position = new PositionImpl => [
-				line = 4
-				character = 7
-			]
+			textDocument = new TextDocumentIdentifierImpl("file:///tmp/foo")
+			position = new PositionImpl(4, 7)
 		])
 		waitForOutput(0)
 		val complReqSize = serverOutput.size
@@ -402,13 +382,8 @@ class JsonBasedLanguageServerTest {
 	@Test
 	def void testMessageExceedsBuffer() {
 		val future = server.textDocumentService.completion(new TextDocumentPositionParamsImpl => [
-			textDocument = new TextDocumentIdentifierImpl => [
-				uri = "file:///tmp/foo"
-			]
-			position = new PositionImpl => [
-				line = 4
-				character = 7
-			]
+			textDocument = new TextDocumentIdentifierImpl("file:///tmp/foo")
+			position = new PositionImpl(4, 7)
 		])
 		waitForOutput(0)
 		writeMessage('''

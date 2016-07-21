@@ -26,6 +26,7 @@ import io.typefox.lsapi.TextEditImpl
 import io.typefox.lsapi.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.WorkspaceEditImpl
 import io.typefox.lsapi.services.json.MessageJsonHandler
+import io.typefox.lsapi.services.json.MessageMethods
 import java.util.ArrayList
 import java.util.HashMap
 import org.junit.Assert
@@ -65,15 +66,10 @@ class JsonParseTest {
 		'''.assertParse(new RequestMessageImpl => [
 			jsonrpc = "2.0"
 			id = "1"
-			method = "textDocument/completion"
+			method = MessageMethods.DOC_COMPLETION
 			params = new TextDocumentPositionParamsImpl => [
-				textDocument = new TextDocumentIdentifierImpl => [
-					uri = "file:///tmp/foo"
-				]
-				position = new PositionImpl => [
-					line = 4
-					character = 22
-				]
+				textDocument = new TextDocumentIdentifierImpl("file:///tmp/foo")
+				position = new PositionImpl(4, 22)
 			]
 		])
 	}
@@ -108,7 +104,7 @@ class JsonParseTest {
 			}
 		'''.assertParse(new NotificationMessageImpl => [
 			jsonrpc = "2.0"
-			method = "textDocument/didChange"
+			method = MessageMethods.DID_CHANGE_DOC
 			params = new DidChangeTextDocumentParamsImpl => [
 				textDocument = new VersionedTextDocumentIdentifierImpl => [
 					uri = "file:///tmp/foo"
@@ -116,14 +112,8 @@ class JsonParseTest {
 				contentChanges = new ArrayList => [
 					add(new TextDocumentContentChangeEventImpl => [
 						range = new RangeImpl => [
-							start = new PositionImpl => [
-								line = 7
-								character = 12
-							]
-							end = new PositionImpl => [
-								line = 8
-								character = 16
-							]
+							start = new PositionImpl(7, 12)
+							end = new PositionImpl(8, 16)
 						]
 						rangeLength = 20
 						text = "bar"
@@ -161,20 +151,14 @@ class JsonParseTest {
 			}
 		'''.assertParse(new NotificationMessageImpl => [
 			jsonrpc = "2.0"
-			method = "textDocument/publishDiagnostics"
+			method = MessageMethods.SHOW_DIAGNOSTICS
 			params = new PublishDiagnosticsParamsImpl => [
 				uri = "file:///tmp/foo"
 				diagnostics = new ArrayList => [
 					add(new DiagnosticImpl => [
 						range = new RangeImpl => [
-							start = new PositionImpl => [
-								line = 4
-								character = 22
-							]
-							end = new PositionImpl => [
-								line = 4
-								character = 25
-							]
+							start = new PositionImpl(4, 22)
+							end = new PositionImpl(4, 25)
 						]
 						severity = DiagnosticSeverity.Error
 						message = "Couldn't resolve reference to State 'bar'."
@@ -237,27 +221,15 @@ class JsonParseTest {
 					put("file:///tmp/foo", newArrayList(
 						new TextEditImpl => [
 							range = new RangeImpl => [
-								start = new PositionImpl => [
-									line = 3
-									character = 32
-								]
-								end = new PositionImpl => [
-									line = 3
-									character = 35
-								]
+								start = new PositionImpl(3, 32)
+								end = new PositionImpl(3, 35)
 							]
 							newText = "foobar"
 						],
 						new TextEditImpl => [
 							range = new RangeImpl => [
-								start = new PositionImpl => [
-									line = 4
-									character = 22
-								]
-								end = new PositionImpl => [
-									line = 4
-									character = 25
-								]
+								start = new PositionImpl(4, 22)
+								end = new PositionImpl(4, 25)
 							]
 							newText = "foobar"
 						]

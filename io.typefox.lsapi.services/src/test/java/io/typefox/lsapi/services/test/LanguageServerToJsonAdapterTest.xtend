@@ -267,14 +267,8 @@ class LanguageServerToJsonAdapterTest {
 			diagnostics = newArrayList(
 				new DiagnosticImpl => [
 					range = new RangeImpl => [
-						start = new PositionImpl => [
-							line = 4
-							character = 22
-						]
-						end = new PositionImpl => [
-							line = 4
-							character = 26
-						]
+						start = new PositionImpl(4, 22)
+						end = new PositionImpl(4, 26)
 					]
 					severity = DiagnosticSeverity.Error
 					message = "Couldn't resolve reference to State 'bard'."
