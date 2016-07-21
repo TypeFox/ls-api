@@ -35,6 +35,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
 	static val NAMESPACE = 'io.typefox.lsapi'
 	static val BUILDER_INTERFACE = NAMESPACE + '.builders.IBuilder'
+	static val MAX_CONSTRUCTOR_ARGS = 3
 	
 	override doRegisterGlobals(InterfaceDeclaration annotatedInterface, RegisterGlobalsContext context) {
 		context.registerClass(annotatedInterface.implName)
@@ -109,7 +110,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 					«ENDFOR»
 				'''
 			]
-			if (impl.declaredFields.size <= 3 && superApiInterfaces.empty) {
+			if (impl.declaredFields.size <= MAX_CONSTRUCTOR_ARGS && superApiInterfaces.empty) {
 				impl.addConstructor[ constructor |
 					impl.declaredFields.forEach [ field |
 						constructor.addParameter(field.simpleName, field.type)
@@ -171,7 +172,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
 	private def getFieldType(MethodDeclaration method, extension TransformationContext context) {
 		val returnType = method.returnType
-		if (returnType.isLanguageServiceAPI) {
+		if (returnType.isLanguageServerAPI) {
 			return returnType.type.implName.findTypeGlobally.newTypeReference
 		}
 		val typeArguments = returnType.actualTypeArguments
@@ -180,7 +181,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 			var contentType = typeArguments.get(0)
 			if (contentType.isWildCard)
 				contentType = contentType.upperBound
-			if (contentType.isLanguageServiceAPI)
+			if (contentType.isLanguageServerAPI)
 				return List.newTypeReference(contentType.type.implName.findTypeGlobally.newTypeReference)
 		}
 		val globalMapType = Map.findTypeGlobally
@@ -192,19 +193,19 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 				contentType = contentType.actualTypeArguments.get(0)
 				if (contentType.isWildCard)
 					contentType = contentType.upperBound
-				if (contentType.isLanguageServiceAPI) {
+				if (contentType.isLanguageServerAPI) {
 					return Map.newTypeReference(
 						typeArguments.get(0),
 						List.newTypeReference(contentType.type.implName.findTypeGlobally.newTypeReference)
 					)
 				}
-			} else if (contentType.isLanguageServiceAPI)
+			} else if (contentType.isLanguageServerAPI)
 				return Map.newTypeReference(typeArguments.get(0), contentType.type.implName.findTypeGlobally.newTypeReference)
 		}
 		return returnType
 	}
 	
-	private def isLanguageServiceAPI(TypeReference typeRef) {
+	private def isLanguageServerAPI(TypeReference typeRef) {
 	    typeRef != null && typeRef.type != null && typeRef.type instanceof InterfaceDeclaration
 	    	&& typeRef.type.qualifiedName.startsWith(NAMESPACE)
 	}
@@ -405,21 +406,59 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 				]
 			}
 			
-			// Add a method that accepts an initializer function
-			if (paramType != contentType && contentType.get.type.doGenerateBuilder(context)) {
-				builder.addMethod(methodName.get) [ method |
-					method.primarySourceElement = implField.primarySourceElement
-					method.returnType = builder.newTypeReference
-					val builderType = paramType.get.type.builderName.newTypeReference
-					if (!keyType.empty)
-						method.addParameter('key', keyType.get)
-					method.addParameter('initializer', Procedures.Procedure1.newTypeReference(builderType))
-					method.body = '''
-						«builderType» builder = new «builderType»();
-						initializer.apply(builder);
-						return «methodName.get»(«IF !keyType.empty»key, «ENDIF»builder.build());
-					'''
-				]
+			if (paramType != contentType) {
+				val contentInterface = contentType.get.type.getInterfaceType(context)
+				if (contentInterface instanceof InterfaceDeclaration) {
+					val contentMethods = contentInterface.declaredMethods.filter[
+						!static && parameters.empty && returnType !== null && (returnType.inferred || !returnType.isVoid)
+					].toList
+					if (!contentMethods.empty || contentInterface.extendedInterfaces.exists[
+						(type as InterfaceDeclaration).doGenerateBuilder
+					]) {
+						// Add a method that accepts an initializer function
+						builder.addMethod(methodName.get) [ method |
+							method.primarySourceElement = implField.primarySourceElement
+							method.returnType = builder.newTypeReference
+							val builderType = paramType.get.type.builderName.newTypeReference
+							if (!keyType.empty)
+								method.addParameter('key', keyType.get)
+							method.addParameter('initializer', Procedures.Procedure1.newTypeReference(builderType))
+							method.body = '''
+								«builderType» builder = new «builderType»();
+								initializer.apply(builder);
+								return «methodName.get»(«IF !keyType.empty»key, «ENDIF»builder.build());
+							'''
+						]
+					}
+					if (!contentMethods.empty && contentMethods.size <= MAX_CONSTRUCTOR_ARGS
+							&& contentInterface.extendedInterfaces.empty
+							&& contentMethods.forall[returnType.actualTypeArguments.empty]) {
+						// Add a method that accepts constructor arguments for the respective type
+						builder.addMethod(methodName.get) [ method |
+							method.primarySourceElement = implField.primarySourceElement
+							method.returnType = builder.newTypeReference
+							if (!keyType.empty)
+								method.addParameter('key', keyType.get)
+							contentMethods.forEach[ contentMethod |
+								method.addParameter(contentMethod.fieldName, contentMethod.returnType)
+							]
+							method.body = '''
+								«FOR m : contentMethods»
+									«IF m.returnType.isLanguageServerAPI»
+										if («m.fieldName» != null && !(«m.fieldName» instanceof «m.getFieldType(context)»))
+											throw new «IllegalArgumentException.newTypeReference»("Implementation not supported: " + «m.fieldName».getClass().getSimpleName());
+									«ENDIF»
+								«ENDFOR»
+								«contentInterface.newTypeReference» instance = new «contentType.get»(«
+									FOR m : contentMethods SEPARATOR ', '»«
+										IF m.returnType.isLanguageServerAPI»(«m.getFieldType(context)») «ENDIF»«
+										m.fieldName»«
+									ENDFOR»);
+								return «methodName.get»(«IF !keyType.empty»key, «ENDIF»instance);
+							'''
+						]
+					}
+				}
 			}
 		]
 	}
