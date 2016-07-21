@@ -266,4 +266,22 @@ class JsonParseTest {
 		])
 	}
 	
+	@Test
+	def void testTelemetry() {
+		'''
+			{
+				"jsonrpc": "2.0",
+				"method": "telemetry/event",
+				"params": {
+					"foo": 12.3,
+					"bar": "qwertz"
+				}
+			}
+		'''.assertParse(new NotificationMessageImpl => [
+			jsonrpc = "2.0"
+			method = MessageMethods.TELEMETRY_EVENT
+			params = newLinkedHashMap('foo' -> 12.3, 'bar' -> 'qwertz')
+		])
+	}
+	
 }

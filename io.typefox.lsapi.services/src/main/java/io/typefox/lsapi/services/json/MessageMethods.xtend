@@ -39,6 +39,7 @@ final class MessageMethods {
 	public static val SHOW_MESSAGE = 'window/showMessage'
 	public static val SHOW_MESSAGE_REQUEST = 'window/showMessageRequest'
 	public static val LOG_MESSAGE = 'window/logMessage'
+	public static val TELEMETRY_EVENT = 'telemetry/event'
 	
 	public static val CANCEL = '$/cancelRequest'
 	

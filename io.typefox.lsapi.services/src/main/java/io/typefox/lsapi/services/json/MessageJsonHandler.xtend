@@ -157,8 +157,7 @@ class MessageJsonHandler {
 			val params = json.get('params')?.asJsonObject
 			if (params !== null) {
 				val paramType = REQUEST_PARAM_TYPES.get(method)
-				if (paramType !== null)
-					result.params = gson.fromJson(params, paramType)
+				result.params = gson.fromJson(params, paramType ?: Object)
 			}
 			return result
 		} catch (Exception e) {
@@ -188,6 +187,8 @@ class MessageJsonHandler {
 						} else {
 							result.result = gson.fromJson(resultElem, resultType)
 						}
+					} else {
+						result.result = gson.fromJson(resultElem, Object)
 					}
 				}
 			} else {
@@ -208,8 +209,7 @@ class MessageJsonHandler {
 			val params = json.get('params')?.asJsonObject
 			if (params !== null) {
 				val paramType = NOTIFICATION_PARAM_TYPES.get(method)
-				if (paramType !== null)
-					result.params = gson.fromJson(params, paramType)
+				result.params = gson.fromJson(params, paramType ?: Object)
 			}
 			return result
 		} catch (Exception e) {

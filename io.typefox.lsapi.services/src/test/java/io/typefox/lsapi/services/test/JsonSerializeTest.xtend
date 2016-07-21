@@ -323,4 +323,28 @@ class JsonSerializeTest {
 		''')
 	}
 	
+	@Test
+	def void testTelemetry() {
+		val message = new NotificationMessageImpl => [
+			jsonrpc = "2.0"
+			method = MessageMethods.TELEMETRY_EVENT
+			params = new TestObject
+		]
+		message.assertSerialize('''
+			{
+			  "method": "telemetry/event",
+			  "params": {
+			    "foo": 12.3,
+			    "bar": "qwertz"
+			  },
+			  "jsonrpc": "2.0"
+			}
+		''')
+	}
+	
+	private static class TestObject {
+		package double foo = 12.3
+		package String bar = "qwertz"
+	}
+	
 }
