@@ -349,7 +349,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 						method.addParameter(methodName.get, paramType.get)
 						method.body = '''
 							if (this.«implField.simpleName» == null)
-								this.«implField.simpleName» = «Maps.newTypeReference».newHashMap();
+								this.«implField.simpleName» = «Maps.newTypeReference».newLinkedHashMap();
 							«fieldType.actualTypeArguments.get(1)» list = this.«implField.simpleName».get(key);
 							if (list == null) {
 								list = «Lists.newTypeReference».newArrayList();
@@ -370,7 +370,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 						method.addParameter(methodName.get, paramType.get)
 						method.body = '''
 							if (this.«implField.simpleName» == null)
-								this.«implField.simpleName» = «Maps.newTypeReference».newHashMap();
+								this.«implField.simpleName» = «Maps.newTypeReference».newLinkedHashMap();
 							«IF paramType == contentType»
 								this.«implField.simpleName».put(key, «methodName.get»);
 							«ELSE»
