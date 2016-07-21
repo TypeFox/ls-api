@@ -7,15 +7,16 @@
  *******************************************************************************/
 package io.typefox.lsapi.services.test
 
-import io.typefox.lsapi.CompletionItemImpl
-import io.typefox.lsapi.CompletionOptionsImpl
-import io.typefox.lsapi.DiagnosticImpl
 import io.typefox.lsapi.DiagnosticSeverity
-import io.typefox.lsapi.InitializeResultImpl
-import io.typefox.lsapi.PositionImpl
-import io.typefox.lsapi.PublishDiagnosticsParamsImpl
-import io.typefox.lsapi.RangeImpl
-import io.typefox.lsapi.ServerCapabilitiesImpl
+import io.typefox.lsapi.TextDocumentSyncKind
+import io.typefox.lsapi.impl.CompletionItemImpl
+import io.typefox.lsapi.impl.CompletionOptionsImpl
+import io.typefox.lsapi.impl.DiagnosticImpl
+import io.typefox.lsapi.impl.InitializeResultImpl
+import io.typefox.lsapi.impl.PositionImpl
+import io.typefox.lsapi.impl.PublishDiagnosticsParamsImpl
+import io.typefox.lsapi.impl.RangeImpl
+import io.typefox.lsapi.impl.ServerCapabilitiesImpl
 import io.typefox.lsapi.services.json.LanguageServerProtocol
 import io.typefox.lsapi.services.json.LanguageServerToJsonAdapter
 import java.io.ByteArrayOutputStream
@@ -29,7 +30,6 @@ import org.junit.Test
 import static org.junit.Assert.*
 
 import static extension io.typefox.lsapi.services.test.LineEndings.*
-import io.typefox.lsapi.TextDocumentSyncKind
 
 class LanguageServerToJsonAdapterTest {
 	
@@ -175,6 +175,7 @@ class LanguageServerToJsonAdapterTest {
 			    text = "bla bla"
 			  ]
 			  text = null
+			  uri = null
 			]
 		''')
 	}

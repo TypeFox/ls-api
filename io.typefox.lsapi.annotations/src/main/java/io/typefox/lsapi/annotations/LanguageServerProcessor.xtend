@@ -134,7 +134,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	}
 	
 	private def getSuperApiInterfaces(InterfaceDeclaration it, extension TransformationContext context) {
-		extendedInterfaces.map[type].filter(InterfaceDeclaration)
+		extendedInterfaces.map[type].filter(InterfaceDeclaration).filter[qualifiedName.startsWith(NAMESPACE)]
 	}
 	
 	private def void generateImplMembers(MutableClassDeclaration impl, InterfaceDeclaration source,
@@ -224,18 +224,19 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 		val toStringFields = newArrayList
 		var ClassDeclaration c = impl
 		do {
-			toStringFields += c.declaredFields.filter[primarySourceElement instanceof MethodDeclaration]
+			toStringFields += c.declaredFields
 			c = c.extendedClass?.type as ClassDeclaration
 		} while (c !== null && c != object)
 		impl.addMethod("toString") [
 			returnType = string
 			addAnnotation(newAnnotationReference(Override))
 			addAnnotation(newAnnotationReference(Pure))
+			val accessorsUtil = new AccessorsProcessor.Util(context)
 			body = '''
 				«ToStringBuilder» b = new «ToStringBuilder»(this);
 				«FOR field : toStringFields»
 					b.add("«field.simpleName»", «IF field.declaringType == impl»this.«field.simpleName»«ELSE»«
-						(field.primarySourceElement as MethodDeclaration).simpleName»()«ENDIF»);
+						accessorsUtil.getGetterName(field)»()«ENDIF»);
 				«ENDFOR»
 				return b.toString();
 			'''
@@ -480,14 +481,14 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	private def getInterfaceType(Type type, extension TransformationContext context) {
 		val name = type?.qualifiedName
 		if (name !== null && name.endsWith('Impl') && name.startsWith(NAMESPACE))
-			return name.substring(0, name.length - 4).findTypeGlobally
+			return name.substring(0, name.length - 4).replace('impl.', '').findTypeGlobally
 		else if (name !== null && name.endsWith('Builder') && name.startsWith(NAMESPACE))
 			return name.substring(0, name.length - 7).replace('builders.', '').findTypeGlobally
 	}
 	
 	private def getImplName(Type t) {
 		if (t !== null)
-			t.qualifiedName + 'Impl'
+			t.qualifiedName.substring(0, t.qualifiedName.length - t.simpleName.length) + 'impl.' + t.simpleName + 'Impl'
 	}
 	
 	private def getBuilderName(Type t) {

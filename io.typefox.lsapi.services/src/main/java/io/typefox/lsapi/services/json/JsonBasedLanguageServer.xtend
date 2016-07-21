@@ -9,7 +9,6 @@ package io.typefox.lsapi.services.json
 
 import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
-import io.typefox.lsapi.CancelParamsImpl
 import io.typefox.lsapi.CodeActionParams
 import io.typefox.lsapi.CodeLens
 import io.typefox.lsapi.CodeLensParams
@@ -34,11 +33,9 @@ import io.typefox.lsapi.Location
 import io.typefox.lsapi.Message
 import io.typefox.lsapi.MessageParams
 import io.typefox.lsapi.NotificationMessage
-import io.typefox.lsapi.NotificationMessageImpl
 import io.typefox.lsapi.PublishDiagnosticsParams
 import io.typefox.lsapi.ReferenceParams
 import io.typefox.lsapi.RenameParams
-import io.typefox.lsapi.RequestMessageImpl
 import io.typefox.lsapi.ResponseError
 import io.typefox.lsapi.ResponseMessage
 import io.typefox.lsapi.ShowMessageRequestParams
@@ -48,6 +45,9 @@ import io.typefox.lsapi.TextDocumentPositionParams
 import io.typefox.lsapi.TextEdit
 import io.typefox.lsapi.WorkspaceEdit
 import io.typefox.lsapi.WorkspaceSymbolParams
+import io.typefox.lsapi.impl.CancelParamsImpl
+import io.typefox.lsapi.impl.NotificationMessageImpl
+import io.typefox.lsapi.impl.RequestMessageImpl
 import io.typefox.lsapi.services.LanguageServer
 import io.typefox.lsapi.services.TextDocumentService
 import io.typefox.lsapi.services.WindowService
@@ -145,7 +145,7 @@ class JsonBasedLanguageServer extends AbstractJsonBasedServer implements Languag
 		promise.whenComplete[ result, throwable |
 			if (promise.isCancelled) {
 				handler.cancel()
-				sendNotification(MessageMethods.CANCEL, new CancelParamsImpl => [id = messageId])
+				sendNotification(MessageMethods.CANCEL, new CancelParamsImpl(messageId))
 			}
 		]
 		return promise

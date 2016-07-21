@@ -8,27 +8,28 @@
 package io.typefox.lsapi.services.test
 
 import com.google.gson.GsonBuilder
-import io.typefox.lsapi.DiagnosticImpl
 import io.typefox.lsapi.DiagnosticSeverity
-import io.typefox.lsapi.DidChangeTextDocumentParamsImpl
 import io.typefox.lsapi.Message
-import io.typefox.lsapi.NotificationMessageImpl
-import io.typefox.lsapi.PositionImpl
-import io.typefox.lsapi.PublishDiagnosticsParamsImpl
-import io.typefox.lsapi.RangeImpl
-import io.typefox.lsapi.RequestMessageImpl
 import io.typefox.lsapi.ResponseErrorCode
-import io.typefox.lsapi.ResponseErrorImpl
-import io.typefox.lsapi.ResponseMessageImpl
-import io.typefox.lsapi.TextDocumentContentChangeEventImpl
-import io.typefox.lsapi.TextDocumentIdentifierImpl
-import io.typefox.lsapi.TextDocumentPositionParamsImpl
-import io.typefox.lsapi.TextEditImpl
-import io.typefox.lsapi.VersionedTextDocumentIdentifierImpl
-import io.typefox.lsapi.WorkspaceEditImpl
 import io.typefox.lsapi.builders.CompletionListBuilder
+import io.typefox.lsapi.builders.DocumentFormattingParamsBuilder
 import io.typefox.lsapi.builders.RequestMessageBuilder
 import io.typefox.lsapi.builders.ResponseMessageBuilder
+import io.typefox.lsapi.impl.DiagnosticImpl
+import io.typefox.lsapi.impl.DidChangeTextDocumentParamsImpl
+import io.typefox.lsapi.impl.NotificationMessageImpl
+import io.typefox.lsapi.impl.PositionImpl
+import io.typefox.lsapi.impl.PublishDiagnosticsParamsImpl
+import io.typefox.lsapi.impl.RangeImpl
+import io.typefox.lsapi.impl.RequestMessageImpl
+import io.typefox.lsapi.impl.ResponseErrorImpl
+import io.typefox.lsapi.impl.ResponseMessageImpl
+import io.typefox.lsapi.impl.TextDocumentContentChangeEventImpl
+import io.typefox.lsapi.impl.TextDocumentIdentifierImpl
+import io.typefox.lsapi.impl.TextDocumentPositionParamsImpl
+import io.typefox.lsapi.impl.TextEditImpl
+import io.typefox.lsapi.impl.VersionedTextDocumentIdentifierImpl
+import io.typefox.lsapi.impl.WorkspaceEditImpl
 import io.typefox.lsapi.services.json.EnumTypeAdapterFactory
 import io.typefox.lsapi.services.json.MessageJsonHandler
 import io.typefox.lsapi.services.json.MessageMethods
@@ -39,7 +40,6 @@ import org.junit.Before
 import org.junit.Test
 
 import static extension io.typefox.lsapi.services.test.LineEndings.*
-import io.typefox.lsapi.builders.DocumentFormattingParamsBuilder
 
 class JsonSerializeTest {
 	

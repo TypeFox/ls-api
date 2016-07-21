@@ -7,12 +7,12 @@
  *******************************************************************************/
 package io.typefox.lsapi.services.test
 
-import io.typefox.lsapi.DidOpenTextDocumentParamsImpl
-import io.typefox.lsapi.InitializeParamsImpl
-import io.typefox.lsapi.PositionImpl
-import io.typefox.lsapi.TextDocumentIdentifierImpl
-import io.typefox.lsapi.TextDocumentItemImpl
-import io.typefox.lsapi.TextDocumentPositionParamsImpl
+import io.typefox.lsapi.impl.DidOpenTextDocumentParamsImpl
+import io.typefox.lsapi.impl.InitializeParamsImpl
+import io.typefox.lsapi.impl.PositionImpl
+import io.typefox.lsapi.impl.TextDocumentIdentifierImpl
+import io.typefox.lsapi.impl.TextDocumentItemImpl
+import io.typefox.lsapi.impl.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.services.json.JsonBasedLanguageServer
 import io.typefox.lsapi.services.json.LanguageServerProtocol
 import java.io.ByteArrayOutputStream

@@ -8,12 +8,12 @@
 package io.typefox.lsapi.services.json
 
 import io.typefox.lsapi.Message
-import io.typefox.lsapi.MessageImpl
 import io.typefox.lsapi.RequestMessage
 import io.typefox.lsapi.ResponseErrorCode
-import io.typefox.lsapi.ResponseErrorImpl
 import io.typefox.lsapi.ResponseMessage
-import io.typefox.lsapi.ResponseMessageImpl
+import io.typefox.lsapi.impl.MessageImpl
+import io.typefox.lsapi.impl.ResponseErrorImpl
+import io.typefox.lsapi.impl.ResponseMessageImpl
 import java.io.IOException
 import java.io.InputStream
 import java.io.InterruptedIOException
