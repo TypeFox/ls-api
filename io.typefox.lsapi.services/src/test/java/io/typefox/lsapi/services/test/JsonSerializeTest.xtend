@@ -47,7 +47,7 @@ class JsonSerializeTest {
 	
 	@Before
 	def void setup() {
-		val gsonBuilder = new GsonBuilder().registerTypeAdapterFactory(new EnumTypeAdapterFactory).setPrettyPrinting
+		val gsonBuilder = MessageJsonHandler.defaultGsonBuilder.setPrettyPrinting
 		jsonHandler = new MessageJsonHandler(gsonBuilder.create())
 	}
 	
@@ -321,30 +321,6 @@ class JsonSerializeTest {
 			  "jsonrpc": "2.0"
 			}
 		''')
-	}
-	
-	@Test
-	def void testTelemetry() {
-		val message = new NotificationMessageImpl => [
-			jsonrpc = "2.0"
-			method = MessageMethods.TELEMETRY_EVENT
-			params = new TestObject
-		]
-		message.assertSerialize('''
-			{
-			  "method": "telemetry/event",
-			  "params": {
-			    "foo": 12.3,
-			    "bar": "qwertz"
-			  },
-			  "jsonrpc": "2.0"
-			}
-		''')
-	}
-	
-	private static class TestObject {
-		package double foo = 12.3
-		package String bar = "qwertz"
 	}
 	
 }

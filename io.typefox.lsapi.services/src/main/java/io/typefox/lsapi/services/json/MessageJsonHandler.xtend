@@ -121,11 +121,15 @@ class MessageJsonHandler {
 	var (String)=>String responseMethodResolver
 	
 	new() {
-		this.gson = new GsonBuilder().registerTypeAdapterFactory(new EnumTypeAdapterFactory).create()
+		this(defaultGsonBuilder.create)
 	}
 	
 	new(Gson gson) {
 		this.gson = gson
+	}
+	
+	def static GsonBuilder getDefaultGsonBuilder() {
+	    new GsonBuilder().registerTypeAdapterFactory(new EnumTypeAdapterFactory)
 	}
 	
 	def Message parseMessage(CharSequence input) {
