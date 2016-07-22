@@ -201,6 +201,10 @@ class JsonBasedLanguageServer extends AbstractJsonBasedServer implements Languag
 		}
 	}
 	
+	override onTelemetryEvent(Consumer<Object> callback) {
+		addCallback(MessageMethods.TELEMETRY_EVENT, callback, Object)
+	}
+	
 	def onError((String, Throwable)=>void callback) {
 		protocol.addErrorListener(callback)
 	}

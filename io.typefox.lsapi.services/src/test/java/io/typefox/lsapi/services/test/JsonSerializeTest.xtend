@@ -7,7 +7,6 @@
  *******************************************************************************/
 package io.typefox.lsapi.services.test
 
-import com.google.gson.GsonBuilder
 import io.typefox.lsapi.DiagnosticSeverity
 import io.typefox.lsapi.Message
 import io.typefox.lsapi.ResponseErrorCode
@@ -30,7 +29,6 @@ import io.typefox.lsapi.impl.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.impl.TextEditImpl
 import io.typefox.lsapi.impl.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.impl.WorkspaceEditImpl
-import io.typefox.lsapi.services.json.EnumTypeAdapterFactory
 import io.typefox.lsapi.services.json.MessageJsonHandler
 import io.typefox.lsapi.services.json.MessageMethods
 import java.util.ArrayList
@@ -321,6 +319,30 @@ class JsonSerializeTest {
 			  "jsonrpc": "2.0"
 			}
 		''')
+	}
+	
+	@Test
+	def void testTelemetry() {
+		val message = new NotificationMessageImpl => [
+			jsonrpc = "2.0"
+			method = MessageMethods.TELEMETRY_EVENT
+			params = new TestObject
+		]
+		message.assertSerialize('''
+			{
+			  "method": "telemetry/event",
+			  "params": {
+			    "foo": 12.3,
+			    "bar": "qwertz"
+			  },
+			  "jsonrpc": "2.0"
+			}
+		''')
+	}
+	
+	private static class TestObject {
+		package double foo = 12.3
+		package String bar = "qwertz"
 	}
 	
 }

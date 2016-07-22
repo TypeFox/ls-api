@@ -70,6 +70,17 @@ class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Con
 		super(executorService)
 		this.delegate = delegate
 		protocol = createProtocol(jsonHandler)
+		registerCallbacks()
+	}
+	
+	protected def createProtocol(MessageJsonHandler jsonHandler) {
+		new LanguageServerProtocol(jsonHandler, this)
+	}
+	
+	protected def void registerCallbacks() {
+		delegate.onTelemetryEvent[
+			sendNotification(MessageMethods.TELEMETRY_EVENT, it)
+		]
 		delegate.textDocumentService.onPublishDiagnostics[
 			sendNotification(MessageMethods.SHOW_DIAGNOSTICS, it)
 		]
@@ -82,10 +93,6 @@ class LanguageServerToJsonAdapter extends AbstractJsonBasedServer implements Con
 		delegate.windowService.onShowMessageRequest[
 			sendNotification(MessageMethods.SHOW_MESSAGE_REQUEST, it)
 		]
-	}
-	
-	protected def createProtocol(MessageJsonHandler jsonHandler) {
-		new LanguageServerProtocol(jsonHandler, this)
 	}
 	
 	protected def void checkAlive(Integer processId) {

@@ -68,6 +68,8 @@ class MockedLanguageServer implements LanguageServer {
 	@Accessors(PUBLIC_SETTER)
 	String generateError
 	
+	val List<Consumer<Object>> telemetryEventCallbacks = newArrayList
+	
 	protected def <T> CompletableFuture<T> getPromise() {
 		if (generateError !== null) {
 			CompletableFuture.supplyAsync[
@@ -108,6 +110,16 @@ class MockedLanguageServer implements LanguageServer {
 	
 	override exit() {
 		methodCalls.put('exit', new Object)
+	}
+	
+	override onTelemetryEvent(Consumer<Object> callback) {
+		telemetryEventCallbacks.add(callback)
+	}
+	
+	def void telemetryEvent(Object params) {
+		for (c : telemetryEventCallbacks) {
+			c.accept(params)
+		}
 	}
 	
 	@FinalFieldsConstructor

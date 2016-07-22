@@ -11,6 +11,7 @@ package io.typefox.lsapi.services
 import io.typefox.lsapi.InitializeParams
 import io.typefox.lsapi.InitializeResult
 import java.util.concurrent.CompletableFuture
+import java.util.function.Consumer
 
 /**
  * Interface for implementations of
@@ -34,6 +35,11 @@ interface LanguageServer {
      * A notification to ask the server to exit its process.
      */
     def void exit();
+    
+    /**
+     * The telemetry notification is sent from the server to the client to ask the client to log a telemetry event.
+     */
+    def void onTelemetryEvent(Consumer<Object> callback)
     
     /**
      * Provides access to the textDocument services.
