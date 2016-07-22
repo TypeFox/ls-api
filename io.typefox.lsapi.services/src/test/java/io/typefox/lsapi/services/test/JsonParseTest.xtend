@@ -12,6 +12,8 @@ import io.typefox.lsapi.Message
 import io.typefox.lsapi.ResponseErrorCode
 import io.typefox.lsapi.impl.DiagnosticImpl
 import io.typefox.lsapi.impl.DidChangeTextDocumentParamsImpl
+import io.typefox.lsapi.impl.HoverImpl
+import io.typefox.lsapi.impl.MarkedStringImpl
 import io.typefox.lsapi.impl.NotificationMessageImpl
 import io.typefox.lsapi.impl.PositionImpl
 import io.typefox.lsapi.impl.PublishDiagnosticsParamsImpl
@@ -169,11 +171,10 @@ class JsonParseTest {
 	}
 	
 	@Test
-	def void testRename() {
+	def void testRenameResponse() {
 		jsonHandler.responseMethodResolver = [ id |
 			switch id {
-				case '12':
-					'textDocument/rename'
+				case '12': MessageMethods.DOC_RENAME
 			}
 		]
 		'''
@@ -281,6 +282,47 @@ class JsonParseTest {
 			jsonrpc = "2.0"
 			method = MessageMethods.TELEMETRY_EVENT
 			params = newLinkedHashMap('foo' -> 12.3, 'bar' -> 'qwertz')
+		])
+	}
+	
+	@Test
+	def void testHoverResponse() {
+		jsonHandler.responseMethodResolver = [ id |
+			switch id {
+				case '12': MessageMethods.DOC_HOVER
+			}
+		]
+		'''
+			{
+				"jsonrpc": "2.0",
+				"id": "12",
+				"result": {
+					"range": {
+						"start": {
+							"character": 32,
+							"line": 3
+						},
+						"end": {
+							"character": 35,
+							"line": 3
+						}
+					},
+					"contents": {
+						"language": "foolang",
+						"value": "boo shuby doo"
+					}
+				}
+			}
+		'''.assertParse(new ResponseMessageImpl => [
+			jsonrpc = "2.0"
+			id = "12"
+			result = new HoverImpl => [
+				range = new RangeImpl => [
+					start = new PositionImpl(3, 32)
+					end = new PositionImpl(3, 35)
+				]
+				contents = newArrayList(new MarkedStringImpl("foolang", "boo shuby doo"))
+			]
 		])
 	}
 	

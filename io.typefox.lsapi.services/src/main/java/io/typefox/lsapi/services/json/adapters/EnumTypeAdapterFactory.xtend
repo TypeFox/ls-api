@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.services.json
+package io.typefox.lsapi.services.json.adapters
 
 import com.google.gson.Gson
 import com.google.gson.TypeAdapter

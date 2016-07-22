@@ -51,6 +51,8 @@ import io.typefox.lsapi.impl.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.impl.TextEditImpl
 import io.typefox.lsapi.impl.WorkspaceEditImpl
 import io.typefox.lsapi.impl.WorkspaceSymbolParamsImpl
+import io.typefox.lsapi.services.json.adapters.CollectionTypeAdapterFactory
+import io.typefox.lsapi.services.json.adapters.EnumTypeAdapterFactory
 import java.io.Reader
 import java.io.StringReader
 import java.io.StringWriter
@@ -129,7 +131,9 @@ class MessageJsonHandler {
 	}
 	
 	def static GsonBuilder getDefaultGsonBuilder() {
-	    new GsonBuilder().registerTypeAdapterFactory(new EnumTypeAdapterFactory)
+	    new GsonBuilder()
+	    	.registerTypeAdapterFactory(new CollectionTypeAdapterFactory)
+	    	.registerTypeAdapterFactory(new EnumTypeAdapterFactory)
 	}
 	
 	def Message parseMessage(CharSequence input) {
