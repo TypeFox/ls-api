@@ -15,10 +15,12 @@ import io.typefox.lsapi.builders.WorkspaceEditBuilder
 import org.junit.Assert
 import org.junit.Test
 
+import static extension io.typefox.lsapi.test.LineEndings.*
+
 class BuilderTest {
 	
 	private def void assertBuilds(IBuilder<?> builder, String expected) {
-		Assert.assertEquals(expected.trim, builder.build.toString)
+		Assert.assertEquals(expected.trim, builder.build.toString.toSystemLineEndings)
 	}
 	
 	@Test
