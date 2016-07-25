@@ -16,18 +16,16 @@ task cleanLocalMavenRepo(type: Delete) {
 ext.buildTime = new java.text.SimpleDateFormat('yyyyMMddHHmm').format(new Date())
 
 subprojects {
-	ext.xtextVersion = '2.10.0'
-	ext.guavaVersion = '[14.0,19)'
 	repositories {
 		jcenter()
 	}
 	
 	group = 'io.typefox.lsapi'
-	version = '0.3.0-SNAPSHOT'
 	
 	apply plugin: 'java'
 	apply plugin: 'org.xtext.xtend'
 	apply plugin: 'eclipse'
+	apply from: "${rootDir}/gradle/versions.gradle"
 	apply from: "${rootDir}/gradle/java-compiler-settings.gradle"
 	apply from: "${rootDir}/gradle/xtend-compiler-settings.gradle"
 	apply from: "${rootDir}/gradle/maven-deployment.gradle"

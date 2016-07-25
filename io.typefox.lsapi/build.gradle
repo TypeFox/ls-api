@@ -5,7 +5,7 @@ targetCompatibility = '1.7'
 
 dependencies {
 	compile project(":io.typefox.lsapi.annotations")
-	testCompile "junit:junit:4.12"
+	testCompile "junit:junit:$versions.junit"
 }
 
 jar {

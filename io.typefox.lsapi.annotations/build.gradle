@@ -1,12 +1,12 @@
 description 'Xtend active annotations that generate Java code from Language Server interfaces'
 
 dependencies {
-	compile "org.eclipse.xtend:org.eclipse.xtend.lib:${xtextVersion}"
+	compile "org.eclipse.xtend:org.eclipse.xtend.lib:$versions.xtext"
 }
 
 jar.manifest {
 	name = 'Language Server Java Annotations'
 	vendor = 'TypeFox'
-	instruction 'Import-Package', "com.google.common.*;version=\"$guavaVersion\""
+	instruction 'Import-Package', "com.google.common.*;version=\"$versions.guava\""
 	instruction 'Import-Package', '*'
 }
