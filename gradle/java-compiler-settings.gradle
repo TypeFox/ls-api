@@ -6,6 +6,12 @@ tasks.withType(Javadoc) {
 	options.addStringOption('Xdoclint:none', '-quiet')
 }
 
+configurations.all {
+	resolutionStrategy {
+		force "com.google.guava:guava:18.0"
+	}
+}
+
 eclipse {
 	project {
 		natures 'org.eclipse.xtext.ui.shared.xtextNature'

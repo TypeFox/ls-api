@@ -37,5 +37,5 @@ task createLocalP2Repo(type: JavaExec) {
 	systemProperties = [
 		'maven.multiModuleProjectDirectory': 'gradle/maven-tycho-p2-repository'
 	]
-	args 'install'
+	args '-U', 'install'
 }
