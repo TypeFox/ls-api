@@ -61,7 +61,11 @@ class JsonSerializeTest {
 			jsonHandler.serialize(message)
 			fail('''Expected exception: «InvalidMessageException.name»''')
 		} catch (InvalidMessageException e) {
-			assertEquals(expectedIssues.toString, e.message.toSystemLineEndings)
+			val expected = expectedIssues.toString
+			val actual = e.message.toSystemLineEndings
+			// The expectation may be a prefix of the actual exception message
+			if (!actual.startsWith(expected))
+				assertEquals(expected, actual)
 		}
 	}
 	
@@ -375,22 +379,7 @@ class JsonSerializeTest {
 				textDocument = new TextDocumentIdentifierImpl("file:///tmp/foo")
 			]
 		]
-		message.assertIssues('''
-			Error: The property 'position' must have a non-null value.
-			The message was:
-				RequestMessageImpl [
-				  id = "1"
-				  method = "textDocument/completion"
-				  params = TextDocumentPositionParamsImpl [
-				    textDocument = TextDocumentIdentifierImpl [
-				      uri = "file:///tmp/foo"
-				    ]
-				    uri = null
-				    position = null
-				  ]
-				  jsonrpc = "2.0"
-				]
-		''')
+		message.assertIssues('Error: The property \'position\' must have a non-null value.')
 	}
 	
 	@Test
@@ -406,29 +395,7 @@ class JsonSerializeTest {
 				data = it
 			]
 		]
-		message.assertIssues('''
-			Error: An element of the message has a direct or indirect reference to itself.
-			The message was:
-				ResponseMessageImpl [
-				  id = "1"
-				  result = CodeLensImpl [
-				    range = RangeImpl [
-				      start = PositionImpl [
-				        line = 3
-				        character = 32
-				      ]
-				      end = PositionImpl [
-				        line = 3
-				        character = 35
-				      ]
-				    ]
-				    command = null
-				    data = CodeLensImpl@2096171631
-				  ]
-				  error = null
-				  jsonrpc = "2.0"
-				]
-		''')
+		message.assertIssues('Error: An element of the message has a direct or indirect reference to itself.')
 	}
 	
 }
