@@ -9,6 +9,7 @@ package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
 import java.util.Map
+import javax.annotation.Nullable
 
 /**
  * Value-object describing what options formatting should use.
@@ -29,6 +30,7 @@ interface FormattingOptions {
 	/**
 	 * Signature for further properties.
 	 */
+	@Nullable
 	def Map<String, String> getProperties()
 	
 }

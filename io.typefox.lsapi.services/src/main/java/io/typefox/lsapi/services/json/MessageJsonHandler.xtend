@@ -13,6 +13,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import io.typefox.lsapi.Message
+import io.typefox.lsapi.RequestMessage
 import io.typefox.lsapi.impl.CancelParamsImpl
 import io.typefox.lsapi.impl.CodeActionParamsImpl
 import io.typefox.lsapi.impl.CodeLensImpl
@@ -53,11 +54,15 @@ import io.typefox.lsapi.impl.WorkspaceEditImpl
 import io.typefox.lsapi.impl.WorkspaceSymbolParamsImpl
 import io.typefox.lsapi.services.json.adapters.CollectionTypeAdapterFactory
 import io.typefox.lsapi.services.json.adapters.EnumTypeAdapterFactory
+import io.typefox.lsapi.services.validation.MessageIssue
+import io.typefox.lsapi.services.validation.ReflectiveMessageValidator
 import java.io.Reader
 import java.io.StringReader
 import java.io.StringWriter
 import java.io.Writer
+import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
+import io.typefox.lsapi.services.validation.IMessageValidator
 
 class MessageJsonHandler {
 	
@@ -118,9 +123,13 @@ class MessageJsonHandler {
 	
 	val jsonParser = new JsonParser
 	val Gson gson
+	val IMessageValidator messageValidator = new ReflectiveMessageValidator
 	
 	@Accessors(PUBLIC_SETTER)
 	var (String)=>String responseMethodResolver
+	
+	@Accessors(PUBLIC_SETTER)
+	var boolean validateMessages = true
 	
 	new() {
 		this(defaultGsonBuilder.create)
@@ -154,6 +163,11 @@ class MessageJsonHandler {
 		else
 			result = new MessageImpl
 		result.jsonrpc = json.get('jsonrpc')?.asString
+		if (validateMessages) {
+			val issues = messageValidator.validate(result)
+			if (!issues.empty)
+				throw new InvalidMessageException(issuesToString(result, json, issues), idElement?.asString)
+		}
 		return result
 	}
 	
@@ -232,7 +246,21 @@ class MessageJsonHandler {
 	}
 	
 	def void serialize(Message message, Writer output) {
+		if (validateMessages) {
+			val issues = messageValidator.validate(message)
+			if (!issues.empty)
+				throw new InvalidMessageException(issuesToString(message, null, issues),
+						if (message instanceof RequestMessage) message.id)
+		}
 		gson.toJson(message, output)
 	}
+	
+	private def String issuesToString(Message message, JsonObject json, List<MessageIssue> issues) '''
+		«FOR issue : issues»
+			Error: «issue.text»
+		«ENDFOR»
+		The message was:
+			«json ?: message»
+	'''
 	
 }

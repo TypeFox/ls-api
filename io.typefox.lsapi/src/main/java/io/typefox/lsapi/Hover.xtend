@@ -9,6 +9,7 @@ package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
 import java.util.List
+import javax.annotation.Nullable
 
 /**
  * The result of a hover request.
@@ -24,6 +25,7 @@ interface Hover {
 	/**
 	 * An optional range
 	 */
+	@Nullable
 	def Range getRange()
 	
 }

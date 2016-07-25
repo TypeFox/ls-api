@@ -19,6 +19,7 @@ import io.typefox.lsapi.impl.RangeImpl
 import io.typefox.lsapi.impl.ServerCapabilitiesImpl
 import io.typefox.lsapi.services.json.LanguageServerProtocol
 import io.typefox.lsapi.services.json.LanguageServerToJsonAdapter
+import io.typefox.lsapi.services.json.MessageJsonHandler
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.PipedInputStream
@@ -46,7 +47,10 @@ class LanguageServerToJsonAdapterTest {
 		mockedServer = new MockedLanguageServer
 		val pipe = new PipedInputStream(BUFFER_SIZE)
 		adapterOutput = new ByteArrayOutputStream
-		adapter = new LanguageServerToJsonAdapter(mockedServer) => [
+		val jsonHandler = new MessageJsonHandler => [
+			validateMessages = false
+		]
+		adapter = new LanguageServerToJsonAdapter(mockedServer, jsonHandler) => [
 		    afterExit = []
 		]
 		adapterInput = new PipedOutputStream(pipe)

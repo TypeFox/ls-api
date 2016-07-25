@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * The document open notification is sent from the client to the server to signal newly opened text documents.
@@ -26,6 +27,7 @@ interface DidOpenTextDocumentParams extends TextDocumentIdentifier {
 	 * Legacy property to support protocol version 1.0 requests.
 	 */
 	@Deprecated
+	@Nullable
 	def String getText()
 	
 }

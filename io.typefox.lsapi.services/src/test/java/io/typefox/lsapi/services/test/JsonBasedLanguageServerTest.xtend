@@ -15,6 +15,7 @@ import io.typefox.lsapi.impl.TextDocumentItemImpl
 import io.typefox.lsapi.impl.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.services.json.JsonBasedLanguageServer
 import io.typefox.lsapi.services.json.LanguageServerProtocol
+import io.typefox.lsapi.services.json.MessageJsonHandler
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.PipedInputStream
@@ -42,7 +43,10 @@ class JsonBasedLanguageServerTest {
 	def void setup() {
 		val pipe = new PipedInputStream(BUFFER_SIZE)
 		serverOutput = new ByteArrayOutputStream
-		server = new JsonBasedLanguageServer
+		val jsonHandler = new MessageJsonHandler => [
+			validateMessages = false
+		]
+		server = new JsonBasedLanguageServer(jsonHandler)
 		serverInput = new PipedOutputStream(pipe)
 		server.onError[ message, t |
 			if (t !== null)

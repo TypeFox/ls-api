@@ -9,6 +9,7 @@ package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
 import java.util.List
+import javax.annotation.Nullable
 
 /**
  * Signature help options.
@@ -19,6 +20,7 @@ interface SignatureHelpOptions {
 	/**
 	 * The characters that trigger signature help automatically.
 	 */
+	@Nullable
 	def List<String> getTriggerCharacters()
 	
 }

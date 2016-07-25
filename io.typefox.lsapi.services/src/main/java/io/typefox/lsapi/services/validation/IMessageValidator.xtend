@@ -5,28 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi
+package io.typefox.lsapi.services.validation
 
-import io.typefox.lsapi.annotations.LanguageServerAPI
+import io.typefox.lsapi.Message
 import java.util.List
-import javax.annotation.Nullable
 
-/**
- * Completion options.
- */
-@LanguageServerAPI
-interface CompletionOptions {
+interface IMessageValidator {
 	
-	/**
-	 * The server provides support to resolve additional information for a completion item.
-	 */
-	@Nullable
-	def Boolean getResolveProvider()
-	
-	/**
-	 * The characters that trigger completion automatically.
-	 */
-	@Nullable
-	def List<String> getTriggerCharacters()
+	def List<MessageIssue> validate(Message message)
 	
 }

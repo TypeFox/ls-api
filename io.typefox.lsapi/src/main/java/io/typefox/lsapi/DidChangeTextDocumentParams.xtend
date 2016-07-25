@@ -9,6 +9,7 @@ package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
 import java.util.List
+import javax.annotation.Nullable
 
 /**
  * The document change notification is sent from the client to the server to signal changes to a text document.
@@ -26,6 +27,7 @@ interface DidChangeTextDocumentParams {
 	 * Legacy property to support protocol version 1.0 requests.
 	 */
 	@Deprecated
+	@Nullable
 	def String getUri()
 	
 	/**

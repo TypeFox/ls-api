@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * Represents information about programming constructs like variables, classes, interfaces etc.
@@ -33,6 +34,7 @@ interface SymbolInformation {
 	/**
 	 * The name of the symbol containing this symbol.
 	 */
-	def String getContainer()
+	@Nullable
+	def String getContainerName()
 	
 }

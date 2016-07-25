@@ -14,6 +14,7 @@ import io.typefox.lsapi.builders.CompletionListBuilder
 import io.typefox.lsapi.builders.DocumentFormattingParamsBuilder
 import io.typefox.lsapi.builders.RequestMessageBuilder
 import io.typefox.lsapi.builders.ResponseMessageBuilder
+import io.typefox.lsapi.impl.CodeLensImpl
 import io.typefox.lsapi.impl.DiagnosticImpl
 import io.typefox.lsapi.impl.DidChangeTextDocumentParamsImpl
 import io.typefox.lsapi.impl.NotificationMessageImpl
@@ -29,13 +30,15 @@ import io.typefox.lsapi.impl.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.impl.TextEditImpl
 import io.typefox.lsapi.impl.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.impl.WorkspaceEditImpl
+import io.typefox.lsapi.services.json.InvalidMessageException
 import io.typefox.lsapi.services.json.MessageJsonHandler
 import io.typefox.lsapi.services.json.MessageMethods
 import java.util.ArrayList
 import java.util.HashMap
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+
+import static org.junit.Assert.*
 
 import static extension io.typefox.lsapi.services.test.LineEndings.*
 
@@ -50,7 +53,16 @@ class JsonSerializeTest {
 	}
 	
 	private def assertSerialize(Message message, CharSequence expected) {
-		Assert.assertEquals(expected.toString.trim, jsonHandler.serialize(message).toSystemLineEndings)
+		assertEquals(expected.toString.trim, jsonHandler.serialize(message).toSystemLineEndings)
+	}
+	
+	private def void assertIssues(Message message, CharSequence expectedIssues) {
+		try {
+			jsonHandler.serialize(message)
+			fail('''Expected exception: «InvalidMessageException.name»''')
+		} catch (InvalidMessageException e) {
+			assertEquals(expectedIssues.toString, e.message.toSystemLineEndings)
+		}
 	}
 	
 	@Test
@@ -274,13 +286,21 @@ class JsonSerializeTest {
 			id("12")
 			result(new CompletionListBuilder[
 				incomplete(true)
+				item[
+					label('foo')
+				]
 			].build)
 		].build
 		message.assertSerialize('''
 			{
 			  "id": "12",
 			  "result": {
-			    "incomplete": true
+			    "incomplete": true,
+			    "items": [
+			      {
+			        "label": "foo"
+			      }
+			    ]
 			  },
 			  "jsonrpc": "2.0"
 			}
@@ -343,6 +363,72 @@ class JsonSerializeTest {
 	private static class TestObject {
 		package double foo = 12.3
 		package String bar = "qwertz"
+	}
+	
+	@Test
+	def void testInvalidCompletion() {
+		val message = new RequestMessageImpl => [
+			jsonrpc = "2.0"
+			id = "1"
+			method = MessageMethods.DOC_COMPLETION
+			params = new TextDocumentPositionParamsImpl => [
+				textDocument = new TextDocumentIdentifierImpl("file:///tmp/foo")
+			]
+		]
+		message.assertIssues('''
+			Error: The property 'position' must have a non-null value.
+			The message was:
+				RequestMessageImpl [
+				  id = "1"
+				  method = "textDocument/completion"
+				  params = TextDocumentPositionParamsImpl [
+				    textDocument = TextDocumentIdentifierImpl [
+				      uri = "file:///tmp/foo"
+				    ]
+				    uri = null
+				    position = null
+				  ]
+				  jsonrpc = "2.0"
+				]
+		''')
+	}
+	
+	@Test
+	def void testInvalidCodeLens() {
+		val message = new ResponseMessageImpl => [
+			jsonrpc = "2.0"
+			id = "1"
+			result = new CodeLensImpl => [
+				range = new RangeImpl => [
+					start = new PositionImpl(3, 32)
+					end = new PositionImpl(3, 35)
+				]
+				data = it
+			]
+		]
+		message.assertIssues('''
+			Error: An element of the message has a direct or indirect reference to itself.
+			The message was:
+				ResponseMessageImpl [
+				  id = "1"
+				  result = CodeLensImpl [
+				    range = RangeImpl [
+				      start = PositionImpl [
+				        line = 3
+				        character = 32
+				      ]
+				      end = PositionImpl [
+				        line = 3
+				        character = 35
+				      ]
+				    ]
+				    command = null
+				    data = CodeLensImpl@2096171631
+				  ]
+				  error = null
+				  jsonrpc = "2.0"
+				]
+		''')
 	}
 	
 }

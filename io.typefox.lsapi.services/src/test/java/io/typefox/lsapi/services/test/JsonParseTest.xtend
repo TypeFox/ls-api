@@ -27,13 +27,17 @@ import io.typefox.lsapi.impl.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.impl.TextEditImpl
 import io.typefox.lsapi.impl.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.impl.WorkspaceEditImpl
+import io.typefox.lsapi.services.json.InvalidMessageException
 import io.typefox.lsapi.services.json.MessageJsonHandler
 import io.typefox.lsapi.services.json.MessageMethods
 import java.util.ArrayList
 import java.util.HashMap
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+
+import static org.junit.Assert.*
+
+import static extension io.typefox.lsapi.services.test.LineEndings.*
 
 class JsonParseTest {
 	
@@ -44,8 +48,17 @@ class JsonParseTest {
 		jsonHandler = new MessageJsonHandler
 	}
 	
-	private def assertParse(CharSequence json, Message expected) {
-		Assert.assertEquals(expected.toString, jsonHandler.parseMessage(json).toString)
+	private def void assertParse(CharSequence json, Message expected) {
+		assertEquals(expected.toString, jsonHandler.parseMessage(json).toString)
+	}
+	
+	private def void assertIssues(CharSequence json, CharSequence expectedIssues) {
+		try {
+			jsonHandler.parseMessage(json)
+			fail('''Expected exception: «InvalidMessageException.name»''')
+		} catch (InvalidMessageException e) {
+			assertEquals(expectedIssues.toString, e.message.toSystemLineEndings)
+		}
 	}
 	
 	@Test
@@ -324,6 +337,26 @@ class JsonParseTest {
 				contents = newArrayList(new MarkedStringImpl("foolang", "boo shuby doo"))
 			]
 		])
+	}
+	
+	@Test
+	def void testInvalidCompletion() {
+		'''
+			{
+				"jsonrpc": "2.0",
+				"id": 1,
+				"method": "textDocument/completion",
+				"params": {
+					"textDocument": {
+						"uri": "file:///tmp/foo"
+					}
+				}
+			}
+		'''.assertIssues('''
+			Error: The property 'position' must have a non-null value.
+			The message was:
+				{"jsonrpc":"2.0","id":1,"method":"textDocument/completion","params":{"textDocument":{"uri":"file:///tmp/foo"}}}
+		''')
 	}
 	
 }

@@ -9,6 +9,7 @@ package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
 import java.util.List
+import javax.annotation.Nullable
 
 /**
  * The show message request is sent from a server to a client to ask the client to display a particular message in the
@@ -21,6 +22,7 @@ interface ShowMessageRequestParams extends MessageParams {
 	/**
 	 * The message action items to present.
 	 */
+	@Nullable
 	def List<? extends MessageActionItem> getActions()
 	
 }

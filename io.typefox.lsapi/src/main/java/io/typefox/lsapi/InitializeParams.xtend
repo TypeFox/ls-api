@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * The initialize request is sent as the first request from the client to the server.
@@ -18,6 +19,7 @@ interface InitializeParams {
 	/**
 	 * The process Id of the parent process that started the server.
 	 */
+	@Nullable
 	def Integer getProcessId()
 	
 	/**
@@ -28,12 +30,14 @@ interface InitializeParams {
 	/**
 	 * The capabilities provided by the client (editor)
 	 */
+	@Nullable
 	def ClientCapabilities getCapabilities()
 	
 	/**
 	 * An optional extension to the protocol.
 	 * To tell the server what client (editor) is talking to it.
 	 */
+	@Nullable
 	def String getClientName()
 
 }

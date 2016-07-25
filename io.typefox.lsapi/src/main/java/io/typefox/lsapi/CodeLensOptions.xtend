@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * Code Lens options.
@@ -18,6 +19,7 @@ interface CodeLensOptions {
 	/**
 	 * Code lens has a resolve provider as well.
 	 */
+	@Nullable
 	def boolean getResolveProvider()
 	
 }

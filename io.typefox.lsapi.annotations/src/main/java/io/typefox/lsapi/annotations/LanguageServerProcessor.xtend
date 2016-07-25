@@ -14,6 +14,7 @@ import java.util.LinkedList
 import java.util.List
 import java.util.Map
 import java.util.Set
+import javax.annotation.Nullable
 import org.eclipse.xtend.lib.annotations.AccessorsProcessor
 import org.eclipse.xtend.lib.annotations.EqualsHashCodeProcessor
 import org.eclipse.xtend.lib.macro.AbstractInterfaceProcessor
@@ -147,6 +148,9 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 				field.primarySourceElement = method
 				field.docComment = method.docComment
 				field.type = method.getFieldType(context)
+				val nullable = method.findAnnotation(Nullable.findTypeGlobally)
+				if (nullable !== null)
+					field.addAnnotation(newAnnotationReference(Nullable))
 				val accessorsUtil = new AccessorsProcessor.Util(context) {
 					override getGetterName(FieldDeclaration it) {
 						method.simpleName
@@ -158,10 +162,18 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 					addAnnotation(newAnnotationReference(Override))
 					if (method.findAnnotation(Deprecated.findTypeGlobally) !== null)
 						addAnnotation(newAnnotationReference(Deprecated))
+					if (nullable !== null)
+						addAnnotation(newAnnotationReference(Nullable))
 				]
 				
-				if (!field.type.inferred)
+				if (!field.type.inferred) {
 					accessorsUtil.addSetter(field, Visibility.PUBLIC)
+					if (nullable !== null) {
+						impl.findDeclaredMethod(accessorsUtil.getSetterName(field), field.type) => [
+							parameters.head?.addAnnotation(newAnnotationReference(Nullable))
+						]
+					}
+				}
 			]
 		]
 		visitedInterfaces += source

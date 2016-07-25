@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * A code lens represents a command that should be shown along with source text, like the number of references,
@@ -27,11 +28,13 @@ interface CodeLens {
 	/**
 	 * The command this code lens represents.
 	 */
+	@Nullable
 	def Command getCommand()
 	
 	/**
 	 * An data entry field that is preserved on a code lens item between a code lens and a code lens resolve request.
 	 */
+	@Nullable
 	def Object getData()
 	
 }

@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * The Completion request is sent from the client to the server to compute completion items at a given cursor position.
@@ -26,42 +27,50 @@ interface CompletionItem {
 	/**
 	 * The kind of this completion item. Based of the kind an icon is chosen by the editor.
 	 */
+	@Nullable
 	def CompletionItemKind getKind()
 	
 	/**
 	 * A human-readable string with additional information about this item, like type or symbol information.
 	 */
+	@Nullable
 	def String getDetail()
 	
 	/**
 	 * A human-readable string that represents a doc-comment.
 	 */
+	@Nullable
 	def String getDocumentation()
 	
 	/**
 	 * A string that shoud be used when comparing this item with other items. When `falsy` the label is used.
 	 */
+	@Nullable
 	def String getSortText()
 	
 	/**
 	 * A string that should be used when filtering a set of completion items. When `falsy` the label is used.
 	 */
+	@Nullable
 	def String getFilterText()
 	
 	/**
 	 * A string that should be inserted a document when selecting this completion. When `falsy` the label is used.
 	 */
+	@Nullable
 	def String getInsertText()
 	
 	/**
 	 * An edit which is applied to a document when selecting this completion. When an edit is provided the value of
      * insertText is ignored.
 	 */
+	@Nullable
 	def TextEdit getTextEdit()
 	
 	/**
 	 * An data entry field that is preserved on a completion item between a completion and a completion resolve request.
 	 */
+	@Nullable
 	def Object getData()
 	
 }

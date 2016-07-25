@@ -9,6 +9,7 @@ package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
 import java.util.List
+import javax.annotation.Nullable
 
 /**
  * Format document on type options
@@ -24,6 +25,7 @@ interface DocumentOnTypeFormattingOptions {
 	/**
 	 * More trigger characters.
 	 */
+	@Nullable
 	def List<String> getMoreTriggerCharacter()
 	
 }

@@ -9,6 +9,7 @@ package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
 import java.util.List
+import javax.annotation.Nullable
 
 /**
  * Represents the signature of something callable. A signature can have a label, like a function-name, a doc-comment, and
@@ -25,11 +26,13 @@ interface SignatureInformation {
 	/**
 	 * The human-readable doc-comment of this signature. Will be shown in the UI but can be omitted.
 	 */
+	@Nullable
 	def String getDocumentation()
 	
 	/**
 	 * The parameters of this signature.
 	 */
+	@Nullable
 	def List<? extends ParameterInformation> getParameters()
 	
 }

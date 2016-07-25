@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * A notification message. A processed notification message must not send a response back. They work like events.
@@ -23,6 +24,7 @@ interface NotificationMessage extends Message {
 	/**
 	 * The notification's params.
 	 */
+	@Nullable
 	def Object getParams()
 	
 }

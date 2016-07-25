@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 @LanguageServerAPI
 interface ResponseError {
@@ -25,6 +26,7 @@ interface ResponseError {
 	/**
 	 * A Primitive or Structured value that contains additional information about the error. Can be omitted.
 	 */
+	@Nullable
 	def Object getData()
 	
 }

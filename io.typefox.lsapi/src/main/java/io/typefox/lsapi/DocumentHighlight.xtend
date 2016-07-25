@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * A document highlight is a range inside a text document which deserves special attention. Usually a document highlight
@@ -24,6 +25,7 @@ interface DocumentHighlight {
 	/**
 	 * The highlight kind, default is {@link DocumentHighlightKind#Text}.
 	 */
+	@Nullable
 	def DocumentHighlightKind getKind()
 	
 }

@@ -9,6 +9,7 @@ package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
 import java.util.List
+import javax.annotation.Nullable
 
 /**
  * Signature help represents the signature of something callable. There can be multiple signature but only one
@@ -25,11 +26,13 @@ interface SignatureHelp {
 	/**
 	 * The active signature.
 	 */
+	@Nullable
 	def Integer getActiveSignature()
 	
 	/**
 	 * The active parameter of the active signature.
 	 */
+	@Nullable
 	def Integer getActiveParameter()
 	
 }

@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * A request message to decribe a request between the client and the server. Every processed request must send a response back
@@ -29,6 +30,7 @@ interface RequestMessage extends Message {
 	/**
 	 * The method's params.
 	 */
+	@Nullable
 	def Object getParams()
 	
 }

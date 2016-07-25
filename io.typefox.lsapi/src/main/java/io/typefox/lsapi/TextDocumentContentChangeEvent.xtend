@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * An event describing a change to a text document. If range and rangeLength are omitted the new text is considered
@@ -19,11 +20,13 @@ interface TextDocumentContentChangeEvent {
 	/**
 	 * The range of the document that changed.
 	 */
+	@Nullable
 	def Range getRange()
 	
 	/**
 	 * The length of the range that got replaced.
 	 */
+	@Nullable
 	def Integer getRangeLength()
 	
 	/**

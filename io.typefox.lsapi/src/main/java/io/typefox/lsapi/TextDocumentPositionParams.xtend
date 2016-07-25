@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * A parameter literal used in requests to pass a text document and a position inside that document.
@@ -24,6 +25,7 @@ interface TextDocumentPositionParams {
 	 * Legacy property to support protocol version 1.0 requests.
 	 */
 	@Deprecated
+	@Nullable
 	def String getUri()
 	
 	/**

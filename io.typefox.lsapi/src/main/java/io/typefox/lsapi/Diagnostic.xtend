@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * Represents a diagnostic, such as a compiler error or warning. Diagnostic objects are only valid in the scope of a resource.
@@ -24,16 +25,19 @@ interface Diagnostic {
 	 * The diagnostic's severity. Can be omitted. If omitted it is up to the client to interpret diagnostics as error,
 	 * warning, info or hint.
 	 */
+	@Nullable
 	def DiagnosticSeverity getSeverity()
 	
 	/**
 	 * The diagnostic's code. Can be omitted.
 	 */
+	@Nullable
 	def String getCode()
 	
 	/**
 	 * A human-readable string describing the source of this diagnostic, e.g. 'typescript' or 'super lint'.
 	 */
+	@Nullable
 	def String getSource()
 	
 	/**

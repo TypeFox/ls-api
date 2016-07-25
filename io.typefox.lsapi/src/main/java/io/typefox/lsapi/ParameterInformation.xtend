@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * Represents a parameter of a callable-signature. A parameter can have a label and a doc-comment.
@@ -23,6 +24,7 @@ interface ParameterInformation {
 	/**
 	 * The human-readable doc-comment of this signature. Will be shown in the UI but can be omitted.
 	 */
+	@Nullable
 	def String getDocumentation()
 	
 }

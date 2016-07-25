@@ -5,6 +5,7 @@ targetCompatibility = '1.7'
 
 dependencies {
 	compile project(":io.typefox.lsapi.annotations")
+	compile "com.google.code.findbugs:jsr305:$versions.jsr305"
 	testCompile "junit:junit:$versions.junit"
 }
 

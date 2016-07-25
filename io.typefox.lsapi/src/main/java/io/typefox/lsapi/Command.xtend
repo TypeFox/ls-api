@@ -9,6 +9,7 @@ package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
 import java.util.List
+import javax.annotation.Nullable
 
 /**
  * Represents a reference to a command. Provides a title which will be used to represent a command in the UI and,
@@ -30,6 +31,7 @@ interface Command {
 	/**
 	 * Arguments that the command handler should be invoked with.
 	 */
+	@Nullable
 	def List<Object> getArguments()
 	
 }

@@ -8,10 +8,12 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 @LanguageServerAPI
 interface MarkedString {
 	
+	@Nullable
 	def String getLanguage()
 	
 	def String getValue()

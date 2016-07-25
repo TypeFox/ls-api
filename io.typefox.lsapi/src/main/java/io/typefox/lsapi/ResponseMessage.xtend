@@ -8,6 +8,7 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
+import javax.annotation.Nullable
 
 /**
  * Response Message send as a result of a request.
@@ -23,11 +24,13 @@ interface ResponseMessage extends Message {
 	/**
 	 * The result of a request. This can be omitted in the case of an error.
 	 */
+	@Nullable
 	def Object getResult()
 	
 	/**
 	 * The error object in case a request fails.
 	 */
+	@Nullable
 	def ResponseError getError()
 	
 }
