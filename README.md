@@ -6,7 +6,7 @@ This project has been proposed as an Eclipse project (https://projects.eclipse.o
 
 ### Snapshots
 Snapshots are regularly deployed to 
- * https://oss.sonatype.org/content/repositories/snapshots/io/typefox/lsapi/io.typefox.lsapi/0.2.0-SNAPSHOT/
+ * https://oss.sonatype.org/content/repositories/snapshots/io/typefox/lsapi/io.typefox.lsapi/0.3.0-SNAPSHOT/
 
 Also, you can get them directly from the TypeFox Jenkins server:
  * http://services.typefox.io/open-source/jenkins/job/lsapi/lastSuccessfulBuild/artifact/build/maven-repository/
