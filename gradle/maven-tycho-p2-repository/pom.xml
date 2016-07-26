@@ -2,15 +2,16 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>io.typefox.lsapi</groupId>
-	<artifactId>io.typefox.lsapi.p2-repository</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
-	<packaging>eclipse-repository</packaging>
-
 	<properties>
+		<lsapiVersion>0.3.0-SNAPSHOT</lsapiVersion>
 		<mavenVersion>3.2.5</mavenVersion>
 		<tycho-version>0.25.0</tycho-version>
 	</properties>
+
+	<groupId>io.typefox.lsapi</groupId>
+	<artifactId>io.typefox.lsapi.p2-repository</artifactId>
+	<version>${lsapiVersion}</version>
+	<packaging>eclipse-repository</packaging>
 
 	<repositories>
 		<repository>
@@ -35,17 +36,35 @@
 		<dependency>
 			<groupId>io.typefox.lsapi</groupId>
 			<artifactId>io.typefox.lsapi</artifactId>
-			<version>0.3.0-SNAPSHOT</version>
+			<version>${lsapiVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.typefox.lsapi</groupId>
+			<artifactId>io.typefox.lsapi</artifactId>
+			<version>${lsapiVersion}</version>
+			<classifier>sources</classifier>
 		</dependency>
 		<dependency>
 			<groupId>io.typefox.lsapi</groupId>
 			<artifactId>io.typefox.lsapi.annotations</artifactId>
-			<version>0.3.0-SNAPSHOT</version>
+			<version>${lsapiVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.typefox.lsapi</groupId>
+			<artifactId>io.typefox.lsapi.annotations</artifactId>
+			<version>${lsapiVersion}</version>
+			<classifier>sources</classifier>
 		</dependency>
 		<dependency>
 			<groupId>io.typefox.lsapi</groupId>
 			<artifactId>io.typefox.lsapi.services</artifactId>
-			<version>0.3.0-SNAPSHOT</version>
+			<version>${lsapiVersion}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.typefox.lsapi</groupId>
+			<artifactId>io.typefox.lsapi.services</artifactId>
+			<version>${lsapiVersion}</version>
+			<classifier>sources</classifier>
 		</dependency>
 	</dependencies>
 
