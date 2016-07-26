@@ -16,6 +16,7 @@ jar {
 jar.manifest {
 	name = 'Language Server API Java bindings'
 	vendor = 'TypeFox'
+	instruction 'Import-Package', "javax.annotation;version=!"
 	instruction 'Import-Package', "com.google.common.*;version=\"$versions.guava\""
 	instruction 'Import-Package', '*'
 }
