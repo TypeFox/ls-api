@@ -9,12 +9,13 @@ package io.typefox.lsapi.services.json
 
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Future
-import org.eclipse.xtend.lib.annotations.Accessors
-import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Future
+import javax.annotation.Nullable
+import org.eclipse.xtend.lib.annotations.Accessors
+import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
 @FinalFieldsConstructor
 abstract class AbstractJsonBasedServer {
@@ -30,6 +31,11 @@ abstract class AbstractJsonBasedServer {
 	def synchronized void connect(InputStream input, OutputStream output) {
 		if (isActive)
 			throw new IllegalStateException("Cannot connect while active.")
+		try {
+			class.getAnnotation(Nullable)
+		} catch (NoClassDefFoundError e) {
+			protocol.logError("javax.annotation.Nullable is not on the classpath; validation of messages is disabled.", e)
+		}
 		protocol.ioHandler.output = output
 		protocol.ioHandler.input = input
 		ioHandlerJoin = executorService.submit(protocol.ioHandler)

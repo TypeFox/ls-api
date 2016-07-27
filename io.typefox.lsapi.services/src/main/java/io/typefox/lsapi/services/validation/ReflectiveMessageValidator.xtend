@@ -22,6 +22,10 @@ class ReflectiveMessageValidator implements IMessageValidator {
 			validate(message, result, newLinkedList)
 		} catch (Exception e) {
 			result += new MessageIssue('''Error during message validation: «e.message»''')
+		} catch (NoClassDefFoundError e) {
+			// Skip validation if Nullable annotations are not available
+			if (!e.message.endsWith('Nullable'))
+				throw e
 		}
 		return result
 	}

@@ -10,7 +10,7 @@ dependencies {
 jar.manifest {
 	name = 'Language Server API Services'
 	vendor = 'TypeFox'
-	instruction 'Import-Package', "javax.annotation;version=!"
+	instruction 'Import-Package', "javax.annotation;version=!;resolution:=optional"
 	instruction 'Import-Package', "com.google.common.*;version=\"$versions.guava\""
 	instruction 'Import-Package', "io.typefox.lsapi.*;version=\"$version\""
 	instruction 'Import-Package', '*'
