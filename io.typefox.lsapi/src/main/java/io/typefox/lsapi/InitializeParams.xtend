@@ -25,6 +25,7 @@ interface InitializeParams {
 	/**
 	 * The rootPath of the workspace. Is null if no folder is open.
 	 */
+	@Nullable
 	def String getRootPath()
 	
 	/**
