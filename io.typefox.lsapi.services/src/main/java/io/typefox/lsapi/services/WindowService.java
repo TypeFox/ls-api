@@ -5,30 +5,31 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.services
+package io.typefox.lsapi.services;
 
-import io.typefox.lsapi.MessageParams
-import io.typefox.lsapi.ShowMessageRequestParams
-import java.util.function.Consumer
+import java.util.function.Consumer;
 
-interface WindowService {
+import io.typefox.lsapi.MessageParams;
+import io.typefox.lsapi.ShowMessageRequestParams;
+
+public interface WindowService {
 	
 	/**
 	 * The show message notification is sent from a server to a client to ask the client to display a particular
 	 * message in the user interface.
 	 */
-	def void onShowMessage(Consumer<MessageParams> callback)
+	void onShowMessage(Consumer<MessageParams> callback);
 	
 	/**
 	 * The show message request is sent from a server to a client to ask the client to display a particular message
 	 * in the user interface. In addition to the show message notification the request allows to pass actions and
 	 * to wait for an answer from the client.
 	 */
-	def void onShowMessageRequest(Consumer<ShowMessageRequestParams> callback)
+	void onShowMessageRequest(Consumer<ShowMessageRequestParams> callback);
 	
 	/**
 	 * The log message notification is send from the server to the client to ask the client to log a particular message.
 	 */
-	def void onLogMessage(Consumer<MessageParams> callback)
+	void onLogMessage(Consumer<MessageParams> callback);
 	
 }

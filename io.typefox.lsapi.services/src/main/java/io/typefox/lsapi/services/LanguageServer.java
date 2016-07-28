@@ -5,55 +5,55 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
- 
-package io.typefox.lsapi.services
+package io.typefox.lsapi.services;
 
-import io.typefox.lsapi.InitializeParams
-import io.typefox.lsapi.InitializeResult
-import java.util.concurrent.CompletableFuture
-import java.util.function.Consumer
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
+import io.typefox.lsapi.InitializeParams;
+import io.typefox.lsapi.InitializeResult;
 
 /**
  * Interface for implementations of
  * https://github.com/Microsoft/vscode-languageserver-protocol
  */
-interface LanguageServer {
+public interface LanguageServer {
     
     /**
      * The initialize request is sent as the first request from the client to the server.
      */
-    def CompletableFuture<InitializeResult> initialize(InitializeParams params)
+    CompletableFuture<InitializeResult> initialize(InitializeParams params);
     
     /**
      * The shutdown request is sent from the client to the server. It asks the server to shutdown, but to not exit 
      * (otherwise the response might not be delivered correctly to the client). There is a separate exit notification
      * that asks the server to exit.
      **/
-    def void shutdown()
+    void shutdown();
     
     /**
      * A notification to ask the server to exit its process.
      */
-    def void exit();
+    void exit();
     
     /**
      * The telemetry notification is sent from the server to the client to ask the client to log a telemetry event.
      */
-    def void onTelemetryEvent(Consumer<Object> callback)
+    void onTelemetryEvent(Consumer<Object> callback);
     
     /**
      * Provides access to the textDocument services.
      */
-    def TextDocumentService getTextDocumentService();
+    TextDocumentService getTextDocumentService();
     
     /**
      * Provides access to the workspace services.
      */
-    def WorkspaceService getWorkspaceService();
+    WorkspaceService getWorkspaceService();
     
     /**
      * Provides access to the window services.
      */
-    def WindowService getWindowService();
+    WindowService getWindowService();
     
 }
