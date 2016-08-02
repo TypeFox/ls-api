@@ -27,7 +27,7 @@ public enum DiagnosticSeverity {
 	/**
 	 * Reports a hint.
 	 */
-	Hint(5);
+	Hint(4);
 	
 	private final int value;
 	
