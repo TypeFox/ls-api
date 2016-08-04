@@ -7,10 +7,10 @@
  *******************************************************************************/
 package io.typefox.lsapi.services.json
 
-@Deprecated
-final class MessageMethods implements io.typefox.lsapi.services.transport.MessageMethods {
-	
-	/** Hidden constructor to avoid instantiation. */
-	private new() {}
-	
+interface MessageConstants {
+    static val JSONRPC_VERSION = '2.0'
+    static val CONTENT_LENGTH_HEADER = 'Content-Length'
+    static val CONTENT_TYPE_HEADER = 'Content-Type'
+    static val JSON_MIME_TYPE = 'application/json'
+    static val CRLF = '\r\n'
 }

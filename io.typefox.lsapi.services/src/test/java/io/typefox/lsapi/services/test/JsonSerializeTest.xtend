@@ -30,9 +30,9 @@ import io.typefox.lsapi.impl.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.impl.TextEditImpl
 import io.typefox.lsapi.impl.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.impl.WorkspaceEditImpl
-import io.typefox.lsapi.services.json.InvalidMessageException
 import io.typefox.lsapi.services.json.MessageJsonHandler
-import io.typefox.lsapi.services.json.MessageMethods
+import io.typefox.lsapi.services.transport.InvalidMessageException
+import io.typefox.lsapi.services.transport.MessageMethods
 import java.util.ArrayList
 import java.util.HashMap
 import org.junit.Before

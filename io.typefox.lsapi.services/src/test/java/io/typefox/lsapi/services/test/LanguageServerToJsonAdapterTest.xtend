@@ -31,6 +31,9 @@ import org.junit.Test
 import static org.junit.Assert.*
 
 import static extension io.typefox.lsapi.services.test.LineEndings.*
+import io.typefox.lsapi.services.transport.trace.MessageTracer
+import io.typefox.lsapi.Message
+import io.typefox.lsapi.services.transport.trace.NullMessageTracer
 
 class LanguageServerToJsonAdapterTest {
 	
@@ -54,14 +57,18 @@ class LanguageServerToJsonAdapterTest {
 		    afterExit = []
 		]
 		adapterInput = new PipedOutputStream(pipe)
-		adapter.protocol.addErrorListener[ message, t |
-			if (!(t instanceof MockedLanguageServer.ForcedException)) {
-				if (t !== null)
-					t.printStackTrace()
-				else if (message !== null)
-					System.err.println(message)
-			}
-		]
+		adapter.messageTracer = new NullMessageTracer() {
+
+            override onError(String message, Throwable t) {
+                if (!(t instanceof MockedLanguageServer.ForcedException)) {
+                    if (t !== null)
+                        t.printStackTrace()
+                    else if (message !== null)
+                        System.err.println(message)
+                }
+            }
+
+        }
 		adapter.connect(pipe, adapterOutput)
 	}
 	
@@ -85,7 +92,7 @@ class LanguageServerToJsonAdapterTest {
 		val targetSize = trimmed.bytes.length
 		while (adapterOutput.size < targetSize) {
 			Thread.sleep(10)
-			assertTrue(System.currentTimeMillis - startTime < TIMEOUT)
+			assertTrue(adapterOutput.toString.toSystemLineEndings, System.currentTimeMillis - startTime < TIMEOUT)
 		}
 		assertEquals(trimmed, adapterOutput.toString.toSystemLineEndings)
 	}
@@ -348,7 +355,7 @@ class LanguageServerToJsonAdapterTest {
 			{"id":"0","error":{"code":-32600,"message":"Foo!"},"jsonrpc":"2.0"}
 		''')
 	}
-	
+
 	@Test
 	def void testMessageExceedsBuffer() {
 		mockedServer.response = new InitializeResultImpl

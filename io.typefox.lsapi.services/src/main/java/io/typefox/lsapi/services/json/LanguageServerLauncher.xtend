@@ -9,6 +9,7 @@ import java.nio.channels.AsynchronousSocketChannel
 import java.nio.channels.Channels
 import java.nio.channels.CompletionHandler
 
+@Deprecated
 class LanguageServerLauncher {
 
 	def static LanguageServerLauncher newLauncher(LanguageServer languageServer, SocketAddress socketAddress) {
