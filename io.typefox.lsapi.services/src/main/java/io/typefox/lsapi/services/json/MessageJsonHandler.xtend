@@ -54,6 +54,8 @@ import io.typefox.lsapi.impl.WorkspaceEditImpl
 import io.typefox.lsapi.impl.WorkspaceSymbolParamsImpl
 import io.typefox.lsapi.services.json.adapters.CollectionTypeAdapterFactory
 import io.typefox.lsapi.services.json.adapters.EnumTypeAdapterFactory
+import io.typefox.lsapi.services.transport.client.MethodResolver
+import io.typefox.lsapi.services.validation.IMessageValidator
 import io.typefox.lsapi.services.validation.MessageIssue
 import io.typefox.lsapi.services.validation.ReflectiveMessageValidator
 import java.io.Reader
@@ -62,63 +64,62 @@ import java.io.StringWriter
 import java.io.Writer
 import java.util.List
 import org.eclipse.xtend.lib.annotations.Accessors
-import io.typefox.lsapi.services.validation.IMessageValidator
 
 class MessageJsonHandler {
 	
 	static val REQUEST_PARAM_TYPES = #{
-		MessageMethods.INITIALIZE -> InitializeParamsImpl,
-		MessageMethods.DOC_COMPLETION -> TextDocumentPositionParamsImpl,
-		MessageMethods.RESOLVE_COMPLETION -> CompletionItemImpl,
-		MessageMethods.DOC_HOVER -> TextDocumentPositionParamsImpl,
-		MessageMethods.DOC_SIGNATURE_HELP -> TextDocumentPositionParamsImpl,
-		MessageMethods.DOC_DEFINITION -> TextDocumentPositionParamsImpl,
-		MessageMethods.DOC_HIGHLIGHT -> TextDocumentPositionParamsImpl,
-		MessageMethods.DOC_REFERENCES -> ReferenceParamsImpl,
-		MessageMethods.DOC_SYMBOL -> DocumentSymbolParamsImpl,
-		MessageMethods.WORKSPACE_SYMBOL -> WorkspaceSymbolParamsImpl,
-		MessageMethods.DOC_CODE_ACTION -> CodeActionParamsImpl,
-		MessageMethods.DOC_CODE_LENS -> CodeLensParamsImpl,
-		MessageMethods.RESOLVE_CODE_LENS -> CodeLensImpl,
-		MessageMethods.DOC_FORMATTING -> DocumentFormattingParamsImpl,
-		MessageMethods.DOC_RANGE_FORMATTING -> DocumentRangeFormattingParamsImpl,
-		MessageMethods.DOC_TYPE_FORMATTING -> DocumentOnTypeFormattingParamsImpl,
-		MessageMethods.DOC_RENAME -> RenameParamsImpl,
-		MessageMethods.SHOW_MESSAGE_REQUEST -> ShowMessageRequestParamsImpl
+		io.typefox.lsapi.services.transport.MessageMethods.INITIALIZE -> InitializeParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_COMPLETION -> TextDocumentPositionParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.RESOLVE_COMPLETION -> CompletionItemImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_HOVER -> TextDocumentPositionParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_SIGNATURE_HELP -> TextDocumentPositionParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_DEFINITION -> TextDocumentPositionParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_HIGHLIGHT -> TextDocumentPositionParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_REFERENCES -> ReferenceParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_SYMBOL -> DocumentSymbolParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.WORKSPACE_SYMBOL -> WorkspaceSymbolParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_CODE_ACTION -> CodeActionParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_CODE_LENS -> CodeLensParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.RESOLVE_CODE_LENS -> CodeLensImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_FORMATTING -> DocumentFormattingParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_RANGE_FORMATTING -> DocumentRangeFormattingParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_TYPE_FORMATTING -> DocumentOnTypeFormattingParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_RENAME -> RenameParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.SHOW_MESSAGE_REQUEST -> ShowMessageRequestParamsImpl
 	}
 	
 	static val RESPONSE_RESULT_TYPES = #{
-		MessageMethods.INITIALIZE -> InitializeResultImpl,
-		MessageMethods.DOC_COMPLETION -> CompletionListImpl,
-		MessageMethods.RESOLVE_COMPLETION -> CompletionItemImpl,
-		MessageMethods.DOC_HOVER -> HoverImpl,
-		MessageMethods.DOC_SIGNATURE_HELP -> SignatureHelpImpl,
-		MessageMethods.DOC_DEFINITION -> LocationImpl,
-		MessageMethods.DOC_HIGHLIGHT -> DocumentHighlightImpl,
-		MessageMethods.DOC_REFERENCES -> LocationImpl,
-		MessageMethods.DOC_SYMBOL -> SymbolInformationImpl,
-		MessageMethods.WORKSPACE_SYMBOL -> SymbolInformationImpl,
-		MessageMethods.DOC_CODE_ACTION -> CommandImpl,
-		MessageMethods.DOC_CODE_LENS -> CodeLensImpl,
-		MessageMethods.RESOLVE_CODE_LENS -> CodeLensImpl,
-		MessageMethods.DOC_FORMATTING -> TextEditImpl,
-		MessageMethods.DOC_RANGE_FORMATTING -> TextEditImpl,
-		MessageMethods.DOC_TYPE_FORMATTING -> TextEditImpl,
-		MessageMethods.DOC_RENAME -> WorkspaceEditImpl
+		io.typefox.lsapi.services.transport.MessageMethods.INITIALIZE -> InitializeResultImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_COMPLETION -> CompletionListImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.RESOLVE_COMPLETION -> CompletionItemImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_HOVER -> HoverImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_SIGNATURE_HELP -> SignatureHelpImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_DEFINITION -> LocationImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_HIGHLIGHT -> DocumentHighlightImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_REFERENCES -> LocationImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_SYMBOL -> SymbolInformationImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.WORKSPACE_SYMBOL -> SymbolInformationImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_CODE_ACTION -> CommandImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_CODE_LENS -> CodeLensImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.RESOLVE_CODE_LENS -> CodeLensImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_FORMATTING -> TextEditImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_RANGE_FORMATTING -> TextEditImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_TYPE_FORMATTING -> TextEditImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DOC_RENAME -> WorkspaceEditImpl
 	}
 	
 	static val NOTIFICATION_PARAM_TYPES = #{
-		MessageMethods.SHOW_DIAGNOSTICS -> PublishDiagnosticsParamsImpl,
-		MessageMethods.DID_CHANGE_CONF -> DidChangeConfigurationParamsImpl,
-		MessageMethods.DID_OPEN_DOC -> DidOpenTextDocumentParamsImpl,
-		MessageMethods.DID_CHANGE_DOC -> DidChangeTextDocumentParamsImpl,
-		MessageMethods.DID_CLOSE_DOC -> DidCloseTextDocumentParamsImpl,
-		MessageMethods.DID_CHANGE_FILES -> DidChangeWatchedFilesParamsImpl,
-		MessageMethods.DID_SAVE_DOC -> DidSaveTextDocumentParamsImpl,
-		MessageMethods.SHOW_MESSAGE -> MessageParamsImpl,
-		MessageMethods.LOG_MESSAGE -> MessageParamsImpl,
-		MessageMethods.SHOW_MESSAGE_REQUEST -> ShowMessageRequestParamsImpl,
-		MessageMethods.CANCEL -> CancelParamsImpl
+		io.typefox.lsapi.services.transport.MessageMethods.SHOW_DIAGNOSTICS -> PublishDiagnosticsParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DID_CHANGE_CONF -> DidChangeConfigurationParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DID_OPEN_DOC -> DidOpenTextDocumentParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DID_CHANGE_DOC -> DidChangeTextDocumentParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DID_CLOSE_DOC -> DidCloseTextDocumentParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DID_CHANGE_FILES -> DidChangeWatchedFilesParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.DID_SAVE_DOC -> DidSaveTextDocumentParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.SHOW_MESSAGE -> MessageParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.LOG_MESSAGE -> MessageParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.SHOW_MESSAGE_REQUEST -> ShowMessageRequestParamsImpl,
+		io.typefox.lsapi.services.transport.MessageMethods.CANCEL -> CancelParamsImpl
 	}
 	
 	val jsonParser = new JsonParser
@@ -126,7 +127,7 @@ class MessageJsonHandler {
 	val IMessageValidator messageValidator = new ReflectiveMessageValidator
 	
 	@Accessors(PUBLIC_SETTER)
-	var (String)=>String responseMethodResolver
+    MethodResolver methodResolver
 	
 	@Accessors(PUBLIC_SETTER)
 	var boolean validateMessages = true
@@ -143,6 +144,11 @@ class MessageJsonHandler {
 	    new GsonBuilder()
 	    	.registerTypeAdapterFactory(new CollectionTypeAdapterFactory)
 	    	.registerTypeAdapterFactory(new EnumTypeAdapterFactory)
+	}
+	
+	@Deprecated
+	def void setResponseMethodResolver((String)=>String responseMethodResolver) {
+	    methodResolver = if (responseMethodResolver === null) null else [responseMethodResolver.apply(it)]
 	}
 	
 	def Message parseMessage(CharSequence input) {
@@ -166,7 +172,7 @@ class MessageJsonHandler {
 		if (validateMessages) {
 			val issues = messageValidator.validate(result)
 			if (!issues.empty)
-				throw new InvalidMessageException(issuesToString(result, json, issues), idElement?.asString)
+				throw new io.typefox.lsapi.services.transport.InvalidMessageException(issuesToString(result, json, issues), idElement?.asString)
 		}
 		return result
 	}
@@ -183,19 +189,19 @@ class MessageJsonHandler {
 			}
 			return result
 		} catch (Exception e) {
-			throw new InvalidMessageException("Could not parse request: " + e.message, requestId, e)
+			throw new io.typefox.lsapi.services.transport.InvalidMessageException("Could not parse request: " + e.message, requestId, e)
 		}
 	}
 	
 	protected def ResponseMessageImpl parseResponse(JsonObject json, String responseId) {
-		if (responseMethodResolver === null)
+		if (methodResolver === null)
 			throw new IllegalStateException("Response methods are not accepted.")
 		try {
 			val result = new ResponseMessageImpl
 			result.id = responseId
 			val resultElem = json.get('result')
 			if (resultElem !== null) {
-				val method = responseMethodResolver.apply(responseId)
+				val method = methodResolver.resolveMethod(responseId)
 				if (method !== null) {
 					val resultType = RESPONSE_RESULT_TYPES.get(method)
 					if (resultType !== null) {
@@ -220,7 +226,7 @@ class MessageJsonHandler {
 			}
 			return result
 		} catch (Exception e) {
-			throw new InvalidMessageException("Could not parse response: " + e.message, responseId, e)
+			throw new io.typefox.lsapi.services.transport.InvalidMessageException("Could not parse response: " + e.message, responseId, e)
 		}
 	}
 	
@@ -235,7 +241,7 @@ class MessageJsonHandler {
 			}
 			return result
 		} catch (Exception e) {
-			throw new InvalidMessageException("Could not parse notification: " + e.message, null, e)
+			throw new io.typefox.lsapi.services.transport.InvalidMessageException("Could not parse notification: " + e.message, null, e)
 		}
 	}
 	
@@ -249,7 +255,7 @@ class MessageJsonHandler {
 		if (validateMessages) {
 			val issues = messageValidator.validate(message)
 			if (!issues.empty)
-				throw new InvalidMessageException(issuesToString(message, null, issues),
+				throw new io.typefox.lsapi.services.transport.InvalidMessageException(issuesToString(message, null, issues),
 						if (message instanceof RequestMessage) message.id)
 		}
 		gson.toJson(message, output)

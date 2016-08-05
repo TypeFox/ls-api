@@ -27,9 +27,7 @@ import io.typefox.lsapi.impl.TextDocumentPositionParamsImpl
 import io.typefox.lsapi.impl.TextEditImpl
 import io.typefox.lsapi.impl.VersionedTextDocumentIdentifierImpl
 import io.typefox.lsapi.impl.WorkspaceEditImpl
-import io.typefox.lsapi.services.json.InvalidMessageException
 import io.typefox.lsapi.services.json.MessageJsonHandler
-import io.typefox.lsapi.services.json.MessageMethods
 import java.util.ArrayList
 import java.util.HashMap
 import org.junit.Before
@@ -38,6 +36,8 @@ import org.junit.Test
 import static org.junit.Assert.*
 
 import static extension io.typefox.lsapi.services.test.LineEndings.*
+import io.typefox.lsapi.services.transport.InvalidMessageException
+import io.typefox.lsapi.services.transport.MessageMethods
 
 class JsonParseTest {
 	
@@ -185,7 +185,7 @@ class JsonParseTest {
 	
 	@Test
 	def void testRenameResponse() {
-		jsonHandler.responseMethodResolver = [ id |
+		jsonHandler.methodResolver = [ id |
 			switch id {
 				case '12': MessageMethods.DOC_RENAME
 			}
@@ -255,7 +255,7 @@ class JsonParseTest {
 	
 	@Test
 	def void testResponseError() {
-		jsonHandler.responseMethodResolver = [ id |
+		jsonHandler.methodResolver = [ id |
 			switch id {
 				case '12':
 					'textDocument/rename'
@@ -300,7 +300,7 @@ class JsonParseTest {
 	
 	@Test
 	def void testHoverResponse() {
-		jsonHandler.responseMethodResolver = [ id |
+		jsonHandler.methodResolver = [ id |
 			switch id {
 				case '12': MessageMethods.DOC_HOVER
 			}

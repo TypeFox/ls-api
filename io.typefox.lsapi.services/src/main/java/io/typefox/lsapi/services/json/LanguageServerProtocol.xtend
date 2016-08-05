@@ -24,9 +24,11 @@ import java.util.List
 import java.util.function.Consumer
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
+import io.typefox.lsapi.services.transport.trace.MessageTracer
 
+@Deprecated
 @FinalFieldsConstructor
-class LanguageServerProtocol implements Consumer<Message> {
+class LanguageServerProtocol implements Consumer<Message>, MessageTracer {
 	
 	public static val JSONRPC_VERSION = '2.0'
 	
@@ -90,6 +92,18 @@ class LanguageServerProtocol implements Consumer<Message> {
 			l.apply(message, json)
 		}
 	}
+
+    override onError(String message, Throwable throwable) {
+        logError(message, throwable)
+    }
+    
+    override onRead(Message message, String json) {
+        logIncomingMessage(message, json)
+    }
+    
+    override onWrite(Message message, String json) {
+        logOutgoingMessage(message, json)
+    }
 	
 	override accept(Message message) {
 		try {

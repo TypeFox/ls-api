@@ -5,12 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package io.typefox.lsapi.services.json
+package io.typefox.lsapi.services.transport.client
 
-@Deprecated
-final class MessageMethods implements io.typefox.lsapi.services.transport.MessageMethods {
-	
-	/** Hidden constructor to avoid instantiation. */
-	private new() {}
-	
+interface MethodResolver {
+
+    def String resolveMethod(String requestId)
+    
 }
