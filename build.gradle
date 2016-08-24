@@ -33,3 +33,9 @@ subprojects {
 }
 
 apply from: "${rootDir}/gradle/p2-deployment.gradle"
+
+// generate an ide with xtend support
+task ide(type: GradleBuild) {
+	buildFile = 'ide/build.gradle'
+	tasks = ['ide']
+}
