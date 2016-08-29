@@ -10,7 +10,6 @@ package io.typefox.lsapi.test
 import io.typefox.lsapi.CompletionItemKind
 import io.typefox.lsapi.builders.CompletionListBuilder
 import io.typefox.lsapi.builders.DocumentRangeFormattingParamsBuilder
-import io.typefox.lsapi.builders.IBuilder
 import io.typefox.lsapi.builders.WorkspaceEditBuilder
 import org.junit.Assert
 import org.junit.Test
@@ -19,9 +18,10 @@ import static extension io.typefox.lsapi.test.LineEndings.*
 
 class BuilderTest {
 	
-	private def void assertBuilds(IBuilder<?> builder, String expected) {
-		Assert.assertEquals(expected.trim, builder.build.toString.toSystemLineEndings)
-	}
+   private def void assertBuilds(Object builder, String expected) {
+       val built = builder.class.getMethod("build").invoke(builder)
+        Assert.assertEquals(expected.trim, built.toString.toSystemLineEndings)
+    }
 	
 	@Test
 	def void testCompletionList() {

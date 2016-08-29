@@ -25,7 +25,6 @@ import org.eclipse.xtend.lib.macro.declaration.FieldDeclaration
 import org.eclipse.xtend.lib.macro.declaration.InterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MethodDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableClassDeclaration
-import org.eclipse.xtend.lib.macro.declaration.MutableFieldDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableInterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.Type
 import org.eclipse.xtend.lib.macro.declaration.TypeReference
@@ -260,15 +259,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 		val builder = annotatedInterface.builderName.findClass
 		builder.primarySourceElement = annotatedInterface
 		builder.docComment = '''Builder for instances of {@link «annotatedInterface.simpleName»}.'''
-		
-		val superApiInterfaces = annotatedInterface.getSuperApiInterfaces(context).toList
-		val superClassRef = superApiInterfaces.head.builderName?.newTypeReference
-		val hasSuperBuilder = superClassRef?.type.doGenerateBuilder(context)
-		if (hasSuperBuilder)
-			builder.extendedClass = superClassRef
-		else
-			builder.implementedInterfaces = #[BUILDER_INTERFACE.newTypeReference(annotatedInterface.newTypeReference)]
-		
+        builder.implementedInterfaces = #[BUILDER_INTERFACE.newTypeReference(annotatedInterface.newTypeReference)]
 		builder.addConstructor[
 			body = ''''''
 		]
@@ -297,10 +288,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 			method.visibility = Visibility.PROTECTED
 			method.addParameter('result', impl.newTypeReference)
 			method.body = '''
-				«IF hasSuperBuilder»
-					super.internalBuild(result);
-				«ENDIF»
-				«FOR implField : impl.declaredFields»
+				«FOR implField : impl.allFields»
 					result.«accessorsUtil.getSetterName(implField)»(this.«implField.simpleName»);
 				«ENDFOR»
 			'''
@@ -309,11 +297,15 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 		return builder
 	}
 	
+	private def Iterable<FieldDeclaration> getAllFields(ClassDeclaration it) {
+	    declaredFields + ((extendedClass?.type as ClassDeclaration)?.allFields ?: #[])
+	}
+	
 	private def generateBuilderMembers(MutableClassDeclaration builder, MutableClassDeclaration impl,
 			extension TransformationContext context) {
 		val globalListType = List.findTypeGlobally
 		val globalMapType = Map.findTypeGlobally
-		impl.declaredFields.forEach[ implField |
+		impl.allFields.forEach[ implField |
 			val fieldType = implField.type
 			builder.addField(implField.simpleName) [ field |
 				field.primarySourceElement = implField.primarySourceElement
@@ -476,7 +468,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 		]
 	}
 	
-	private def getSingularName(MutableFieldDeclaration field) {
+	private def getSingularName(FieldDeclaration field) {
 		val name = field.simpleName
 		if (name.endsWith('ies'))
 			name.substring(0, name.length - 3) + 'y'
