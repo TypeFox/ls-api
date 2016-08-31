@@ -128,6 +128,8 @@ class StreamMessageReader extends AbstractMessageReader implements MessageConsta
             callback.apply(message)
         } catch (UnsupportedEncodingException e) {
             fireError(e)
+        } catch (InvalidMessageException e) {
+            fireError(e)
         }
         return true
     }
