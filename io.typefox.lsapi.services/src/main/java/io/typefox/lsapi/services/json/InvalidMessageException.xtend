@@ -9,9 +9,11 @@ package io.typefox.lsapi.services.json
 
 import io.typefox.lsapi.ResponseErrorCode
 import com.google.gson.JsonObject
+import org.eclipse.xtend.lib.annotations.Accessors
 
 class InvalidMessageException extends io.typefox.lsapi.services.transport.InvalidMessageException {
 	
+	@Accessors(PUBLIC_GETTER)
 	val JsonObject json
 	
 	new(String message) {
