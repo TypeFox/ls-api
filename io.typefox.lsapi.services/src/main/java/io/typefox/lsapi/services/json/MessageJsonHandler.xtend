@@ -172,7 +172,7 @@ class MessageJsonHandler {
 		if (validateMessages) {
 			val issues = messageValidator.validate(result)
 			if (!issues.empty)
-				throw new io.typefox.lsapi.services.transport.InvalidMessageException(issuesToString(result, json, issues), idElement?.asString)
+				throw new InvalidMessageException(issuesToString(result, json, issues), idElement?.asString, null, json)
 		}
 		return result
 	}
@@ -189,7 +189,7 @@ class MessageJsonHandler {
 			}
 			return result
 		} catch (Exception e) {
-			throw new io.typefox.lsapi.services.transport.InvalidMessageException("Could not parse request: " + e.message, requestId, e)
+			throw new InvalidMessageException("Could not parse request: " + e.message, requestId, e, json)
 		}
 	}
 	
@@ -226,7 +226,7 @@ class MessageJsonHandler {
 			}
 			return result
 		} catch (Exception e) {
-			throw new io.typefox.lsapi.services.transport.InvalidMessageException("Could not parse response: " + e.message, responseId, e)
+			throw new InvalidMessageException("Could not parse response: " + e.message, responseId, e, json)
 		}
 	}
 	
@@ -241,7 +241,7 @@ class MessageJsonHandler {
 			}
 			return result
 		} catch (Exception e) {
-			throw new io.typefox.lsapi.services.transport.InvalidMessageException("Could not parse notification: " + e.message, null, e)
+			throw new InvalidMessageException("Could not parse notification: " + e.message, null, e, json)
 		}
 	}
 	
