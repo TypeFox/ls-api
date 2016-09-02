@@ -54,6 +54,7 @@ import io.typefox.lsapi.impl.WorkspaceEditImpl
 import io.typefox.lsapi.impl.WorkspaceSymbolParamsImpl
 import io.typefox.lsapi.services.json.adapters.CollectionTypeAdapterFactory
 import io.typefox.lsapi.services.json.adapters.EnumTypeAdapterFactory
+import io.typefox.lsapi.services.json.adapters.MarkedStringTypeAdapterFactory
 import io.typefox.lsapi.services.transport.client.MethodResolver
 import io.typefox.lsapi.services.validation.IMessageValidator
 import io.typefox.lsapi.services.validation.MessageIssue
@@ -139,11 +140,12 @@ class MessageJsonHandler {
 	new(Gson gson) {
 		this.gson = gson
 	}
-	
+    
 	def static GsonBuilder getDefaultGsonBuilder() {
 	    new GsonBuilder()
 	    	.registerTypeAdapterFactory(new CollectionTypeAdapterFactory)
-	    	.registerTypeAdapterFactory(new EnumTypeAdapterFactory)
+            .registerTypeAdapterFactory(new EnumTypeAdapterFactory)
+            .registerTypeAdapterFactory(new MarkedStringTypeAdapterFactory)
 	}
 	
 	@Deprecated

@@ -38,6 +38,7 @@ import static org.junit.Assert.*
 import static extension io.typefox.lsapi.services.test.LineEndings.*
 import io.typefox.lsapi.services.transport.InvalidMessageException
 import io.typefox.lsapi.services.transport.MessageMethods
+import io.typefox.lsapi.MarkedString
 
 class JsonParseTest {
 	
@@ -298,47 +299,53 @@ class JsonParseTest {
 		])
 	}
 	
-	@Test
-	def void testHoverResponse() {
-		jsonHandler.methodResolver = [ id |
-			switch id {
-				case '12': MessageMethods.DOC_HOVER
-			}
-		]
-		'''
-			{
-				"jsonrpc": "2.0",
-				"id": "12",
-				"result": {
-					"range": {
-						"start": {
-							"character": 32,
-							"line": 3
-						},
-						"end": {
-							"character": 35,
-							"line": 3
-						}
-					},
-					"contents": {
-						"language": "foolang",
-						"value": "boo shuby doo"
-					}
-				}
-			}
-		'''.assertParse(new ResponseMessageImpl => [
-			jsonrpc = "2.0"
-			id = "12"
-			result = new HoverImpl => [
-				range = new RangeImpl => [
-					start = new PositionImpl(3, 32)
-					end = new PositionImpl(3, 35)
-				]
-				contents = newArrayList(new MarkedStringImpl("foolang", "boo shuby doo"))
-			]
-		])
-	}
-	
+    @Test
+    def void testHoverResponse() {
+        jsonHandler.methodResolver = [ id |
+            switch id {
+                case '12': MessageMethods.DOC_HOVER
+            }
+        ]
+        '''
+            {
+                "jsonrpc": "2.0",
+                "id": "12",
+                "result": {
+                    "range": {
+                        "start": {
+                            "character": 32,
+                            "line": 3
+                        },
+                        "end": {
+                            "character": 35,
+                            "line": 3
+                        }
+                    },
+                    "contents": [
+                        'foo',
+                        {
+                            "language": "foolang",
+                            "value": "boo shuby doo"
+                        }
+                    ]
+                }
+            }
+        '''.assertParse(new ResponseMessageImpl => [
+            jsonrpc = "2.0"
+            id = "12"
+            result = new HoverImpl => [
+                range = new RangeImpl => [
+                    start = new PositionImpl(3, 32)
+                    end = new PositionImpl(3, 35)
+                ]
+                contents = newArrayList(
+                    new MarkedStringImpl(MarkedString.PLAIN_STRING, "foo"),
+                    new MarkedStringImpl("foolang", "boo shuby doo")
+                )
+            ]
+        ])
+    }
+    
 	@Test
 	def void testInvalidCompletion() {
 		'''

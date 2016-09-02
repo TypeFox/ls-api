@@ -13,6 +13,19 @@ import javax.annotation.Nullable
 @LanguageServerAPI
 interface MarkedString {
 	
+	/**
+	 * Value for <code>language</code> denoting this is a plain string.
+	 * 
+	 * LSP defines MarkedString as a union type  
+	 * <pre>
+	 * type MarkedString = string | { language: string; value: string };
+	 * </pre>
+	 * which does not go well with Java.
+	 * 
+	 * In Monaco's hovers, such <code>MarkedStrings</code> will be rendered as markdown.
+	 */
+	static val PLAIN_STRING = 'plain_string' 
+	
 	@Nullable
 	def String getLanguage()
 	

@@ -17,6 +17,8 @@ import io.typefox.lsapi.builders.ResponseMessageBuilder
 import io.typefox.lsapi.impl.CodeLensImpl
 import io.typefox.lsapi.impl.DiagnosticImpl
 import io.typefox.lsapi.impl.DidChangeTextDocumentParamsImpl
+import io.typefox.lsapi.impl.HoverImpl
+import io.typefox.lsapi.impl.MarkedStringImpl
 import io.typefox.lsapi.impl.NotificationMessageImpl
 import io.typefox.lsapi.impl.PositionImpl
 import io.typefox.lsapi.impl.PublishDiagnosticsParamsImpl
@@ -41,6 +43,7 @@ import org.junit.Test
 import static org.junit.Assert.*
 
 import static extension io.typefox.lsapi.services.test.LineEndings.*
+import io.typefox.lsapi.MarkedString
 
 class JsonSerializeTest {
 	
@@ -195,94 +198,137 @@ class JsonSerializeTest {
 		''')
 	}
 	
-	@Test
-	def void testRename() {
-		val message = new ResponseMessageImpl => [
-			jsonrpc = "2.0"
-			id = "12"
-			result = new WorkspaceEditImpl => [
-				changes = new HashMap => [
-					put("file:///tmp/foo", newArrayList(
-						new TextEditImpl => [
-							range = new RangeImpl => [
-								start = new PositionImpl(3, 32)
-								end = new PositionImpl(3, 35)
-							]
-							newText = "foobar"
-						],
-						new TextEditImpl => [
-							range = new RangeImpl => [
-								start = new PositionImpl(4, 22)
-								end = new PositionImpl(4, 25)
-							]
-							newText = "foobar"
-						]
-					))
-				]
-			]
-		]
-		message.assertSerialize('''
-			{
-			  "id": "12",
-			  "result": {
-			    "changes": {
-			      "file:///tmp/foo": [
-			        {
-			          "range": {
-			            "start": {
-			              "line": 3,
-			              "character": 32
-			            },
-			            "end": {
-			              "line": 3,
-			              "character": 35
-			            }
-			          },
-			          "newText": "foobar"
-			        },
-			        {
-			          "range": {
-			            "start": {
-			              "line": 4,
-			              "character": 22
-			            },
-			            "end": {
-			              "line": 4,
-			              "character": 25
-			            }
-			          },
-			          "newText": "foobar"
-			        }
-			      ]
-			    }
-			  },
-			  "jsonrpc": "2.0"
-			}
-		''')
-	}
-	
-	@Test
-	def void testResponseError() {
-		val message = new ResponseMessageImpl => [
-			jsonrpc = "2.0"
-			id = "12"
-			error = new ResponseErrorImpl => [
-				code = ResponseErrorCode.InvalidRequest
-				message = "Could not parse request."
-			]
-		]
-		message.assertSerialize('''
-			{
-			  "id": "12",
-			  "error": {
-			    "code": -32600,
-			    "message": "Could not parse request."
-			  },
-			  "jsonrpc": "2.0"
-			}
-		''')
-	}
-	
+    @Test
+    def void testRename() {
+        val message = new ResponseMessageImpl => [
+            jsonrpc = "2.0"
+            id = "12"
+            result = new WorkspaceEditImpl => [
+                changes = new HashMap => [
+                    put("file:///tmp/foo", newArrayList(
+                        new TextEditImpl => [
+                            range = new RangeImpl => [
+                                start = new PositionImpl(3, 32)
+                                end = new PositionImpl(3, 35)
+                            ]
+                            newText = "foobar"
+                        ],
+                        new TextEditImpl => [
+                            range = new RangeImpl => [
+                                start = new PositionImpl(4, 22)
+                                end = new PositionImpl(4, 25)
+                            ]
+                            newText = "foobar"
+                        ]
+                    ))
+                ]
+            ]
+        ]
+        message.assertSerialize('''
+            {
+              "id": "12",
+              "result": {
+                "changes": {
+                  "file:///tmp/foo": [
+                    {
+                      "range": {
+                        "start": {
+                          "line": 3,
+                          "character": 32
+                        },
+                        "end": {
+                          "line": 3,
+                          "character": 35
+                        }
+                      },
+                      "newText": "foobar"
+                    },
+                    {
+                      "range": {
+                        "start": {
+                          "line": 4,
+                          "character": 22
+                        },
+                        "end": {
+                          "line": 4,
+                          "character": 25
+                        }
+                      },
+                      "newText": "foobar"
+                    }
+                  ]
+                }
+              },
+              "jsonrpc": "2.0"
+            }
+        ''')
+    }
+    
+    @Test
+    def void testHoverResponse() {
+        val message = new ResponseMessageImpl => [
+            jsonrpc = "2.0"
+            id = "12"
+            result = new HoverImpl => [
+                range = new RangeImpl => [
+                    start = new PositionImpl(3, 32)
+                    end = new PositionImpl(3, 35)
+                ]
+                contents = newArrayList(
+                    new MarkedStringImpl(MarkedString.PLAIN_STRING, "foo"),
+                    new MarkedStringImpl("foolang", "boo shuby doo")
+                )
+            ]
+        ]
+        message.assertSerialize('''
+            {
+              "id": "12",
+              "result": {
+                "contents": [
+                  "foo",
+                  {
+                    "language": "foolang",
+                    "value": "boo shuby doo"
+                  }
+                ],
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 32
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 35
+                  }
+                }
+              },
+              "jsonrpc": "2.0"
+            }
+        ''')
+    }
+    
+    @Test
+    def void testResponseError() {
+        val message = new ResponseMessageImpl => [
+            jsonrpc = "2.0"
+            id = "12"
+            error = new ResponseErrorImpl => [
+                code = ResponseErrorCode.InvalidRequest
+                message = "Could not parse request."
+            ]
+        ]
+        message.assertSerialize('''
+            {
+              "id": "12",
+              "error": {
+                "code": -32600,
+                "message": "Could not parse request."
+              },
+              "jsonrpc": "2.0"
+            }
+        ''')
+    }
+        
 	@Test
 	def void testBuildCompletionList() {
 		val message = new ResponseMessageBuilder [
