@@ -8,7 +8,6 @@
 package io.typefox.lsapi
 
 import io.typefox.lsapi.annotations.LanguageServerAPI
-import java.util.List
 
 @LanguageServerAPI
 interface InitializeResult {
@@ -17,12 +16,5 @@ interface InitializeResult {
 	 * The capabilities the language server provides.
 	 */
 	def ServerCapabilities getCapabilities()
-	
-	
-	/**
-	 * An optional extension to the protocol, 
-	 * that allows to provide information about the supported languages.
-	 */
-	def List<? extends LanguageDescription> getSupportedLanguages()
-	
+		
 }
