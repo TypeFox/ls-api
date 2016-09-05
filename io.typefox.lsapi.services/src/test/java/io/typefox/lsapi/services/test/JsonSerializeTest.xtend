@@ -383,7 +383,8 @@ class JsonSerializeTest {
 			    },
 			    "options": {
 			      "tabSize": 4,
-			      "insertSpaces": false
+			      "insertSpaces": false,
+			      "properties": {}
 			    }
 			  },
 			  "jsonrpc": "2.0"
