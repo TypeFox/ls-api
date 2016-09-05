@@ -172,6 +172,8 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 					accessorsUtil.addSetter(field, Visibility.PUBLIC)
 					if (nullable !== null) {
 						impl.findDeclaredMethod(accessorsUtil.getSetterName(field), field.type) => [
+						    if (method.findAnnotation(Deprecated.findTypeGlobally) !== null)
+                                addAnnotation(newAnnotationReference(Deprecated))
 							parameters.head?.addAnnotation(newAnnotationReference(Nullable))
 						]
 					}
