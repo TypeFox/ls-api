@@ -9,9 +9,9 @@ oomphIde {
 	repoEclipse '4.6.0'
 	jdt {}
 
-	// add syntax highlighting for gradle scripts
-	repo    'http://www.nodeclipse.org/updates/gradle-ide-pack/'
-	feature 'org.nodeclipse.enide.editors.gradle.feature'
+	// add buildship support
+	repo    'http://download.eclipse.org/buildship/updates/e45/milestones/2.x/'
+	feature 'org.eclipse.buildship'
 
 	// add xtend support
 	repo 'http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/'
