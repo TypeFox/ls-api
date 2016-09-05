@@ -91,6 +91,17 @@ class BuilderTest {
 	}
 	
 	@Test
+    def void testEmptyCompletionList() {
+        new CompletionListBuilder[
+        ].assertBuilds('''
+            CompletionListImpl [
+              incomplete = false
+              items = ArrayList ()
+            ]
+        ''')
+    }
+	
+	@Test
 	def void testDocumentRangeFormattingParams() {
 		new DocumentRangeFormattingParamsBuilder[
 			range[

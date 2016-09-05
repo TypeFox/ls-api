@@ -30,6 +30,8 @@ import org.eclipse.xtend.lib.macro.declaration.Type
 import org.eclipse.xtend.lib.macro.declaration.TypeReference
 import org.eclipse.xtend.lib.macro.declaration.Visibility
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
+import java.util.ArrayList
+import java.util.LinkedHashMap
 
 class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
@@ -150,6 +152,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 				val nullable = method.findAnnotation(Nullable.findTypeGlobally)
 				if (nullable !== null)
 					field.addAnnotation(newAnnotationReference(Nullable))
+			    
 				val accessorsUtil = new AccessorsProcessor.Util(context) {
 					override getGetterName(FieldDeclaration it) {
 						method.simpleName
@@ -311,6 +314,11 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 				field.primarySourceElement = implField.primarySourceElement
 				field.docComment = implField.docComment
 				field.type = fieldType
+				if (fieldType.type == globalListType) {
+				    field.initializer = '''«Lists.newTypeReference».newArrayList()'''
+				} else if (fieldType.type == globalMapType) {
+				    field.initializer = '''«Maps.newTypeReference».newLinkedHashMap()'''
+				}
 			]
 			
 			val methodName = new Wrapper
@@ -327,8 +335,6 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 					paramType.set = contentType.get.getInterfaceType(context) ?: contentType.get
 					method.addParameter(methodName.get, paramType.get)
 					method.body = '''
-						if (this.«implField.simpleName» == null)
-							this.«implField.simpleName» = «Lists.newTypeReference».newArrayList();
 						«IF paramType == contentType»
 							this.«implField.simpleName».add(«methodName.get»);
 						«ELSE»
@@ -354,8 +360,6 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 						paramType.set = contentType.get.getInterfaceType(context) ?: contentType.get
 						method.addParameter(methodName.get, paramType.get)
 						method.body = '''
-							if (this.«implField.simpleName» == null)
-								this.«implField.simpleName» = «Maps.newTypeReference».newLinkedHashMap();
 							«fieldType.actualTypeArguments.get(1)» list = this.«implField.simpleName».get(key);
 							if (list == null) {
 								list = «Lists.newTypeReference».newArrayList();
