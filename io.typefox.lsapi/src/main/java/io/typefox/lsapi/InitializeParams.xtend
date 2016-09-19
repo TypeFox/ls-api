@@ -29,6 +29,12 @@ interface InitializeParams {
 	def String getRootPath()
 	
 	/**
+	 * User provided initialization options.
+	 */
+	@Nullable
+	def Object getInitializationOptions()
+	
+	/**
 	 * The capabilities provided by the client (editor)
 	 */
 	@Nullable
