@@ -39,6 +39,8 @@ def configurePom = { pom ->
 	pom.project {
 		packaging 'jar'
 		url 'https://github.com/TypeFox/ls-api'
+		name = project.name
+		description = project.name + " - is part of LsApi project"
 		licenses {
 			license {
 				name 'Eclipse Public License, Version 1.0'
