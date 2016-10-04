@@ -19,4 +19,8 @@
       <category name="lsapi"/>
    </bundle>
    <category-def name="lsapi" label="lsapi"/>
+   <bundle id="com.google.gson">
+      <category name="deps"/>
+   </bundle>
+   <category-def name="deps" label="dependencies"/>
 </site>
