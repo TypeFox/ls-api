@@ -237,7 +237,7 @@ class LanguageClientEndpoint extends AbstractLanguageEndpoint implements Languag
         }
         
         override documentHighlight(TextDocumentPositionParams position) {
-            connection.getPromise(DOC_HIGHLIGHT, position, DocumentHighlight)
+            connection.getListPromise(DOC_HIGHLIGHT, position, DocumentHighlight)
         }
         
         override documentSymbol(DocumentSymbolParams params) {

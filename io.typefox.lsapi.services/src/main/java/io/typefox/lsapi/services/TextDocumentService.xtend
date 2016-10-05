@@ -78,7 +78,7 @@ interface TextDocumentService {
      * The document highlight request is sent from the client to the server to to resolve a document highlights for a
      * given text document position.
      */
-    def CompletableFuture<DocumentHighlight> documentHighlight(TextDocumentPositionParams position)
+    def CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams position)
     
     /**
      * The document symbol request is sent from the client to the server to list all symbols found in a given text document.
