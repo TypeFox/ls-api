@@ -137,6 +137,7 @@ class LanguageServerToJsonAdapterTest {
 			InitializeParamsImpl [
 			  processId = 123
 			  rootPath = "file:///tmp/"
+			  initializationOptions = null
 			  capabilities = null
 			  clientName = null
 			]
