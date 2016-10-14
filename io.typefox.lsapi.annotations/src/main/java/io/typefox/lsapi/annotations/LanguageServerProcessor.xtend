@@ -30,8 +30,6 @@ import org.eclipse.xtend.lib.macro.declaration.Type
 import org.eclipse.xtend.lib.macro.declaration.TypeReference
 import org.eclipse.xtend.lib.macro.declaration.Visibility
 import org.eclipse.xtext.xbase.lib.util.ToStringBuilder
-import java.util.ArrayList
-import java.util.LinkedHashMap
 
 class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
@@ -157,6 +155,7 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 					override getGetterName(FieldDeclaration it) {
 						method.simpleName
 					}
+					
 				}
 				
 				accessorsUtil.addGetter(field, Visibility.PUBLIC)
@@ -228,6 +227,8 @@ class LanguageServerProcessor extends AbstractInterfaceProcessor {
 	
 	private def getFieldName(MethodDeclaration method) {
 		val name = method.simpleName
+	    if (method.annotations.exists[annotationTypeDeclaration.simpleName == NoPrefix.simpleName])
+	        return name
 		if (name.startsWith('get') && name.length > 3)
 			name.substring(3).toFirstLower
 		else if (name.startsWith('is') && name.length > 2)
