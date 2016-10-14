@@ -191,7 +191,7 @@ class JsonBasedLanguageServerTest {
 		''')
 		future.get(TIMEOUT, TimeUnit.MILLISECONDS).assertResult('''
 			CompletionListImpl [
-			  incomplete = false
+			  isIncomplete = false
 			  items = ArrayList (
 			    CompletionItemImpl [
 			      label = "bar"
@@ -268,7 +268,7 @@ class JsonBasedLanguageServerTest {
 		''')
 		future1.get(TIMEOUT, TimeUnit.MILLISECONDS).assertResult('''
 			CompletionListImpl [
-			  incomplete = false
+			  isIncomplete = false
 			  items = ArrayList (
 			    CompletionItemImpl [
 			      label = "foo"
@@ -286,7 +286,7 @@ class JsonBasedLanguageServerTest {
 		''')
 		future2.get(TIMEOUT, TimeUnit.MILLISECONDS).assertResult('''
 			CompletionListImpl [
-			  incomplete = false
+			  isIncomplete = false
 			  items = ArrayList (
 			    CompletionItemImpl [
 			      label = "bar"
