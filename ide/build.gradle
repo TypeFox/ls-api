@@ -27,9 +27,9 @@ oomphIde {
 	// info).  Putting the ide in a separate build and
 	// explicitly adding the folders is an easy workaround.
 	addProjectFolder('../')
-	addProjectFolder('../io.typefox.lsapi')
-	addProjectFolder('../io.typefox.lsapi.annotations')
-	addProjectFolder('../io.typefox.lsapi.services')
+	addProjectFolder('../org.eclipse.lsp4j')
+	addProjectFolder('../org.eclipse.lsp4j.annotations')
+	addProjectFolder('../org.eclipse.lsp4j.services')
 
 	// setup theming
 	style {

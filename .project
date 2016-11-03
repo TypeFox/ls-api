@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>io.typefox.lsapi.parent</name>
-	<comment>Project io.typefox.lsapi.parent created by Buildship.</comment>
+	<name>lsp4j</name>
+	<comment>Project lsp4j created by Buildship.</comment>
 	<projects>
 	</projects>
 	<buildSpec>

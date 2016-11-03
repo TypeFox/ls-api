@@ -3,14 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
-		<lsapiVersion>0.3.0-SNAPSHOT</lsapiVersion>
+		<lsp4jVersion>0.4.0-SNAPSHOT</lsp4jVersion>
 		<mavenVersion>3.2.5</mavenVersion>
 		<tycho-version>0.25.0</tycho-version>
 	</properties>
 
-	<groupId>io.typefox.lsapi</groupId>
-	<artifactId>io.typefox.lsapi.p2-repository</artifactId>
-	<version>${lsapiVersion}</version>
+	<groupId>org.eclipse.lsp4j</groupId>
+	<artifactId>org.eclipse.lsp4j.p2-repository</artifactId>
+	<version>${lsp4jVersion}</version>
 	<packaging>eclipse-repository</packaging>
 
 	<repositories>
@@ -34,36 +34,36 @@
 			<version>18.0</version>
 		</dependency>
 		<dependency>
-			<groupId>io.typefox.lsapi</groupId>
-			<artifactId>io.typefox.lsapi</artifactId>
-			<version>${lsapiVersion}</version>
+			<groupId>org.eclipse.lsp4j</groupId>
+			<artifactId>org.eclipse.lsp4j</artifactId>
+			<version>${lsp4jVersion}</version>
 		</dependency>
 		<dependency>
-			<groupId>io.typefox.lsapi</groupId>
-			<artifactId>io.typefox.lsapi</artifactId>
-			<version>${lsapiVersion}</version>
+			<groupId>org.eclipse.lsp4j</groupId>
+			<artifactId>org.eclipse.lsp4j</artifactId>
+			<version>${lsp4jVersion}</version>
 			<classifier>sources</classifier>
 		</dependency>
 		<dependency>
-			<groupId>io.typefox.lsapi</groupId>
-			<artifactId>io.typefox.lsapi.annotations</artifactId>
-			<version>${lsapiVersion}</version>
+			<groupId>org.eclipse.lsp4j</groupId>
+			<artifactId>org.eclipse.lsp4j.annotations</artifactId>
+			<version>${lsp4jVersion}</version>
 		</dependency>
 		<dependency>
-			<groupId>io.typefox.lsapi</groupId>
-			<artifactId>io.typefox.lsapi.annotations</artifactId>
-			<version>${lsapiVersion}</version>
+			<groupId>org.eclipse.lsp4j</groupId>
+			<artifactId>org.eclipse.lsp4j.annotations</artifactId>
+			<version>${lsp4jVersion}</version>
 			<classifier>sources</classifier>
 		</dependency>
 		<dependency>
-			<groupId>io.typefox.lsapi</groupId>
-			<artifactId>io.typefox.lsapi.services</artifactId>
-			<version>${lsapiVersion}</version>
+			<groupId>org.eclipse.lsp4j</groupId>
+			<artifactId>org.eclipse.lsp4j.services</artifactId>
+			<version>${lsp4jVersion}</version>
 		</dependency>
 		<dependency>
-			<groupId>io.typefox.lsapi</groupId>
-			<artifactId>io.typefox.lsapi.services</artifactId>
-			<version>${lsapiVersion}</version>
+			<groupId>org.eclipse.lsp4j</groupId>
+			<artifactId>org.eclipse.lsp4j.services</artifactId>
+			<version>${lsp4jVersion}</version>
 			<classifier>sources</classifier>
 		</dependency>
 	</dependencies>
