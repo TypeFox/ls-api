@@ -1,4 +1,0 @@
-rootProject.name = 'io.typefox.lsapi.parent'
-include 'io.typefox.lsapi'
-include 'io.typefox.lsapi.annotations'
-include 'io.typefox.lsapi.services'
